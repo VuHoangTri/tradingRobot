@@ -36,11 +36,18 @@ export async function GetPosition() {
     const buyList: any[] = onlyInLeft(curPosition, data.prePosition, isSameSymbol);
     if (sellList.length > 0)
       sellList.forEach((c) => {
-        c.sellDate = new Date().toLocaleString();
+        const originalDate = new Date();
+        const timeOffSet = originalDate.getTimezoneOffset() / 60;
+        const timeZoneBias = 7 - timeOffSet;
+        c.sellDate = new Date(originalDate.getTime() + timeZoneBias * 60 * 1000).toLocaleString();
       });
     if (buyList.length > 0)
       buyList.forEach((c) => {
-        c.buyDate = new Date().toLocaleString();
+        const originalDate = new Date();
+        const timeOffSet = originalDate.getTimezoneOffset() / 60;
+        const timeZoneBias = 7 - timeOffSet;
+        c.buyDate = new Date(originalDate.getTime() + timeZoneBias * 60 * 1000).toLocaleString();
+
       });
     data.symbols = sellList.map((c) => c.symbol);
     data.sell.push(...sellList);
@@ -49,7 +56,10 @@ export async function GetPosition() {
 
   data.prePosition = curPosition;
   data.prePosition.forEach((c) => {
-    c.createDate = new Date(parseInt(c.createdAtE3)).toLocaleString();
+    const originalDate = new Date(parseInt(c.createdAtE3));
+    const timeOffSet = originalDate.getTimezoneOffset() / 60;
+    const timeZoneBias = 7 - timeOffSet;
+    c.createDate = new Date(originalDate.getTime() + timeZoneBias * 60 * 1000).toLocaleString();
   });
   // Check if the directory exists
   // if (!fs.existsSync('newfile.txt')) {
