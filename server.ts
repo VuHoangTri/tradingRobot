@@ -33,6 +33,16 @@ app.get("/stop", async function (req, res) {
   res.send("Đã dừng");
 });
 
+app.post("/run", async function (req, res) {
+  data.botEnabled = true;
+  res.send("Đã chạy");
+});
+
+app.post("/stop", async function (req, res) {
+  data.botEnabled = false;
+  res.send("Đã dừng");
+});
+
 app.get("/getSymbols", async function (req, res) {
   res.json(data.symbols);
 });
