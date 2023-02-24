@@ -1,12 +1,32 @@
 import fetch from "node-fetch";
 import fs from "fs";
+export interface ApiObject {
+  symbol: string;
+  entryPrice: string;
+  sizeX: string;
+  createdAtE3: string;
+  side: string;
+  leverageE2: string;
+  isIsolated: boolean;
+  transactTimeE3: string;
+  stopLossPrice: string;
+  takeProfitPrice: string;
+  takeProfitOrderId: string;
+  stopLossOrderId: string;
+  orderCostE8: string;
+  reCalcEntryPrice: string;
+  positionEntryPrice: string;
+  buyDate: string;
+  sellDate: string;
+  createDate: string;
+}
 
 interface data {
-  sell: any[];
-  buy: any[];
+  sell: ApiObject[];
+  buy: ApiObject[];
   botEnabled: boolean;
   symbols: any[];
-  prePosition: any[]
+  prePosition: ApiObject[]
 }
 export const data: data = {
   sell: [],
@@ -32,18 +52,22 @@ export async function GetPosition() {
         !right.some((rightValue) => compareFunction(leftValue, rightValue))
     );
   if (data.prePosition !== undefined) {
-    const sellList: any[] = onlyInLeft(data.prePosition, curPosition, isSameSymbol);
-    const buyList: any[] = onlyInLeft(curPosition, data.prePosition, isSameSymbol);
-    if (sellList.length > 0)
+    const sellList: ApiObject[] = onlyInLeft(data.prePosition, curPosition, isSameSymbol);
+    const buyList: ApiObject[] = onlyInLeft(curPosition, data.prePosition, isSameSymbol);
+    if (sellList.length > 0) {
       sellList.forEach((c) => {
         const originalDate = new Date();
         c.sellDate = formatDateString(new Date(originalDate.getTime() + (7 * 3600 * 1000)));
       });
-    if (buyList.length > 0)
+      convertAndSendBot(sellList);
+    }
+    if (buyList.length > 0) {
       buyList.forEach((c) => {
         const originalDate = new Date();
         c.buyDate = formatDateString(new Date(originalDate.getTime() + (7 * 3600 * 1000)));
       });
+      convertAndSendBot(buyList)
+    }
     data.symbols = sellList.map((c) => c.symbol);
     data.sell.push(...sellList);
     data.buy.push(...buyList);
@@ -54,27 +78,6 @@ export async function GetPosition() {
     const originalDate = new Date(parseInt(c.createdAtE3));
     c.createDate = formatDateString(new Date(originalDate.getTime() + (7 * 3600 * 1000)));
   });
-  // Check if the directory exists
-  // if (!fs.existsSync('newfile.txt')) {
-
-  //   // synchronously create a directory
-  //   fs.mkdirSync('newfile.txt');
-
-  // }
-  // else {
-  //   console.log('Đã có');
-  // }
-  // fs.writeFile('./logs/newfile.txt', 'New text file content line!', function (err) {
-
-  //   console.log('A new text file was created successfully.');
-
-  // });
-  // fs.writeFile('./data.txt',
-  //   `Name: ${name}\nOtherData: ${otherData}`
-  //   , () => {
-  //     console.log('Successfully saved');
-  //   })
-  // // console.log(data.prePosition);
 }
 
 export async function main() {
@@ -97,4 +100,50 @@ function formatDateString(dateTime: Date) {
   const hours = dateTime.getHours();
   const minutes = dateTime.getMinutes();
   return `${date}/${month}/${year} ${hours}:${minutes}`
+}
+
+async function sendChatToBot(text: string) {
+  const urlBot = 'https://hooks.slack.com/services/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';
+  const body = {
+    "type": "modal",
+    "title": {
+      "type": "plain_text",
+      "text": "My App",
+      "emoji": true
+    },
+    "blocks": [
+      {
+        "type": "context",
+        "elements": [
+          {
+            "type": "image",
+            "image_url": "https://pbs.twimg.com/profile_images/625633822235693056/lNGUneLX_400x400.jpg",
+            "alt_text": "cute cat"
+          },
+          {
+            "type": "mrkdwn",
+            "text": JSON.stringify(text)
+          }
+        ]
+      }
+    ]
+  };
+  await fetch(urlBot,
+    {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json' }
+    })
+}
+
+function convertAndSendBot(data: ApiObject[]) {
+  for (const item of data) {
+    let dataString = '';
+    dataString = `Symbol:   ${item.symbol}
+    Entry: ${item.entryPrice}
+    Side: ${item.side}
+    Leverage: ${item.leverageE2}`
+    sendChatToBot(dataString);
+  }
+
 }
