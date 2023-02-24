@@ -38,16 +38,15 @@ export async function GetPosition() {
       sellList.forEach((c) => {
         const originalDate = new Date();
         const timeOffSet = originalDate.getTimezoneOffset() / 60;
-        const timeZoneBias = 7 - timeOffSet;
-        c.sellDate = new Date(originalDate.getTime() + timeZoneBias * 60 * 1000).toLocaleString();
+        const timeZoneBias = 0 + timeOffSet;
+        c.sellDate = formatDateString(new Date(originalDate.getTime() + timeZoneBias * 60 * 1000));
       });
     if (buyList.length > 0)
       buyList.forEach((c) => {
         const originalDate = new Date();
         const timeOffSet = originalDate.getTimezoneOffset() / 60;
-        const timeZoneBias = 7 - timeOffSet;
-        c.buyDate = new Date(originalDate.getTime() + timeZoneBias * 60 * 1000).toLocaleString();
-
+        const timeZoneBias = 0 + timeOffSet;
+        c.buyDate = formatDateString(new Date(originalDate.getTime() + timeZoneBias * 60 * 1000));
       });
     data.symbols = sellList.map((c) => c.symbol);
     data.sell.push(...sellList);
@@ -59,7 +58,8 @@ export async function GetPosition() {
     const originalDate = new Date(parseInt(c.createdAtE3));
     const timeOffSet = originalDate.getTimezoneOffset() / 60;
     const timeZoneBias = 0 + timeOffSet;
-    c.createDate = new Date(originalDate.getTime() + timeZoneBias * 60 * 1000).toLocaleString();
+
+    c.createDate = formatDateString(new Date(originalDate.getTime() + timeZoneBias * 60 * 1000));
   });
   // Check if the directory exists
   // if (!fs.existsSync('newfile.txt')) {
@@ -95,4 +95,13 @@ export async function main() {
     console.log(err);
     await main();
   }
+}
+
+function formatDateString(dateTime: Date) {
+  const date = dateTime.getDate();
+  const month = dateTime.getMonth() + 1;
+  const year = dateTime.getFullYear();
+  const hours = dateTime.getHours();
+  const minutes = dateTime.getMinutes();
+  return `${date}/${month}/${year} ${hours}:${minutes}`
 }
