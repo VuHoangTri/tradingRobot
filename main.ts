@@ -58,7 +58,7 @@ export async function GetPosition() {
   data.prePosition.forEach((c) => {
     const originalDate = new Date(parseInt(c.createdAtE3));
     const timeOffSet = originalDate.getTimezoneOffset() / 60;
-    const timeZoneBias = 7 - timeOffSet;
+    const timeZoneBias = 0 + timeOffSet;
     c.createDate = new Date(originalDate.getTime() + timeZoneBias * 60 * 1000).toLocaleString();
   });
   // Check if the directory exists
