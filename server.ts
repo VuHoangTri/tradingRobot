@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 const app = express();
 const port = 3000;
 import { data, main } from "./main";
+import { getAccountByBit } from "./bybit";
 
 app.use(bodyParser.json()); // to support JSON-encoded bodies
 app.use(
@@ -58,6 +59,11 @@ app.get("/getSellList", async function (req, res) {
 app.get("/getBuyList", async function (req, res) {
   res.json(data.buy);
 });
+
+app.get("/accountInfo", async function (req, res) {
+  const response = await getAccountByBit();
+  res.json(response);
+})
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at https://localhost:${port}`);
