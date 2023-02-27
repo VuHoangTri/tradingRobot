@@ -45,9 +45,7 @@ async function updateList(action: string, sellList: ApiObject[]): Promise<ApiObj
   for (const c of sellList) {
     const originalDate = new Date();
     c.symbol = c.symbol?.match(/[A-Z]/g)?.join('');
-    // console.log(c.symbol);
     const markPrice = await getMarkPrice(c.symbol?.toString());
-    // console.log(markPrice, c.symbol);
     if (action === 'sell')
       c.sellDate = formatDateString(new Date(originalDate.getTime() + (7 * 3600 * 1000)));
     else
