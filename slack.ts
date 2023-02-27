@@ -19,6 +19,7 @@ export async function sendChatToBot(text: string) {
                         "alt_text": "cute cat"
                     },
                     {
+                        "type": "plain_text",
                         "text": text
                     }
                 ]
