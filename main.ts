@@ -138,7 +138,7 @@ function convertAndSendBot(action: string, data: ApiObject[]) {
     // dataString = JSON.stringify(dataString).split('"').join("");
     // console.log(dataString);
     sendChatToBot(dataString);
-    break;
+    // break;
   }
 
 }
