@@ -1,6 +1,8 @@
 import fetch from "node-fetch";
 import { getMarkPrice } from './bybit';
+import { sendChatToBot } from "./slack";
 import _ from 'lodash';
+
 export interface ApiObject {
   symbol: string;
   entryPrice: string;
@@ -124,39 +126,6 @@ function formatDateString(dateTime: Date) {
   return `${date}/${month}/${year} ${hours}:${minutes}`
 }
 
-async function sendChatToBot(text: string) {
-  const urlBot = 'https://hooks.slack.com/services/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';
-  const body = {
-    "type": "modal",
-    "title": {
-      "type": "plain_text",
-      "text": "My App",
-      "emoji": true
-    },
-    "blocks": [
-      {
-        "type": "context",
-        "elements": [
-          {
-            "type": "image",
-            "image_url": "https://pbs.twimg.com/profile_images/625633822235693056/lNGUneLX_400x400.jpg",
-            "alt_text": "cute cat"
-          },
-          {
-            "type": "mrkdwn",
-            "text": text
-          }
-        ]
-      }
-    ]
-  };
-  await fetch(urlBot,
-    {
-      method: 'POST',
-      body: JSON.stringify(body),
-      headers: { 'Content-Type': 'application/json' }
-    })
-}
 
 function convertAndSendBot(action: string, data: ApiObject[]) {
   for (const item of data) {
@@ -169,7 +138,7 @@ function convertAndSendBot(action: string, data: ApiObject[]) {
     // dataString = JSON.stringify(dataString).split('"').join("");
     // console.log(dataString);
     sendChatToBot(dataString);
-    // break;
+    break;
   }
 
 }
