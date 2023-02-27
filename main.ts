@@ -4,7 +4,7 @@ import { sendChatToBot } from "./slack";
 import _ from 'lodash';
 
 export interface ApiObject {
-  symbol: string;
+  symbol: string | undefined;
   entryPrice: string;
   sizeX: string;
   createdAtE3: string;
@@ -26,15 +26,15 @@ export interface ApiObject {
 }
 
 interface data {
-  sell: ApiObject[];
-  buy: ApiObject[];
+  close: ApiObject[];
+  open: ApiObject[];
   botEnabled: boolean;
   symbols: any[];
   prePosition: ApiObject[]
 }
 export const data: data = {
-  sell: [],
-  buy: [],
+  close: [],
+  open: [],
   botEnabled: true,
   symbols: [],
   prePosition: []
@@ -44,7 +44,9 @@ async function updateList(action: string, sellList: ApiObject[]): Promise<ApiObj
   const updatedList: ApiObject[] = [];
   for (const c of sellList) {
     const originalDate = new Date();
-    const markPrice = await getMarkPrice(c.symbol);
+    c.symbol = c.symbol?.match(/[A-Z]/g)?.join('');
+    // console.log(c.symbol);
+    const markPrice = await getMarkPrice(c.symbol?.toString());
     // console.log(markPrice, c.symbol);
     if (action === 'sell')
       c.sellDate = formatDateString(new Date(originalDate.getTime() + (7 * 3600 * 1000)));
@@ -80,20 +82,20 @@ export async function getOrderList() {
         !right.some((rightValue) => compareFunction(leftValue, rightValue))
     );
   if (data.prePosition !== undefined) {
-    const sellList: ApiObject[] = getUniqueTrades(data.prePosition, curPosition, isSameTrade);
-    const buyList: ApiObject[] = getUniqueTrades(curPosition, data.prePosition, isSameTrade);
-    if (sellList.length > 0) {
-      const updatedSellList: ApiObject[] = await Promise.all(await updateList('sell', sellList));
-      data.sell.push(...updatedSellList);
-      convertAndSendBot('sell', updatedSellList);
+    const closeList: ApiObject[] = getUniqueTrades(data.prePosition, curPosition, isSameTrade);
+    const openList: ApiObject[] = getUniqueTrades(curPosition, data.prePosition, isSameTrade);
+    if (closeList.length > 0) {
+      const updatedCloseList: ApiObject[] = await Promise.all(await updateList('sell', closeList));
+      data.close.push(...updatedCloseList);
+      convertAndSendBot('close', updatedCloseList);
     }
-    if (buyList.length > 0) {
-      const updatedBuyList: ApiObject[] = await Promise.all(await updateList('buy', buyList));
+    if (openList.length > 0) {
+      const updatedOpenList: ApiObject[] = await Promise.all(await updateList('buy', openList));
       // console.log(updatedBuyList);
-      data.buy.push(...updatedBuyList);
-      convertAndSendBot('buy', updatedBuyList)
+      data.open.push(...updatedOpenList);
+      convertAndSendBot('open', updatedOpenList)
     }
-    data.symbols = sellList.map((c) => c.symbol);
+    data.symbols = closeList.map((c) => c.symbol);
   }
 
   data.prePosition = curPosition;
@@ -130,15 +132,17 @@ function formatDateString(dateTime: Date) {
 function convertAndSendBot(action: string, data: ApiObject[]) {
   for (const item of data) {
     let dataString = '';
-    // dataString = `Symbol:   ${item.symbol}
-    // Entry: ${item.entryPrice}
-    // Side: ${item.side}
-    // Leverage: ${item.leverageE2}`
-    dataString = "Action: " + action + "\nSymbol: " + item.symbol + "\nEntry: : " + item.entryPrice + "\nSide: " + item.side + "\nLeverage: " + item.leverageE2 + "\nMarkPrice: " + item.markPrice;
-    // dataString = JSON.stringify(dataString).split('"').join("");
+    let icon = '';
+    if (item.side === 'Buy') {
+      icon = 'bull';
+    } else {
+      icon = 'bear';
+    }
+    dataString = "Action: " + action + "\nSymbol: " + item.symbol + "\nEntry: " + item.entryPrice + "\nSide: " + item.side + "\nLeverage: " + item.leverageE2 + "\nMarkPrice: " + item.markPrice;
+    // if (item.symbol === 'SOLUSDT') {
     // console.log(dataString);
-    sendChatToBot(dataString);
+    sendChatToBot(icon, dataString);
+    // }   
     // break;
   }
-
 }

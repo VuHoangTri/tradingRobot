@@ -48,7 +48,7 @@ export function getAccountByBit() {
     return res1;
 }
 
-export async function getMarkPrice(symbol: string): Promise<string> {
+export async function getMarkPrice(symbol: string | undefined): Promise<string> {
     const res = await client.getPrivate('/v5/market/tickers?category=inverse&symbol=' + symbol)
         .then(res => { return res.result.list[0].markPrice });
     return res;

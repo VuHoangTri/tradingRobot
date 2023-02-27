@@ -1,28 +1,29 @@
 import fetch from "node-fetch";
 
-export async function sendChatToBot(text: string) {
+export async function sendChatToBot(icon: string, text: string) {
+    // console.log(text);
+    let imageUrl = '';
+    if (icon === 'bull') {
+        imageUrl = 'https://pbs.twimg.com/profile_images/1511962457392050181/Kf0qPySN_400x400.jpg';
+    }
+    else {
+        imageUrl = 'https://logopond.com/logos/9b4155eff794a19dd788f56b42844e78.png';
+    }
     const urlBot = 'https://hooks.slack.com/services/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';
-    const body = {
-        "type": "modal",
-        "title": {
-            "type": "plain_text",
-            "text": "My App",
-            "emoji": true
-        },
+    const body =
+    {
         "blocks": [
             {
-                "type": "context",
-                "elements": [
-                    {
-                        "type": "image",
-                        "image_url": "https://pbs.twimg.com/profile_images/625633822235693056/lNGUneLX_400x400.jpg",
-                        "alt_text": "cute cat"
-                    },
-                    {
-                        "type": "plain_text",
-                        "text": text
-                    }
-                ]
+                "type": "section",
+                "accessory": {
+                    "type": "image",
+                    "image_url": imageUrl,
+                    "alt_text": icon
+                },
+                "text": {
+                    "type": "mrkdwn",
+                    "text": text
+                }
             }
         ]
     };

@@ -52,12 +52,12 @@ app.get("/getData", async function (req, res) {
   res.json(data.prePosition);
 });
 
-app.get("/getSellList", async function (req, res) {
-  res.json(data.sell);
+app.get("/getClosedList", async function (req, res) {
+  res.json(data.close);
 });
 
-app.get("/getBuyList", async function (req, res) {
-  res.json(data.buy);
+app.get("/getOpenedList", async function (req, res) {
+  res.json(data.open);
 });
 
 app.get("/accountInfo", async function (req, res) {
