@@ -4,7 +4,7 @@ import bodyParser from "body-parser";
 const app = express();
 const port = 3000;
 import { data, main } from "./main";
-import { getAccountByBit } from "./bybit";
+import { getAccountByBit, getWalletBalance } from "./bybit";
 
 app.use(bodyParser.json()); // to support JSON-encoded bodies
 app.use(
@@ -20,18 +20,6 @@ app.get("/", (req: Request, res: Response) => {
   res.json({
     status: 'runring'
   });
-});
-
-
-
-app.get("/run", async function (req, res) {
-  data.botEnabled = true;
-  res.send("Đã chạy");
-});
-
-app.get("/stop", async function (req, res) {
-  data.botEnabled = false;
-  res.send("Đã dừng");
 });
 
 app.post("/run", async function (req, res) {
@@ -59,6 +47,11 @@ app.get("/getClosedList", async function (req, res) {
 app.get("/getOpenedList", async function (req, res) {
   res.json(data.open);
 });
+
+app.get("/getWallet", async function (req, res) {
+  const response = await getWalletBalance();
+  res.json(response);
+})
 
 app.get("/accountInfo", async function (req, res) {
   const response = await getAccountByBit();
