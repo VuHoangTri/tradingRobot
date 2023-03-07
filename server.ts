@@ -32,6 +32,11 @@ app.post("/stop", async function (req, res) {
   res.send("Đã dừng");
 });
 
+app.get("/stop", async function (req, res) {
+  data.botEnabled = false;
+  res.send("Đã dừng");
+});
+
 app.get("/getSymbols", async function (req, res) {
   res.json(data.symbols);
 });
@@ -40,23 +45,23 @@ app.get("/getData", async function (req, res) {
   res.json(data.prePosition);
 });
 
-app.get("/getClosedList", async function (req, res) {
-  res.json(data.close);
-});
+// app.get("/getClosedList", async function (req, res) {
+//   res.json(data.close);
+// });
 
-app.get("/getOpenedList", async function (req, res) {
-  res.json(data.open);
-});
+// app.get("/getOpenedList", async function (req, res) {
+//   res.json(data.open);
+// });
 
-app.get("/getWallet", async function (req, res) {
-  const response = await getWalletBalance();
-  res.json(response);
-})
+// app.get("/getWallet", async function (req, res) {
+//   const response = await getWalletBalance(client);
+//   res.json(response);
+// })
 
-app.get("/accountInfo", async function (req, res) {
-  const response = await getAccountByBit();
-  res.json(response);
-})
+// app.get("/accountInfo", async function (req, res) {
+//   const response = await getAccountByBit();
+//   res.json(response);
+// })
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at https://localhost:${port}`);

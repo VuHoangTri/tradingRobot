@@ -1,26 +1,52 @@
 import fetch from "node-fetch";
-import { createBatchOrder, createOrder, getAccountByBit, getMarkPrice, getMyPositions, getWalletBalance, setLeverage } from './bybit';
-import { sendChatToBot } from "./slack";
-import { ApiObject, Order, Position, Data, BatchOrders, Leverage } from "./interface";
+import { Position, Data, Account } from "./interface";
 import _ from 'lodash';
 
 export const data: Data = {
-  close: [],
-  open: [],
+  // close: [],
+  // open: [],
   botEnabled: true,
   symbols: [],
-  prePosition: []
+  prePosition: [],
 }
+export const firstGet: boolean[] = [];
+export const firstCompare: boolean[] = [];
+
 import { INTERVAL } from "./constant"
-import { comparePosition, convertByBitFormat, convertToOrder } from "./action";
+import { UnifiedMarginClient } from "bybit-api";
+import { comparePosition, convertByBitFormat } from "./action";
+
+
+const account: Account[] = [
+  {
+    key: 'GJJ2ZtB6THPcj5a955',
+    secret: 'gxxu2TViRHDqCnbyX85EpGxxBXEOms8nLZfY',
+    testnet: true,
+  },
+  {
+    key: 'HFYBKZSZZBDZJPTOEI',
+    secret: 'JYRAEITQDHCXAAROKDITFJEGYZXLEPZBVJXC',
+    testnet: true,
+  },
+  {
+    key: 'UPLVZFMENNYTYWDDKS',
+    secret: 'ZNOBJYKWFMFIYEIICVBHOCBZXVKVACKNQWHB',
+    testnet: true,
+  }
+]
+const client: UnifiedMarginClient[] = [];
+for (const acc of account) {
+  const newClient = new UnifiedMarginClient(acc);
+  client.push(newClient);
+}
 
 export async function main() {
   try {
     if (data.botEnabled) {
       await getCopyList();
     }
-    await new Promise((r) => setTimeout(r, INTERVAL));
     await main();
+    await new Promise((r) => setTimeout(r, INTERVAL));
   } catch (err) {
     console.log(err);
     await new Promise((r) => setTimeout(r, INTERVAL));
@@ -28,18 +54,39 @@ export async function main() {
   }
 }
 
+export const copyTrader: string[] = [
+  "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=dzzffk%2B%2FqGvNboYCRvY38Q%3D%3D",
+  // "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=4pjjfgTlpIeWNdTARJUWsQ%3D%3D",
+  "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=saPU8WuUYBXXebYMgbRDRw%3D%3D",
+  // "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=O5k95MOucrVPCGiLNW3Xaw%3D%3D",
+  "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=ezDycLoNFTp3Exq0IQhD1g%3D%3D"
+]
+
+for (let i = 0; i < copyTrader.length; i++) {
+  data.prePosition.push([])
+}
+for (let i = 0; i < copyTrader.length; i++) {
+  firstGet.push(true);
+}
+for (let i = 0; i < copyTrader.length; i++) {
+  firstCompare.push(true);
+}
 
 export async function getCopyList() {
-  const rs = await fetch(
-    "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=3naZZ7hWD7cBntjPDMVwKQ%3D%3D"
-    // "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=iHPrkzK2zSwirdW3XpjOsg%3D%3D"
-  );
-  const response: any = await rs.json();
-  if (response.retMsg === 'success' && response.retCode === 0) {
-    const curPosition: Position[] = convertByBitFormat(response.result.data);
-    comparePosition(curPosition);
+  const listCopyPos: any = [];
+  for (const trader of copyTrader) {
+    listCopyPos.push(await fetch(trader));
   }
-
+  for (let i = 0; i < listCopyPos.length; i++) {
+    // console.log(i, listCopyPos[i]);
+    const list = listCopyPos[i];
+    const response: any = await list.json();
+    if (response.retMsg === 'success' && response.retCode === 0) {
+      const curPosition: Position[] = await convertByBitFormat(response.result.data);
+      // console.log(i, curPosition);
+      await comparePosition(i, client[i], curPosition);
+    }
+  }
 }
 
 // const isSameTrade = (a: ApiObject, b: ApiObject) =>

@@ -4,21 +4,7 @@ import {
 import { BatchOrders, Leverage, Order } from './interface';
 
 
-// const API_KEY = 'SOXLVHCJHFOTNOEUTJ';
-const API_KEY = 'GJJ2ZtB6THPcj5a955'; // testnet 
-// const API_SECRET = 'ECQKGOHRMDYBJSXCMUMXRZRUAIWCNFTIUYNZ';
-const API_SECRET = 'gxxu2TViRHDqCnbyX85EpGxxBXEOms8nLZfY'; // testnet 
-const useTestnet = true;
-
-const client = new UnifiedMarginClient({
-    key: API_KEY,
-    secret: API_SECRET,
-    testnet: useTestnet
-},
-    // requestLibraryOptions
-);
-
-export function getAccountByBit() {
+export function getAccountByBit(client: UnifiedMarginClient) {
     const info = client.getPrivate('/unified/v3/private/account/info')
         .then(result => {
             console.log("getAccountInfo result: ", result);
@@ -30,29 +16,29 @@ export function getAccountByBit() {
     return info;
 }
 
-export async function getMarkPrice(symbol: string | undefined): Promise<string> {
+export async function getMarkPrice(client: UnifiedMarginClient, symbol: string | undefined): Promise<string> {
     const res = await client.getPrivate('/v5/market/tickers?category=inverse&symbol=' + symbol)
         .then(res => { return res.result.list[0].markPrice });
     return res;
 }
 
-export async function getWalletBalance() {
+export async function getWalletBalance(client: UnifiedMarginClient) {
     const res = client.getPrivate('/unified/v3/private/account/wallet/balance')
         .then(res => { return res });
     return res
 }
 
-export async function getMyPositions() {
-    const res = await client.getPositions({ category: 'linear' })
-        // const res = await client.getPrivate('/v2/private/position/list')
+export async function getMyPositions(client: UnifiedMarginClient) {
+    // const res = await client.getPositions({ category: 'linear' })
+    const res = await client.getPrivate('/unified/v3/private/position/list', { category: 'linear' })
         .then(res => {
             // console.log(res.result.list);
-            return res.result.list
+            return res
         });
     return res;
 }
 
-export async function createBatchOrder(batchOrders: BatchOrders) {
+export async function createBatchOrders(client: UnifiedMarginClient, batchOrders: BatchOrders) {
     try {
         const result = await client.postPrivate('/unified/v3/private/order/create-batch', batchOrders)
             .then(res => { return res });
@@ -63,7 +49,7 @@ export async function createBatchOrder(batchOrders: BatchOrders) {
     }
 }
 
-export async function createOrder(order: Order) {
+export async function createOrder(client: UnifiedMarginClient, order: Order) {
     try {
         const result = await client.postPrivate('/unified/v3/private/order/create', order)
             .then(res => { return res });
@@ -74,7 +60,7 @@ export async function createOrder(order: Order) {
     }
 }
 
-export async function setLeverage(leverage: Leverage) {
+export async function setLeverage(client: UnifiedMarginClient, leverage: Leverage) {
     try {
         const result = await client.postPrivate('unified/v3/private/position/set-leverage', leverage)
             .then(res => { return res });

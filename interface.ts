@@ -43,11 +43,11 @@ export interface BatchOrders {
 }
 
 export interface Data {
-    close: ApiObject[];
-    open: ApiObject[];
+    // close: ApiObject[];
+    // open: ApiObject[];
     botEnabled: boolean;
     symbols: any[];
-    prePosition: Position[]
+    prePosition: Position[][]
 }
 
 export interface Leverage {
@@ -55,4 +55,10 @@ export interface Leverage {
     symbol: string;
     buyLeverage: string;
     sellLeverage: string;
+}
+
+export interface Account {
+    key: string;
+    secret: string;
+    testnet: boolean;
 }
