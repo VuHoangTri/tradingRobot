@@ -31,10 +31,12 @@ export interface Position {
 export interface Order {
     symbol: string;
     category?: 'linear' | 'option';
+    entryPrice?: string;
     side: 'Buy' | 'Sell';
     orderType: 'Market' | 'Limit';
     qty: string;
     timeInForce: 'GoodTillCancel' | 'ImmediateOrCancel' | 'FillOrKill' | 'PostOnly';
+    leverage?: string;
 }
 
 export interface BatchOrders {

@@ -45,16 +45,23 @@ export async function adjustLeverage(client: UnifiedMarginClient, positions: Pos
         await setLeverage(client, leverage);
     }
 }
-export async function openBatchOrders(client: UnifiedMarginClient, batchOrders: BatchOrders) {
+export async function openBatchOrders(clientNumber: number, client: UnifiedMarginClient,
+    batchOrders: BatchOrders, pos: Position[]) {
+    if (batchOrders.request.length !== 0) {
+        const resCreate = await createBatchOrders(client, batchOrders);
+        // const order = _.cloneDeep(pos);
 
-    const resCreate = await createBatchOrders(client, batchOrders);
-    // const order = _.cloneDeep(pos);
-    // order.entryPrice = await getMarkPrice(client, pos.symbol);
-    if (resCreate.retCode === 0 || resCreate.result.orderId !== '') {
-        // console.log(resCreate.result.list);
-        // convertAndSendBot(pos.side, order)
+        if (resCreate.retCode === 0 || resCreate.result.orderId !== '') {
+            // console.log(batchOrders);
+            // console.log(resCreate.result.list);
+            for (let i = 0; i < batchOrders.request.length; i++) {
+                const order = batchOrders.request[i];
+                order.entryPrice = await getMarkPrice(client, order.symbol);
+                order.leverage = pos[i].leverage;
+                convertAndSendBot(order.side, order, clientNumber)
+            }
+        }
     }
-
 }
 
 export async function comparePosition(clientNumber: number, client: UnifiedMarginClient, curPos: Position[]): Promise<void> {
@@ -87,7 +94,7 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
                 // console.log('1', clientNumber);
                 const batchOpenPos: BatchOrders = { category: "linear", request: [] };
                 curPos.forEach(pos => { batchOpenPos.request.push(convertToOrder(pos, isBatch)) });
-                await openBatchOrders(client, batchOpenPos);
+                await openBatchOrders(clientNumber, client, batchOpenPos, curPos);
                 data.prePosition[clientNumber] = curPos;
             }
         }
@@ -122,18 +129,20 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
                 batchClosePos.request.push(convertToOrder(pos, isBatch));
             });
 
-            await openBatchOrders(client, batchClosePos);
+            await openBatchOrders(clientNumber, client, batchClosePos, closePos);
         }
         if (openPos.length > 0) {
             // console.log('open', clientNumber, openPos);
             const batchOpenPos: BatchOrders = { category: "linear", request: [] };
             openPos.forEach(pos => { batchOpenPos.request.push(convertToOrder(pos, isBatch)) });
-            await openBatchOrders(client, batchOpenPos);
+            await openBatchOrders(clientNumber, client, batchOpenPos, openPos);
         }
         if (samePos.length === curPos.length && samePos.length > 0 && curPos.length > 0) {
             // console.log('same', clientNumber, samePos);
             const batchChangePos: BatchOrders = compareSize(clientNumber, samePos, curPos);
-            await openBatchOrders(client, batchChangePos);
+            if (batchChangePos.request.length > 0) {
+                await openBatchOrders(clientNumber, client, batchChangePos, samePos);
+            }
         }
         data.prePosition[clientNumber] = curPos;
     }
@@ -168,7 +177,7 @@ function compareSize(clientNumber: number, samePos: Position[], curPos: Position
     return batchChangePos;
 }
 
-function convertAndSendBot(action: string, order) {
+function convertAndSendBot(action: string, order, clientNumber: number) {
     // for (const item of data) {
     let dataString = '';
     let icon = '';
@@ -179,8 +188,9 @@ function convertAndSendBot(action: string, order) {
     }
     dataString = "Action: " + action + "\nSymbol: " + order.symbol
         + "\nEntry: " + order.entryPrice + "\nSide: " + order.side + "\nLeverage: "
-        + order.leverage + "\nSize: " + (parseInt(order.size) / SIZEBYBIT).toString();
-    sendChatToBot(icon, dataString);
+        + order.leverage + "\nSize: " + order.qty;
+    //(parseInt(order.size) / SIZEBYBIT).toString();
+    sendChatToBot(icon, dataString, clientNumber);
     // }   
     // break;
     // }
