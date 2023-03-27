@@ -36,9 +36,25 @@ app.post("/getPosMain", async function (req, res) {
   const response = await getMyPositions(client[0]);
   res.send(response.result.list);
 })
-
 app.get("/getPosMain", async function (req, res) {
   const response = await getMyPositions(client[0]);
+  res.send(response.result.list);
+})
+
+app.post("/getPosSub1", async function (req, res) {
+  const response = await getMyPositions(client[1]);
+  res.send(response.result.list);
+})
+app.get("/getPosSub1", async function (req, res) {
+  const response = await getMyPositions(client[1]);
+  res.send(response.result.list);
+})
+app.post("/getPosSub2", async function (req, res) {
+  const response = await getMyPositions(client[2]);
+  res.send(response.result.list);
+})
+app.get("/getPosSub2", async function (req, res) {
+  const response = await getMyPositions(client[2]);
   res.send(response.result.list);
 })
 
