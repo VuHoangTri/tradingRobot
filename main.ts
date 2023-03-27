@@ -34,7 +34,7 @@ const account: Account[] = [
     testnet: true,
   }
 ]
-const client: UnifiedMarginClient[] = [];
+export const client: UnifiedMarginClient[] = [];
 for (const acc of account) {
   const newClient = new UnifiedMarginClient(acc);
   client.push(newClient);

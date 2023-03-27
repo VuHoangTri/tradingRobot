@@ -19,12 +19,13 @@ export async function convertByBitFormat(position: ApiObject[]) {
     return res;
 }
 
-export function convertToOrder(pos: Position, isBatch: boolean) {
+export async function convertToOrder(client: UnifiedMarginClient, pos: Position, isBatch: boolean) {
     const res: Order = {
         symbol: pos.symbol,
         orderType: 'Limit',
         qty: (parseInt(pos.size) / SIZEBYBIT).toString(),
         side: pos.side,
+        price: await getMarkPrice(client, pos.symbol),
         timeInForce: 'GoodTillCancel',
     };
     if (!isBatch) {
@@ -50,13 +51,12 @@ export async function openBatchOrders(clientNumber: number, client: UnifiedMargi
     if (batchOrders.request.length !== 0) {
         const resCreate = await createBatchOrders(client, batchOrders);
         // const order = _.cloneDeep(pos);
-
+        console.log(resCreate)
         if (resCreate.retCode === 0 || resCreate.result.orderId !== '') {
             // console.log(batchOrders);
             // console.log(resCreate.result.list);
             for (let i = 0; i < batchOrders.request.length; i++) {
                 const order = batchOrders.request[i];
-                order.entryPrice = await getMarkPrice(client, order.symbol);
                 order.leverage = pos[i].leverage;
                 convertAndSendBot(order.side, order, clientNumber)
             }
@@ -93,7 +93,8 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
             else {
                 // console.log('1', clientNumber);
                 const batchOpenPos: BatchOrders = { category: "linear", request: [] };
-                curPos.forEach(pos => { batchOpenPos.request.push(convertToOrder(pos, isBatch)) });
+                curPos.forEach(async pos => { batchOpenPos.request.push(await convertToOrder(client, pos, isBatch)) });
+                await adjustLeverage(client, curPos);
                 await openBatchOrders(clientNumber, client, batchOpenPos, curPos);
                 data.prePosition[clientNumber] = curPos;
             }
@@ -120,26 +121,27 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
         if (closePos.length > 0) {
             // console.log('close', clientNumber, closePos);
             const batchClosePos: BatchOrders = { category: "linear", request: [] };
-            closePos.forEach(pos => {
+            closePos.forEach(async pos => {
                 if (pos.side === 'Buy') { pos.side = 'Sell'; }
                 else {
                     pos.side = 'Buy';
                     pos.size = (parseInt(pos.size) * -1).toString();
                 }
-                batchClosePos.request.push(convertToOrder(pos, isBatch));
+                batchClosePos.request.push(await convertToOrder(client, pos, isBatch));
             });
-
+            await adjustLeverage(client, closePos);
             await openBatchOrders(clientNumber, client, batchClosePos, closePos);
         }
         if (openPos.length > 0) {
             // console.log('open', clientNumber, openPos);
             const batchOpenPos: BatchOrders = { category: "linear", request: [] };
-            openPos.forEach(pos => { batchOpenPos.request.push(convertToOrder(pos, isBatch)) });
+            openPos.forEach(async pos => { batchOpenPos.request.push(await convertToOrder(client, pos, isBatch)) });
+            await adjustLeverage(client, openPos);
             await openBatchOrders(clientNumber, client, batchOpenPos, openPos);
         }
         if (samePos.length === curPos.length && samePos.length > 0 && curPos.length > 0) {
             // console.log('same', clientNumber, samePos);
-            const batchChangePos: BatchOrders = compareSize(clientNumber, samePos, curPos);
+            const batchChangePos: BatchOrders = await compareSize(client, clientNumber, samePos, curPos);
             if (batchChangePos.request.length > 0) {
                 await openBatchOrders(clientNumber, client, batchChangePos, samePos);
             }
@@ -148,7 +150,7 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
     }
 }
 
-function compareSize(clientNumber: number, samePos: Position[], curPos: Position[]) {
+async function compareSize(client: UnifiedMarginClient, clientNumber: number, samePos: Position[], curPos: Position[]) {
     const isBatch = true;
     const batchChangePos: BatchOrders = { category: "linear", request: [] };
     // console.log(samePos, curPos);
@@ -166,10 +168,10 @@ function compareSize(clientNumber: number, samePos: Position[], curPos: Position
             }
             if (posSize < matchPosSize) {
                 newPos.side = pos.side === 'Sell' ? 'Buy' : 'Sell';
-                batchChangePos.request.push(convertToOrder(newPos, isBatch));
+                batchChangePos.request.push(await convertToOrder(client, newPos, isBatch));
             } else if (posSize > matchPosSize) {
                 newPos.side = pos.side === 'Sell' ? 'Sell' : 'Buy';
-                batchChangePos.request.push(convertToOrder(newPos, isBatch));
+                batchChangePos.request.push(await convertToOrder(client, newPos, isBatch));
             }
         }
     }
@@ -187,7 +189,7 @@ function convertAndSendBot(action: string, order, clientNumber: number) {
         icon = 'bear';
     }
     dataString = "Action: " + action + "\nSymbol: " + order.symbol
-        + "\nEntry: " + order.entryPrice + "\nSide: " + order.side + "\nLeverage: "
+        + "\nEntry: " + order.price + "\nSide: " + order.side + "\nLeverage: "
         + order.leverage + "\nSize: " + order.qty;
     //(parseInt(order.size) / SIZEBYBIT).toString();
     sendChatToBot(icon, dataString, clientNumber);

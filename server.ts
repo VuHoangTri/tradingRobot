@@ -3,8 +3,8 @@ import bodyParser from "body-parser";
 
 const app = express();
 const port = 3000;
-import { data, main } from "./main";
-import { getAccountByBit, getWalletBalance } from "./bybit";
+import { client, data, main } from "./main";
+import { getAccountByBit, getMyPositions, getWalletBalance } from "./bybit";
 
 app.use(bodyParser.json()); // to support JSON-encoded bodies
 app.use(
@@ -31,6 +31,16 @@ app.post("/stop", async function (req, res) {
   data.botEnabled = false;
   res.send("Đã dừng");
 });
+
+app.post("/getPosMain", async function (req, res) {
+  const response = await getMyPositions(client[0]);
+  res.send(response.result.list);
+})
+
+app.get("/getPosMain", async function (req, res) {
+  const response = await getMyPositions(client[0]);
+  res.send(response.result.list);
+})
 
 app.get("/stop", async function (req, res) {
   data.botEnabled = false;

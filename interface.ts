@@ -31,7 +31,7 @@ export interface Position {
 export interface Order {
     symbol: string;
     category?: 'linear' | 'option';
-    entryPrice?: string;
+    price?: string;
     side: 'Buy' | 'Sell';
     orderType: 'Market' | 'Limit';
     qty: string;
