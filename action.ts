@@ -22,7 +22,7 @@ export async function convertByBitFormat(position: ApiObject[]) {
 export function convertToOrder(pos: Position, isBatch: boolean) {
     const res: Order = {
         symbol: pos.symbol,
-        orderType: 'Market',
+        orderType: 'Limit',
         qty: (parseInt(pos.size) / SIZEBYBIT).toString(),
         side: pos.side,
         timeInForce: 'GoodTillCancel',
