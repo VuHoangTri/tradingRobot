@@ -51,7 +51,7 @@ export async function openBatchOrders(clientNumber: number, client: UnifiedMargi
     if (batchOrders.request.length !== 0) {
         const resCreate = await createBatchOrders(client, batchOrders);
         // const order = _.cloneDeep(pos);
-        console.log(resCreate)
+        // console.log(resCreate)
         if (resCreate.retCode === 0 || resCreate.result.orderId !== '') {
             // console.log(batchOrders);
             // console.log(resCreate.result.list);
@@ -164,7 +164,8 @@ async function compareSize(client: UnifiedMarginClient, clientNumber: number, sa
                 symbol: pos.symbol,
                 side: pos.side,
                 leverage: pos.leverage,
-                size: Math.abs(posSize - matchPosSize).toString(),
+                size: parseInt((posSize - matchPosSize).toString()) < 0 ?
+                    (parseInt((posSize - matchPosSize).toString()) * -1).toString() : parseInt((posSize - matchPosSize).toString()).toString(),
             }
             if (posSize < matchPosSize) {
                 newPos.side = pos.side === 'Sell' ? 'Buy' : 'Sell';
