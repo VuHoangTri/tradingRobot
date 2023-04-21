@@ -82,7 +82,7 @@ export async function openBatchOrders(clientNumber: number, client: UnifiedMargi
             for (let i = 0; i < batchOrders.request.length; i++) {
                 const order = batchOrders.request[i];
                 order.leverage = pos[i].leverage;
-                // convertAndSendBot(order.side, order, clientNumber)
+                convertAndSendBot(order.side, order, clientNumber)
             }
         }
     }
