@@ -38,9 +38,9 @@ export async function convertToOrder(client: UnifiedMarginClient, pos: Position,
     // console.log(price);
     let newPrice = '';
     if (pos.side === 'Buy') {
-        newPrice = ((parseFloat(price) * 1.01)).toFixed(1).toString()
+        newPrice = ((parseFloat(price) * 1.01)).toFixed(3).toString()
     } else {
-        newPrice = (parseFloat(price) * 0.99).toFixed(1).toString()
+        newPrice = (parseFloat(price) * 0.99).toFixed(3).toString()
     }
     const res: Order = {
         symbol: pos.symbol,
