@@ -2,6 +2,7 @@ import {
     UnifiedMarginClient,
 } from 'bybit-api';
 import { BatchOrders, Leverage, Order } from './interface';
+import { CallTracker } from 'assert';
 
 
 export function getAccountByBit(client: UnifiedMarginClient) {
@@ -17,9 +18,14 @@ export function getAccountByBit(client: UnifiedMarginClient) {
 }
 
 export async function getMarkPrice(client: UnifiedMarginClient, symbol: string | undefined): Promise<string> {
-    const res = await client.getPrivate('/v5/market/tickers?category=inverse&symbol=' + symbol)
-        .then(res => { return res.result.list[0].markPrice });
-    return res;
+    try {
+        const res = await client.getPrivate('/v5/market/tickers?category=inverse&symbol=' + symbol)
+            .then(res => { return res.result.list[0].markPrice });
+        return res;
+    }
+    catch{
+        return "error"
+    }
 }
 
 export async function getWalletBalance(client: UnifiedMarginClient) {

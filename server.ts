@@ -3,7 +3,7 @@ import bodyParser from "body-parser";
 
 const app = express();
 const port = 3000;
-import { client, copyTrader, data, main } from "./main";
+import { client, bybitTrader, data, main } from "./main";
 import { getAccountByBit, getMyPositions, getWalletBalance } from "./bybit";
 
 app.use(bodyParser.json()); // to support JSON-encoded bodies
@@ -44,7 +44,7 @@ app.get("/getPosMain", async function (req, res) {
 app.get("/getPosCopy", async function (req, res) {
   const listCopyPos: any = [];
   const resPos: any = [];
-  for (const trader of copyTrader) {
+  for (const trader of bybitTrader) {
     listCopyPos.push(await fetch(trader));
   }
   for (const list of listCopyPos) {

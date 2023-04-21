@@ -14,7 +14,7 @@ export const firstCompare: boolean[] = [];
 
 import { INTERVAL } from "./constant"
 import { UnifiedMarginClient } from "bybit-api";
-import { comparePosition, convertByBitFormat } from "./action";
+import { comparePosition, convertBinanceFormat, convertByBitFormat } from "./action";
 
 
 const account: Account[] = [
@@ -45,8 +45,9 @@ export async function main() {
     if (data.botEnabled) {
       await getCopyList();
     }
-    await main();
+    // await main();
     await new Promise((r) => setTimeout(r, INTERVAL));
+    await main();
   } catch (err) {
     console.log(err);
     await new Promise((r) => setTimeout(r, INTERVAL));
@@ -54,39 +55,58 @@ export async function main() {
   }
 }
 
-export const copyTrader: string[] = [
+export const bybitTrader: string[] = [
   "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=dzzffk%2B%2FqGvNboYCRvY38Q%3D%3D", // remove
   // "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=4pjjfgTlpIeWNdTARJUWsQ%3D%3D",
   "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=saPU8WuUYBXXebYMgbRDRw%3D%3D",
   // "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=O5k95MOucrVPCGiLNW3Xaw%3D%3D",
   "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=ezDycLoNFTp3Exq0IQhD1g%3D%3D"
 ]
-
-for (let i = 0; i < copyTrader.length; i++) {
+export const binanceTrader: string[] = [
+  "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/8900",
+  "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/6260"
+]
+for (let i = 0; i < binanceTrader.length; i++) {
   data.prePosition.push([])
 }
-for (let i = 0; i < copyTrader.length; i++) {
+for (let i = 0; i < binanceTrader.length; i++) {
   firstGet.push(true);
 }
-for (let i = 0; i < copyTrader.length; i++) {
+for (let i = 0; i < binanceTrader.length; i++) {
   firstCompare.push(true);
 }
 
 export async function getCopyList() {
-  const listCopyPos: any = [];
-  for (const trader of copyTrader) {
-    listCopyPos.push(await fetch(trader));
+  // const listCopyPos: any = [];
+  // for (const trader of bybitTrader) {
+  //   listCopyPos.push(await fetch(trader));
+  // }
+  // for (let i = 0; i < listCopyPos.length; i++) {
+  //   // console.log(i, listCopyPos[i]);
+  //   const list = listCopyPos[i];
+  //   const response: any = await list.json();
+  //   if (response.retMsg === 'success' && response.retCode === 0) {
+  //     const curPosition: Position[] = await convertByBitFormat(response.result.data);
+  //     // console.log(i, curPosition);
+  //     await comparePosition(i, client[i], curPosition);
+  //   }
+  // }
+  const binanceCopyPos: any = [];
+  for (const trader of binanceTrader) {
+    binanceCopyPos.push(await fetch(trader));
   }
-  for (let i = 0; i < listCopyPos.length; i++) {
+  for (let i = 0; i < binanceCopyPos.length; i++) {
     // console.log(i, listCopyPos[i]);
-    const list = listCopyPos[i];
+    const list = binanceCopyPos[i];
     const response: any = await list.json();
-    if (response.retMsg === 'success' && response.retCode === 0) {
-      const curPosition: Position[] = await convertByBitFormat(response.result.data);
+    // console.log(response);
+    if (response.success === true && response.code === "000000") {
+      const curPosition: Position[] = await convertBinanceFormat(response.data);
       // console.log(i, curPosition);
       await comparePosition(i, client[i], curPosition);
     }
   }
+  // console.log(1);
 }
 
 // const isSameTrade = (a: ApiObject, b: ApiObject) =>
