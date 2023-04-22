@@ -1,4 +1,5 @@
 import fetch from "node-fetch";
+import { RequestInit } from "node-fetch";
 import { Position, Data, Account } from "./interface";
 import _ from 'lodash';
 
@@ -12,9 +13,9 @@ export const data: Data = {
 export const firstGet: boolean[] = [];
 export const firstCompare: boolean[] = [];
 
-import { INTERVAL } from "./constant"
+import { INTERVAL, BINANCEURL } from "./constant"
 import { UnifiedMarginClient } from "bybit-api";
-import { comparePosition, convertBinanceFormat, convertByBitFormat } from "./action";
+import { comparePosition, convertBinanceFormat, convertWagonFormat, convertByBitFormat } from "./action";
 
 
 const account: Account[] = [
@@ -62,21 +63,32 @@ export const bybitTrader: string[] = [
   // "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=O5k95MOucrVPCGiLNW3Xaw%3D%3D",
   "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=ezDycLoNFTp3Exq0IQhD1g%3D%3D"
 ]
-export const binanceTrader: string[] = [
-  "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/8900",
+export const wagonTrader: string[] = [
+  "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/4854",
   "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/6260"
 ]
-for (let i = 0; i < binanceTrader.length; i++) {
+export const binanceTrader: { encryptedUid: string; tradeType: string }[] = [
+  {
+    "encryptedUid": "8FE17CCE0A3EA996ED7D8B538419C826",
+    "tradeType": "PERPETUAL"
+  }
+]
+// 227087068C057B808A83125C8E586BB8 "6408AAEEEBF0C76A3D5F0E39C64AAABA" "8FE17CCE0A3EA996ED7D8B538419C826" "EF6C3AABCBE82294A607E8C94633F082"
+
+// export const copyTrader: string[] =
+//   [...wagonTrader, ...binanceTrader]
+for (let i = 0; i < wagonTrader.length + binanceTrader.length; i++) {
   data.prePosition.push([])
 }
-for (let i = 0; i < binanceTrader.length; i++) {
+for (let i = 0; i < wagonTrader.length + binanceTrader.length; i++) {
   firstGet.push(true);
 }
-for (let i = 0; i < binanceTrader.length; i++) {
+for (let i = 0; i < wagonTrader.length + binanceTrader.length; i++) {
   firstCompare.push(true);
 }
 
 export async function getCopyList() {
+  const curPosition: Position[][] = [];
   // const listCopyPos: any = [];
   // for (const trader of bybitTrader) {
   //   listCopyPos.push(await fetch(trader));
@@ -91,77 +103,44 @@ export async function getCopyList() {
   //     await comparePosition(i, client[i], curPosition);
   //   }
   // }
+  let count = 0;
+  const wagonCopyPos: any = [];
+  for (const trader of wagonTrader) {
+    wagonCopyPos.push(await fetch(trader));
+  }
+  for (let i = 0; i < wagonCopyPos.length; i++) {
+    const list = wagonCopyPos[i];
+    const response: any = await list.json();
+    if (response.success === true && response.code === "000000") {
+      curPosition.push(await convertWagonFormat(i, response.data));
+    }
+    count++;
+  }
+  // count = count - 1;
   const binanceCopyPos: any = [];
   for (const trader of binanceTrader) {
-    binanceCopyPos.push(await fetch(trader));
+    const requestOptions: RequestInit = {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+      },
+      redirect: "follow",
+      body: JSON.stringify(trader),
+    };
+    binanceCopyPos.push(await fetch(BINANCEURL, requestOptions));
   }
-  for (let i = 0; i < binanceCopyPos.length; i++) {
-    // console.log(i, listCopyPos[i]);
-    const list = binanceCopyPos[i];
+  for (let i = count; i < binanceCopyPos.length + count; i++) {
+    const list = binanceCopyPos[i - count];
     const response: any = await list.json();
-    // console.log(response);
     if (response.success === true && response.code === "000000") {
-      const curPosition: Position[] = await convertBinanceFormat(response.data);
-      // console.log(i, curPosition);
-      await comparePosition(i, client[i], curPosition);
+      const data = await convertBinanceFormat(i, response.data.otherPositionRetList);
+      // console.log(response.data.otherPositionRetList);
+      curPosition.push(data);
+      //   await comparePosition(i, client[i], curPosition);
     }
+  }
+  for (let i = 0; i < client.length; i++) {
+    await comparePosition(i, client[i], curPosition[i])
   }
   // console.log(1);
 }
-
-// const isSameTrade = (a: ApiObject, b: ApiObject) =>
-//     a.symbol === b.symbol &&
-//     a.entryPrice === b.entryPrice &&
-//     a.sizeX === b.sizeX &&
-//     a.side === b.side &&
-//     a.leverageE2 === b.leverageE2;
-//   // a.symbol == b.symbol && parseInt(a.entryPrice) == parseInt(b.entryPrice) &&
-//   // parseInt(a.sizeX) == parseInt(b.sizeX) && a.side == b.side &&
-//   // parseInt(a.leverageE2) == parseInt(b.leverageE2);
-//   if (response.retCode === 0 && response.retMsg === "success") {
-//     const getUniqueTrades = (left: ApiObject[], right: ApiObject[], compareFunction: (a: ApiObject, b: ApiObject) => boolean): ApiObject[] =>
-//       left.filter(
-//         (leftValue) =>
-//           !right.some((rightValue) => compareFunction(leftValue, rightValue))
-//       );
-//     if (data.prePosition !== undefined) {
-//       const closeList: ApiObject[] = getUniqueTrades(data.prePosition, curPosition, isSameTrade);
-//       const openList: ApiObject[] = getUniqueTrades(curPosition, data.prePosition, isSameTrade);
-//       if (closeList.length > 0) {
-//         const updatedCloseList: ApiObject[] = await Promise.all(await updateList('sell', closeList));
-//         data.close.push(...updatedCloseList);
-//         convertAndSendBot('close', updatedCloseList);
-//       }
-//       if (openList.length > 0) {
-//         const updatedOpenList: ApiObject[] = await Promise.all(await updateList('buy', openList));
-//         // console.log(updatedBuyList);
-//         data.open.push(...updatedOpenList);
-//         convertAndSendBot('open', updatedOpenList)
-//       }
-//       data.symbols = closeList.map((c) => c.symbol);
-//     }
-
-//     data.prePosition = curPosition;
-//     data.prePosition.forEach((c) => {
-//       const originalDate = new Date(parseInt(c.createdAtE3));
-//       c.createDate = formatDateString(new Date(originalDate.getTime() + (7 * 3600 * 1000)));
-//     });
-//   }
-
-
-// async function updateList(action: string, sellList: ApiObject[]): Promise<ApiObject[]> {
-//   const updatedList: ApiObject[] = [];
-//   for (const c of sellList) {
-//     const originalDate = new Date();
-//     c.symbol = c.symbol.match(/[A-Z]/g)?.join('');
-//     const markPrice = await getMarkPrice(c.symbol?.toString());
-//     if (action === 'sell')
-//       c.sellDate = formatDateString(new Date(originalDate.getTime() + (7 * 3600 * 1000)));
-//     else
-//       c.buyDate = formatDateString(new Date(originalDate.getTime() + (7 * 3600 * 1000)));
-//     c.markPrice = markPrice;
-//     updatedList.push(c);
-//   }
-
-//   return updatedList;
-// }
