@@ -62,17 +62,17 @@ export const bybitTrader: string[] = [
   "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=saPU8WuUYBXXebYMgbRDRw%3D%3D",
   // "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=O5k95MOucrVPCGiLNW3Xaw%3D%3D",
   "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=ezDycLoNFTp3Exq0IQhD1g%3D%3D"
-]
+];
 export const wagonTrader: string[] = [
   "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/4854",
   "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/6260"
-]
+];
 export const binanceTrader: { encryptedUid: string; tradeType: string }[] = [
   {
     "encryptedUid": "8FE17CCE0A3EA996ED7D8B538419C826",
     "tradeType": "PERPETUAL"
   }
-]
+];
 // 227087068C057B808A83125C8E586BB8 "6408AAEEEBF0C76A3D5F0E39C64AAABA" "8FE17CCE0A3EA996ED7D8B538419C826" "EF6C3AABCBE82294A607E8C94633F082"
 
 // export const copyTrader: string[] =
@@ -116,7 +116,10 @@ export async function getCopyList() {
     }
     count++;
   }
+  // console.log(count);
   // count = count - 1;
+
+  // console.log(data.prePosition.length, count);
   const binanceCopyPos: any = [];
   for (const trader of binanceTrader) {
     const requestOptions: RequestInit = {
@@ -129,17 +132,19 @@ export async function getCopyList() {
     };
     binanceCopyPos.push(await fetch(BINANCEURL, requestOptions));
   }
+  // console.log(binanceCopyPos.length + count)
   for (let i = count; i < binanceCopyPos.length + count; i++) {
     const list = binanceCopyPos[i - count];
     const response: any = await list.json();
     if (response.success === true && response.code === "000000") {
       const data = await convertBinanceFormat(i, response.data.otherPositionRetList);
-      // console.log(response.data.otherPositionRetList);
+      // console.log(data);
       curPosition.push(data);
       //   await comparePosition(i, client[i], curPosition);
     }
   }
-  for (let i = 0; i < client.length; i++) {
+  for (let i = 0; i < curPosition.length; i++) {
+    // console.log(i);
     await comparePosition(i, client[i], curPosition[i])
   }
   // console.log(1);

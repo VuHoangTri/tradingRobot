@@ -23,7 +23,7 @@ export interface ApiObject {
 
 export interface Position {
     symbol: string;
-    side: 'Buy' | 'Sell';
+    side?: 'Buy' | 'Sell';
     size: string;
     leverage: string;
 }
@@ -32,7 +32,7 @@ export interface Order {
     symbol: string;
     category?: 'linear' | 'option';
     price?: string;
-    side: 'Buy' | 'Sell';
+    side: 'Buy' | 'Sell' | undefined;
     orderType: 'Market' | 'Limit';
     qty: string;
     timeInForce: 'GoodTillCancel' | 'ImmediateOrCancel' | 'FillOrKill' | 'PostOnly';
