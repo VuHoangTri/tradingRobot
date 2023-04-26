@@ -1,5 +1,6 @@
 import {
     UnifiedMarginClient,
+    RestClientV5
 } from 'bybit-api';
 import { BatchOrders, Leverage, Order } from './interface';
 import { CallTracker } from 'assert';
@@ -23,7 +24,7 @@ export async function getMarkPrice(client: UnifiedMarginClient, symbol: string |
             .then(res => { return res.result.list[0].markPrice });
         return res;
     }
-    catch{
+    catch {
         return "error"
     }
 }
@@ -73,5 +74,16 @@ export async function setLeverage(client: UnifiedMarginClient, leverage: Leverag
         return result;
     } catch (error) {
         console.error(`Lever ${error}`);
+    }
+}
+
+export async function getExchangeInfo(client: UnifiedMarginClient) {
+    try {
+        const res = await client.getPrivate('/v5/market/instruments-info?category=linear')
+            .then(res => { return res.result.list });
+        return res;
+    }
+    catch (error) {
+        return `exchange ${error}`
     }
 }

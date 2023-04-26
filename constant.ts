@@ -1,4 +1,4 @@
-export const INTERVAL = 15000;
+export const INTERVAL = 60000;
 export const INTERVALACTION = 500;
 export const SIZEBYBIT = 100000000;
 export const LEVERAGEBYBIT = 100;

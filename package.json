@@ -2,7 +2,7 @@
   "name": "hgb",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "server.ts",
   "scripts": {
     "start": "nodemon server.ts",
     "build": "tsc",

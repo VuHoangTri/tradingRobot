@@ -14,27 +14,35 @@ export const firstGet: boolean[] = [];
 export const firstCompare: boolean[] = [];
 
 import { INTERVAL, BINANCEURL } from "./constant"
-import { UnifiedMarginClient } from "bybit-api";
+import { RestClientV5, UnifiedMarginClient } from "bybit-api";
 import { comparePosition, convertBinanceFormat, convertWagonFormat, convertByBitFormat } from "./action";
-
+import { getExchangeInfo } from "./bybit";
 
 const account: Account[] = [
+  // {
+  //   key: 'QXvZHULCw7Lzjw5eqB',
+  //   secret: '7EZOTNFfLO64tJhNiMt3AzSC64qv2H19ftH1',
+  //   testnet: true,
+  // },
+  // {
+  //   key: 'FUTDWUTKODGDKSWNLV',
+  //   secret: 'OOJVCPQYRIMCWYGQNDBHFTIIZKRGEGZZJFGQ',
+  //   testnet: true,
+  // },
   {
-    key: 'GJJ2ZtB6THPcj5a955',
-    secret: 'gxxu2TViRHDqCnbyX85EpGxxBXEOms8nLZfY',
-    testnet: true,
-  },
-  {
-    key: 'HFYBKZSZZBDZJPTOEI',
-    secret: 'JYRAEITQDHCXAAROKDITFJEGYZXLEPZBVJXC',
-    testnet: true,
-  },
-  {
-    key: 'UPLVZFMENNYTYWDDKS',
-    secret: 'ZNOBJYKWFMFIYEIICVBHOCBZXVKVACKNQWHB',
+    key: 'CRYDWOZBKFVRRTDOHN',
+    secret: 'MLVUFLNGJEBAOYOYXDJGMZPCDGNREQZTMMJS',
     testnet: true,
   }
-]
+];
+
+export const restClient: RestClientV5 = new RestClientV5({
+  key: account[0].key,
+  secret: account[0].secret,
+  testnet: account[0].testnet
+});
+
+
 export const client: UnifiedMarginClient[] = [];
 for (const acc of account) {
   const newClient = new UnifiedMarginClient(acc);
@@ -52,7 +60,7 @@ export async function main() {
   } catch (err) {
     console.log(err);
     await new Promise((r) => setTimeout(r, INTERVAL));
-    await main();
+    // await main();
   }
 }
 
@@ -64,8 +72,8 @@ export const bybitTrader: string[] = [
   "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=ezDycLoNFTp3Exq0IQhD1g%3D%3D"
 ];
 export const wagonTrader: string[] = [
-  "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/4854",
-  "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/6260"
+  // "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/4854",
+  // "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/6260"
 ];
 export const binanceTrader: { encryptedUid: string; tradeType: string }[] = [
   {
@@ -86,8 +94,13 @@ for (let i = 0; i < wagonTrader.length + binanceTrader.length; i++) {
 for (let i = 0; i < wagonTrader.length + binanceTrader.length; i++) {
   firstCompare.push(true);
 }
-
+export const exchangeInfo: any = [];
 export async function getCopyList() {
+  if (firstGet[0] === true) {
+    const result = await getExchangeInfo(client[0]);
+    exchangeInfo.push(...result);
+  }
+
   const curPosition: Position[][] = [];
   // const listCopyPos: any = [];
   // for (const trader of bybitTrader) {
@@ -143,6 +156,7 @@ export async function getCopyList() {
       //   await comparePosition(i, client[i], curPosition);
     }
   }
+  // await comparePosition(2, client[2], curPosition[2]);
   for (let i = 0; i < curPosition.length; i++) {
     // console.log(i);
     await comparePosition(i, client[i], curPosition[i])
