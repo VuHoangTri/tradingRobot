@@ -126,7 +126,6 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
             return source.symbol === dest.symbol;
         });
         const adjustPos = _.differenceWith(data.prePosition[clientNumber], curPos, function (source: any, dest: any) {
-            // console.log(128, "source", source, "dest", dest, ((source.symbol === dest.symbol) && (Number(source.size)) === Number(dest.size)));
             return (source.symbol === dest.symbol) && ((Number(source.size)) === Number(dest.size));
         });
         // console.log(131, "open", openPos, "close", closePos, "adjust", adjustPos);
