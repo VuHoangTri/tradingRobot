@@ -9,10 +9,10 @@ export async function sendChatToBot(icon: string, text: string, botNumber: numbe
     else {
         imageUrl = 'https://logopond.com/logos/9b4155eff794a19dd788f56b42844e78.png';
     }
-    const urlBot = 'https://hooks.slack.com/services/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';
+    // const urlBot = 'https://hooks.slack.com/services/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';
     const bot = ['https://hooks.slack.com/services/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',
- 'https://hooks.slack.com/services/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',
- 'https://hooks.slack.com/services/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'];
+        'https://hooks.slack.com/services/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',
+        'https://hooks.slack.com/services/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'];
     const body =
     {
         "blocks": [
@@ -39,8 +39,6 @@ export async function sendChatToBot(icon: string, text: string, botNumber: numbe
 }
 
 export async function sendError(text: string) {
-   
-    const urlBot = 'https://hooks.slack.com/services/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';
     const errBot = 'https://hooks.slack.com/services/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';
     const body =
     {
