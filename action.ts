@@ -6,7 +6,7 @@ import { sendChatToBot } from "./slack";
 import _ from 'lodash';
 import { UnifiedMarginClient } from "bybit-api";
 
-export async function convertByBitFormat(position: ApiObject[]) {
+export function convertByBitFormat(position: ApiObject[]) {
     const res: Position[] = position.map(pos => {
         return {
             symbol: pos.symbol,
@@ -15,7 +15,6 @@ export async function convertByBitFormat(position: ApiObject[]) {
             leverage: pos.leverageE2
         }
     });
-    await Promise.resolve();
     return res;
 }
 
@@ -27,30 +26,25 @@ export function convertWagonFormat(clientNumber, position: any[]) {
             leverage: (pos.leverage * LEVERAGEBYBIT).toString()
         }
     });
-    // await Promise.resolve();
     return res;
 }
 
 export function convertBinanceFormat(clientNumber: number, position: any[]) {
-    // console.log(35, clientNumber);
     const res: Position[] = position.map(pos => {
         return {
             symbol: pos.symbol,
-            // side: parseFloat(pos.amount) > 0 ? "Buy" : "Sell",
             size: (Number(pos.amount) / gain[clientNumber]).toFixed(3).toString(),
             leverage: (pos.leverage * LEVERAGEBYBIT).toString()
         }
     });
-    // await Promise.resolve();
     return res;
 }
 
 export async function convertToOrder(client: UnifiedMarginClient, pos: Position, isBatch: boolean) {
     const price = await getMarkPrice(client, pos.symbol);
-    // console.log(price);
-    if (price === 'error') return undefined;
+    const newSide = Number(pos.size) < 0 ? 'Sell' : 'Buy';
     let newPrice = '';
-    if (pos.side === 'Buy') {
+    if (newSide === 'Buy') {
         newPrice = ((Number(price) * 1.1)).toFixed(3).toString()
     } else {
         newPrice = (Number(price) * 0.9).toFixed(3).toString()
@@ -59,7 +53,7 @@ export async function convertToOrder(client: UnifiedMarginClient, pos: Position,
         symbol: pos.symbol,
         orderType: 'Limit',
         qty: Math.abs(Number(pos.size)).toString(),
-        side: Number(pos.side) < 0 ? 'Sell' : 'Buy',
+        side: newSide,
         price: newPrice,
         timeInForce: 'GoodTillCancel',
     };
@@ -69,7 +63,9 @@ export async function convertToOrder(client: UnifiedMarginClient, pos: Position,
 
     return res;
 }
+
 export async function adjustLeverage(client: UnifiedMarginClient, positions: Position[]) {
+    let count = 0;
     for await (const pos of positions) {
         const lever = (Number(pos.leverage) / LEVERAGEBYBIT).toString();
         const leverage: Leverage = {
@@ -79,8 +75,17 @@ export async function adjustLeverage(client: UnifiedMarginClient, positions: Pos
             buyLeverage: lever
         };
         await setLeverage(client, leverage);
+        if (count === 3) {
+            await new Promise((r) => setTimeout(r, 1000));
+            count = 0;
+            // console.log(87, "relax");
+        } else {
+            count++;
+        }
+
     }
 }
+
 export async function openBatchOrders(clientNumber: number, client: UnifiedMarginClient,
     batchOrders: BatchOrders, pos: Position[]) {
     if (batchOrders.request.length > 0) {
@@ -91,7 +96,6 @@ export async function openBatchOrders(clientNumber: number, client: UnifiedMargi
             // console.log(chunkBatchOrders.request.length);
             const resCreate = await createBatchOrders(client, chunkBatchOrders);
             // console.log(93, resCreate.result.list);
-
             for (let i = 0; i < resCreate.result.list.length; i++) {
                 if (resCreate.retCode === 0 && resCreate.result.list[i].orderId !== '') {
                     const order = batchOrders.request[i];
@@ -112,9 +116,8 @@ function roundQuantity(size, minOrderQty, qtyStep) {
     return (size < 0 ? -nearestMultiple : nearestMultiple).toFixed(decimalLen);
 }
 
+let compare = false;
 export async function comparePosition(clientNumber: number, client: UnifiedMarginClient, curPos: Position[]): Promise<void> {
-    // if (curPos.length === 0 && data.prePosition[clientNumber].length === 0) { return }
-    console.log(108, data.botEnabled, clientNumber);
     const isBatch = true;
     if (firstGet[clientNumber]) {
         const myPos = await getMyPositions(client);
@@ -133,53 +136,69 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
         // console.log(119, data.prePosition[clientNumber], clientNumber);
     }
     else {
-        // console.log(126, curPos, data.prePosition[clientNumber], clientNumber);
         const openPos = _.differenceBy(curPos, data.prePosition[clientNumber], 'symbol');
         const closePos = _.differenceBy(data.prePosition[clientNumber], curPos, 'symbol');
-        const adjustPos = curPos.filter(pP =>
-            data.prePosition[clientNumber].some(cP =>
-                cP.symbol === pP.symbol && cP.size !== pP.size
-            )
-        );
-
+        let adjustPos: any = [];
+        if (compare === true) {
+            adjustPos = curPos.filter(pP =>
+                data.prePosition[clientNumber].some(cP =>
+                    cP.symbol === pP.symbol && Number(cP.size) !== Number(pP.size)
+                )
+            ) || [];
+        }
+        else {
+            compare = false;
+        }
         const openPosFine = openPos.filter(c => exchangeInfo.some(x => c.symbol === x.symbol)) || [];
-
-        // console.log(134, openPos, closePos, adjustPos, clientNumber);
+        // console.log(158, openPosFine, closePos, adjustPos, data.prePosition[clientNumber], clientNumber);
         if (openPosFine.length > 0) {
-            console.log(openPosFine);
-            for (const pos of openPosFine) {
+            await adjustLeverage(client, openPosFine);
+            const batchOpenPos: BatchOrders = { category: "linear", request: [] };
+            for await (const pos of openPosFine) {
                 const filter = exchangeInfo.find(exch => exch.symbol === pos.symbol).lotSizeFilter;
                 pos.size = roundQuantity(pos.size, filter.minOrderQty, filter.qtyStep);
-                console.log(153, pos, clientNumber);
+                const order = await convertToOrder(client, pos, true);
+                batchOpenPos.request.push(order);
             }
+            await openBatchOrders(clientNumber, client, batchOpenPos, openPosFine)
+            console.log(169, batchOpenPos.request.length, openPosFine.length, clientNumber);
         }
         if (adjustPos.length > 0 || closePos.length > 0) {
             const myPos = await getMyPositions(client);
             if (closePos.length > 0) {
+                const batchClosePos: BatchOrders = { category: "linear", request: [] };
                 for (const pos of closePos) {
                     const order = await adjustVol(client, pos.symbol, '0', myPos);
-                    console.log(order);
+                    // console.log(172, order);
                 }
+                await openBatchOrders(clientNumber, client, batchClosePos, adjustPos)
+
             }
             if (adjustPos.length > 0) {
+                const batchAdjustPos: BatchOrders = { category: "linear", request: [] };
                 for (const pos of adjustPos) {
-                    const order = await adjustVol(client, pos.symbol, pos.size, myPos);
-                    console.log(order);
+                    const filter = exchangeInfo.find(exch => exch.symbol === pos.symbol).lotSizeFilter;
+                    const order = await adjustVol(client, pos.symbol, pos.size, myPos, filter);
+                    batchAdjustPos.request.push(order);
+                    // console.log(172, order);
                 }
+                await openBatchOrders(clientNumber, client, batchAdjustPos, adjustPos)
+
             }
         }
-
-        //     , function (source: any, dest: any) {
-        //     return source.symbol === dest.symbol;
-        // });
         data.prePosition[clientNumber] = curPos;
     }
 }
 
-async function adjustVol(client: UnifiedMarginClient, symbol: string, size: string, myPos: any) {
+async function adjustVol(client: UnifiedMarginClient, symbol: string, size: string, myPos: any, filter?: any) {
     const newPos = myPos.result.list.filter(c => c.symbol === symbol)
     const percent = Number(size) / Number(newPos.size);
     newPos.size = Number(newPos.size) * percent - Number(size);
+    if (percent > 0) {
+        newPos.size = roundQuantity(newPos.size, filter.minOrderQty, filter.qtyStep);
+    } else {
+        newPos.size = newPos.size * -1;
+    }
     return convertToOrder(client, newPos, true);
 }
 

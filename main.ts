@@ -3,15 +3,15 @@ import { RequestInit } from "node-fetch";
 import { Position, Data, Account } from "./interface";
 import _ from 'lodash';
 
-export const data: Data = {
+export let data: Data = {
   // close: [],
   // open: [],
   botEnabled: true,
   symbols: [],
   prePosition: [],
 }
-export const firstGet: boolean[] = [];
-export const firstCompare: boolean[] = [];
+export let firstGet: boolean[] = [];
+export let firstCompare: boolean[] = [];
 
 import { INTERVAL, BINANCEURL } from "./constant"
 import { RestClientV5, UnifiedMarginClient } from "bybit-api";
