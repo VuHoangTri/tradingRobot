@@ -168,7 +168,7 @@ function roundQuantity(size, minOrderQty, qtyStep) {
 export async function comparePosition(clientNumber: number, client: UnifiedMarginClient, curPos: Position[]): Promise<void> {
     try {
         // const isBatch = true;
-        // console.log(166, curPos, data.prePosition[clientNumber]);
+        // console.log(171, curPos, data.prePosition[clientNumber]);
         const openPos = _.differenceBy(curPos, data.prePosition[clientNumber], 'symbol');
         const closePos = _.differenceBy(data.prePosition[clientNumber], curPos, 'symbol');
         let adjustPos: any = [];
