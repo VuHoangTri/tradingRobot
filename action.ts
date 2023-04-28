@@ -1,7 +1,7 @@
 import { createBatchOrders, createOrder, getMarkPrice, getMyPositions, setLeverage } from "./bybit";
-import { LEVERAGEBYBIT, SIZEBYBIT, gain } from "./constant";
+import { BINANCEURL, LEVERAGEBYBIT, SIZEBYBIT, binanceTrader, exchangeInfo, gain, wagonTrader } from "./constant";
 import { ApiObject, BatchOrders, Leverage, Order, Position } from "./interface";
-import { data, exchangeInfo, firstGet } from "./main";
+import { data, firstGet, } from "./main";
 import { sendChatToBot } from "./slack";
 import _ from 'lodash';
 import { UnifiedMarginClient } from "bybit-api";
@@ -38,6 +38,58 @@ export function convertBinanceFormat(clientNumber: number, position: any[]) {
         }
     });
     return res;
+}
+
+export async function getCopyList() {
+    const curPosition: Position[][] = [];
+    // const listCopyPos: any = [];
+    // for (const trader of bybitTrader) {
+    //   listCopyPos.push(await fetch(trader));
+    // }
+    // for (let i = 0; i < listCopyPos.length; i++) {
+    //   // console.log(i, listCopyPos[i]);
+    //   const list = listCopyPos[i];
+    //   const response: any = await list.json();
+    //   if (response.retMsg === 'success' && response.retCode === 0) {
+    //     const curPosition: Position[] = await convertByBitFormat(response.result.data);
+    //     // console.log(i, curPosition);
+    //     await comparePosition(i, client[i], curPosition);
+    //   }
+    // }
+    const wagonCopyPos: any = [];
+    for (const trader of wagonTrader) {
+        wagonCopyPos.push(await fetch(trader));
+    }
+    for (let i = 0; i < wagonCopyPos.length; i++) {
+        const list = wagonCopyPos[i];
+        const response: any = await list.json();
+        if (response.success === true && response.code === "000000") {
+            curPosition.push(await convertWagonFormat(i, response.data));
+        }
+    }
+    const binanceCopyPos: any = [];
+    for (const trader of binanceTrader) {
+        const requestOptions: RequestInit = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            redirect: "follow",
+            body: JSON.stringify(trader),
+        };
+        binanceCopyPos.push(await fetch(BINANCEURL, requestOptions));
+    }
+    const length = curPosition.length;
+    // console.log(binanceCopyPos.length + count)
+    for (let i = length; i < binanceCopyPos.length + length; i++) {
+        const list = binanceCopyPos[i - length];
+        const response: any = await list.json();
+        if (response.success === true && response.code === "000000") {
+            const data = await convertBinanceFormat(i, response.data.otherPositionRetList);
+            curPosition.push(data);
+        }
+    }
+    return curPosition;
 }
 
 export async function convertToOrder(client: UnifiedMarginClient, pos: Position, isBatch: boolean) {
@@ -153,11 +205,9 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
                 console.log('Close Position', closePos, data.prePosition[clientNumber], clientNumber);
                 const batchClosePos: BatchOrders = { category: "linear", request: [] };
                 for (const pos of closePos) {
-                    // const filter = exchangeInfo.find(exch => exch.symbol === pos.symbol).lotSizeFilter;
                     const order = await adjustVol(client, pos.symbol, '0', myPos);
                     batchClosePos.request.push(order);
                 }
-                // console.log(153, batchClosePos.request.length, batchClosePos.request);
                 await openBatchOrders(clientNumber, client, batchClosePos);
             }
             if (adjustPos.length > 0) {
@@ -170,7 +220,6 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
                 }
                 await openBatchOrders(clientNumber, client, batchAdjustPos);
                 // console.log(165, batchAdjustPos.length);
-
             }
         }
         data.prePosition[clientNumber] = curPos;
