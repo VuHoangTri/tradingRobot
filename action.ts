@@ -146,7 +146,7 @@ export async function openBatchOrders(clientNumber: number, client: UnifiedMargi
                 for (let i = 0; i < resCreate.result.list.length; i++) {
                     if (resCreate.retCode === 0 && resCreate.result.list[i].orderId !== '') {
                         const order = batchOrders.request[i];
-                        // convertAndSendBot(order.side, order, clientNumber)
+                        convertAndSendBot(order.side, order, clientNumber)
                     }
                 }
             }
