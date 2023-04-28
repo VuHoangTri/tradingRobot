@@ -2,21 +2,10 @@ import fetch from "node-fetch";
 import { RequestInit } from "node-fetch";
 import { Position, Data, Account } from "./interface";
 import _ from 'lodash';
-
-export let data: Data = {
-  // close: [],
-  // open: [],
-  botEnabled: true,
-  symbols: [],
-  prePosition: [],
-}
-export let firstGet: boolean[] = [];
-export let firstCompare: boolean[] = [];
-
 import { INTERVAL, BINANCEURL } from "./constant"
 import { RestClientV5, UnifiedMarginClient } from "bybit-api";
 import { comparePosition, convertBinanceFormat, convertWagonFormat, convertByBitFormat } from "./action";
-import { getExchangeInfo } from "./bybit";
+import { getExchangeInfo, getMyPositions } from "./bybit";
 
 const account: Account[] = [
   // {
@@ -49,20 +38,16 @@ for (const acc of account) {
   client.push(newClient);
 }
 
-export async function main() {
-  try {
-    if (data.botEnabled) {
-      await getCopyList();
-    }
-    // await main();
-    await new Promise((r) => setTimeout(r, INTERVAL));
-    await main();
-  } catch (err) {
-    console.log(err);
-    await new Promise((r) => setTimeout(r, INTERVAL));
-    // await main();
-  }
+export let data: Data = {
+  // close: [],
+  // open: [],
+  botEnabled: true,
+  symbols: [],
+  prePosition: [],
 }
+export let firstGet: boolean = true;
+export const exchangeInfo: any = [];
+
 
 export const bybitTrader: string[] = [
   "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=dzzffk%2B%2FqGvNboYCRvY38Q%3D%3D", // remove
@@ -73,34 +58,54 @@ export const bybitTrader: string[] = [
 ];
 export const wagonTrader: string[] = [
   // "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/4854",
-  // "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/6260"
+  "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/6260"
 ];
 export const binanceTrader: { encryptedUid: string; tradeType: string }[] = [
-  {
-    "encryptedUid": "8FE17CCE0A3EA996ED7D8B538419C826",
-    "tradeType": "PERPETUAL"
-  }
+  // {
+  //   "encryptedUid": "8FE17CCE0A3EA996ED7D8B538419C826",
+  //   "tradeType": "PERPETUAL"
+  // }
 ];
 // 227087068C057B808A83125C8E586BB8 "6408AAEEEBF0C76A3D5F0E39C64AAABA" "8FE17CCE0A3EA996ED7D8B538419C826" "EF6C3AABCBE82294A607E8C94633F082"
 
-// export const copyTrader: string[] =
-//   [...wagonTrader, ...binanceTrader]
-for (let i = 0; i < wagonTrader.length + binanceTrader.length; i++) {
-  data.prePosition.push([])
-}
-for (let i = 0; i < wagonTrader.length + binanceTrader.length; i++) {
-  firstGet.push(true);
-}
-for (let i = 0; i < wagonTrader.length + binanceTrader.length; i++) {
-  firstCompare.push(true);
-}
-export const exchangeInfo: any = [];
-export async function getCopyList() {
-  if (firstGet[0] === true) {
+export async function main() {
+  try {
+
+    for (let i = 0; i < wagonTrader.length + binanceTrader.length; i++) {
+      data.prePosition.push([])
+    }
     const result = await getExchangeInfo(client[0]);
     exchangeInfo.push(...result);
-  }
+    for (let i = 0; i < data.prePosition.length; i++) {
+      if (firstGet) {
+        const myPos = await getMyPositions(client[i]);
+        if (myPos.retMsg !== 'Success') {
+          data.botEnabled = false;
+        }
+        data.prePosition[i] = myPos.result.list.map((c: Position) => {
+          return {
+            symbol: c.symbol,
+            size: c.size,
+            leverage: c.leverage
+          }
+        });
+      }
+      const curPosition = await getCopyList();
+      // console.log(94, curPosition);
+      await comparePosition(i, client[i], curPosition[i]);
+    }
+    firstGet = false;
+    await new Promise((r) => setTimeout(r, 1000));
+    await mainExecution();
+    // await main();
 
+  } catch (err) {
+    console.log(err);
+    await new Promise((r) => setTimeout(r, INTERVAL));
+    // await main();
+  }
+}
+async function getCopyList() {
   const curPosition: Position[][] = [];
   // const listCopyPos: any = [];
   // for (const trader of bybitTrader) {
@@ -116,7 +121,6 @@ export async function getCopyList() {
   //     await comparePosition(i, client[i], curPosition);
   //   }
   // }
-  let count = 0;
   const wagonCopyPos: any = [];
   for (const trader of wagonTrader) {
     wagonCopyPos.push(await fetch(trader));
@@ -127,12 +131,7 @@ export async function getCopyList() {
     if (response.success === true && response.code === "000000") {
       curPosition.push(await convertWagonFormat(i, response.data));
     }
-    count++;
   }
-  // console.log(count);
-  // count = count - 1;
-
-  // console.log(data.prePosition.length, count);
   const binanceCopyPos: any = [];
   for (const trader of binanceTrader) {
     const requestOptions: RequestInit = {
@@ -145,21 +144,28 @@ export async function getCopyList() {
     };
     binanceCopyPos.push(await fetch(BINANCEURL, requestOptions));
   }
+  const length = curPosition.length;
   // console.log(binanceCopyPos.length + count)
-  for (let i = count; i < binanceCopyPos.length + count; i++) {
-    const list = binanceCopyPos[i - count];
+  for (let i = length; i < binanceCopyPos.length + length; i++) {
+    const list = binanceCopyPos[i - length];
     const response: any = await list.json();
     if (response.success === true && response.code === "000000") {
       const data = await convertBinanceFormat(i, response.data.otherPositionRetList);
-      // console.log(data);
       curPosition.push(data);
-      //   await comparePosition(i, client[i], curPosition);
     }
   }
-  // await comparePosition(2, client[2], curPosition[2]);
-  for (let i = 0; i < curPosition.length; i++) {
-    // console.log(i);
-    await comparePosition(i, client[i], curPosition[i])
+  return curPosition;
+}
+
+export async function mainExecution() {
+  if (data.botEnabled) {
+    const curPosition = await getCopyList();
+    for (let i = 0; i < curPosition.length; i++) {
+      await comparePosition(i, client[i], curPosition[i])
+    }
+    await new Promise((r) => setTimeout(r, INTERVAL));
+    // console.log('Next');
+    await mainExecution();
+    // console.log(1);
   }
-  // console.log(1);
 }
