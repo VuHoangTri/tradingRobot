@@ -70,7 +70,7 @@ export async function main() {
       }
       // console.log(data.prePosition);
       const curPosition = await getCopyList();
-      // console.log(94, curPosition);
+      // console.log(73, curPosition);
       await comparePosition(i, client[i], curPosition[i]);
     }
     firstGet = false;
