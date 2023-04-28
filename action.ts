@@ -89,14 +89,11 @@ export async function adjustLeverage(client: UnifiedMarginClient, positions: Pos
 export async function openBatchOrders(clientNumber: number, client: UnifiedMarginClient,
     batchOrders: BatchOrders) {
     if (batchOrders.request.length > 0) {
-        // console.log(87, batchOrders.request);
         for (let i = 0; i < batchOrders.request.length; i += 9) {
             const chunkBatchOrders: BatchOrders = _.cloneDeep(batchOrders);
             chunkBatchOrders.request = chunkBatchOrders.request.slice(i, i + 9);
-            // console.log(chunkBatchOrders.request.length);
             const resCreate = await createBatchOrders(client, chunkBatchOrders);
-            // console.log(93, resCreate.result.list);
-            // console.log(99, batchOrders.request, resCreate.result.list);
+            // console.log(96, batchOrders.request, resCreate.result.list);
             for (let i = 0; i < resCreate.result.list.length; i++) {
                 if (resCreate.retCode === 0 && resCreate.result.list[i].orderId !== '') {
                     const order = batchOrders.request[i];
@@ -184,35 +181,6 @@ async function adjustVol(client: UnifiedMarginClient, symbol: string, size: stri
     order.leverage = newPos.leverage;
     return order;
 }
-
-
-// async function compareSize(client: UnifiedMarginClient, clientNumber: number, adjustPos: Position[], curPos: Position[]) {
-//     const isBatch = true;
-//     const batchChangePos: BatchOrders = { category: "linear", request: [] };
-//     // console.log(188, adjustPos, curPos);
-//     for (const pos of adjustPos) {
-//         const matchingPos = curPos.filter((cPos) => pos.symbol === cPos.symbol)[0];
-//         const matchPosSize = Number(matchingPos.size);
-//         const posSize = Number(pos.size);
-//         const diffSize = Math.round((posSize - matchPosSize) * SIZEBYBIT) / SIZEBYBIT;
-//         // console.log(194, posSize, matchPosSize, diffSize);
-//         const newPos: Position = {
-//             symbol: pos.symbol,
-//             leverage: pos.leverage,
-//             size: Math.abs(diffSize).toString()
-//         }
-//         if (matchPosSize > posSize) {
-//             newPos.side = 'Buy';
-//         } else {
-//             newPos.side = 'Sell';
-//         }
-//         const order = await convertToOrder(client, newPos, isBatch);
-//         if (order !== undefined)
-//             batchChangePos.request.push(order);
-//     }
-//     firstCompare[clientNumber] = false;
-//     return batchChangePos;
-// }
 
 function convertAndSendBot(action: string | undefined, order, clientNumber: number) {
     // for (const item of data) {
