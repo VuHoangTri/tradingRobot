@@ -1,10 +1,8 @@
-import fetch from "node-fetch";
-import { RequestInit } from "node-fetch";
 import { Position, Data, Account } from "./interface";
 import _ from 'lodash';
 import { INTERVAL, BINANCEURL, wagonTrader, binanceTrader, exchangeInfo } from "./constant"
 import { RestClientV5, UnifiedMarginClient } from "bybit-api";
-import { comparePosition, convertBinanceFormat, convertWagonFormat, convertByBitFormat, getCopyList } from "./action";
+import { comparePosition, getCopyList } from "./action";
 import { getExchangeInfo, getMyPositions } from "./bybit";
 
 const account: Account[] = [
@@ -70,6 +68,7 @@ export async function main() {
           }
         }));
       }
+      // console.log(data.prePosition);
       const curPosition = await getCopyList();
       // console.log(94, curPosition);
       await comparePosition(i, client[i], curPosition[i]);

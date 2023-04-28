@@ -1,3 +1,4 @@
+import { RequestInit } from "node-fetch";
 import { createBatchOrders, createOrder, getMarkPrice, getMyPositions, setLeverage } from "./bybit";
 import { BINANCEURL, LEVERAGEBYBIT, SIZEBYBIT, binanceTrader, exchangeInfo, gain, wagonTrader } from "./constant";
 import { ApiObject, BatchOrders, Leverage, Order, Position } from "./interface";
@@ -5,6 +6,7 @@ import { data, firstGet, } from "./main";
 import { sendChatToBot } from "./slack";
 import _ from 'lodash';
 import { UnifiedMarginClient } from "bybit-api";
+import fetch from "node-fetch";
 
 export function convertByBitFormat(position: ApiObject[]) {
     const res: Position[] = position.map(pos => {

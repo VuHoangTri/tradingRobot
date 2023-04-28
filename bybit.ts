@@ -3,7 +3,6 @@ import {
     RestClientV5
 } from 'bybit-api';
 import { BatchOrders, Leverage, Order } from './interface';
-import { CallTracker } from 'assert';
 
 
 export function getAccountByBit(client: UnifiedMarginClient) {
