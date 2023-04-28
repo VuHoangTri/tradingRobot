@@ -13,7 +13,7 @@ export const bybitTrader: string[] = [
 ];
 export const wagonTrader: string[] = [
     // "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/4854",
-    "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/8698" // 6260
+    "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/6260"//8698" // 6260
 ];
 export const binanceTrader: { encryptedUid: string; tradeType: string }[] = [
     // {
