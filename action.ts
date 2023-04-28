@@ -76,7 +76,7 @@ export async function adjustLeverage(client: UnifiedMarginClient, positions: Pos
         };
         await setLeverage(client, leverage);
         if (count === 3) {
-            await new Promise((r) => setTimeout(r, 1000));
+            await new Promise((r) => setTimeout(r, 2000));
             count = 0;
             // console.log(87, "relax");
         } else {
@@ -150,11 +150,11 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
                 const order = await adjustVol(client, pos.symbol, '0', myPos);
                 batchClosePos.request.push(order);
             }
-            // console.log(176, batchClosePos.request.length, batchClosePos.request);
+            // console.log(153, batchClosePos.request.length, batchClosePos.request);
             await openBatchOrders(clientNumber, client, batchClosePos);
         }
         if (adjustPos.length > 0) {
-            // console.log(180, adjustPos);
+            // console.log(157, adjustPos);
             const batchAdjustPos: BatchOrders = { category: "linear", request: [] };
             for (const pos of adjustPos) {
                 const filter = exchangeInfo.find(exch => exch.symbol === pos.symbol).lotSizeFilter;
@@ -162,7 +162,7 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
                 batchAdjustPos.request.push(order);
             }
             await openBatchOrders(clientNumber, client, batchAdjustPos);
-            // console.log(185, batchAdjustPos.length);
+            // console.log(165, batchAdjustPos.length);
 
         }
     }
@@ -176,7 +176,7 @@ async function adjustVol(client: UnifiedMarginClient, symbol: string, size: stri
     if (Number(size) !== 0) {
         newPos.size = roundQuantity(newPos.size, filter.minOrderQty, filter.qtyStep);
     }
-    // console.log(204, newPos);
+    // console.log(179, newPos);
     const order = await convertToOrder(client, newPos, true);
     order.leverage = newPos.leverage;
     return order;
