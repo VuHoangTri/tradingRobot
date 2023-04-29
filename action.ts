@@ -230,17 +230,20 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
 
 async function adjustVol(client: UnifiedMarginClient, symbol: string, size: string, myPos: any, filter?: any) {
     try {
-        const newPos = myPos.result.list.filter(c => c.symbol === symbol)[0];
-        const percent = Number(size) / Number(newPos.size);
-        newPos.size = Number(newPos.size) * percent - Number(newPos.size);
-        if (Number(size) !== 0) {
-            newPos.size = roundQuantity(newPos.size, filter.minOrderQty, filter.qtyStep);
+        const newPos = myPos.result.list.filter(c => c.symbol === symbol);
+        if (newPos.length === 1) {
+            const percent = Number(size) / Number(newPos.size);
+            newPos.size = Number(newPos.size) * percent - Number(newPos.size);
+            if (Number(size) !== 0) {
+                newPos.size = roundQuantity(newPos.size, filter.minOrderQty, filter.qtyStep);
+            }
+            // console.log(228, newPos);
+            const order = await convertToOrder(client, newPos, true);
+            if (order !== null)
+                order.leverage = newPos.leverage;
+            return order;
         }
-        // console.log(228, newPos);
-        const order = await convertToOrder(client, newPos, true);
-        if (order !== null)
-            order.leverage = newPos.leverage;
-        return order;
+        return null;
     } catch (err) {
         console.log(err);
         return null;
