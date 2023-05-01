@@ -62,6 +62,7 @@ export async function main() {
     for (let i = 0; i < client.length; i++) {
       if (firstGet) {
         const myPos = await getMyPositions(client[i]);
+        // console.log("myPos", myPos);
         if (myPos.retMsg !== 'Success') {
           data.botEnabled = false;
         }
@@ -73,9 +74,9 @@ export async function main() {
           }
         }));
       }
-      // console.log(data.prePosition);
+      // console.log("prePos", data.prePosition);
       const curPosition = await getCopyList();
-      // console.log(73, curPosition);
+      // console.log("curPos", curPosition);
       await comparePosition(i, client[i], curPosition[i]);
     }
     firstGet = false;

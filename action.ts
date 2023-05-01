@@ -140,6 +140,7 @@ export async function openBatchOrders(clientNumber: number, client: UnifiedMargi
                 const chunkBatchOrders: BatchOrders = _.cloneDeep(batchOrders);
                 chunkBatchOrders.request = chunkBatchOrders.request.slice(i, i + 9);
                 const resCreate = await createBatchOrders(client, chunkBatchOrders);
+                console.log("Batch Order", resCreate.result);
                 for (let i = 0; i < resCreate.result.list.length; i++) {
                     if (resCreate.retCode === 0 && resCreate.result.list[i].orderId !== '') {
                         const order = batchOrders.request[i];
@@ -175,6 +176,7 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
             ) || [];
         }
         const openPosFine = _.cloneDeep(openPos.filter(c => exchangeInfo.some(x => c.symbol === x.symbol)) || []);
+        // console.log("Difference", openPosFine, closePos, adjustPos, new Date());
         if (openPosFine.length > 0) {
             console.log('Open Position', openPosFine, data.prePosition[clientNumber], clientNumber, new Date());
             await adjustLeverage(client, openPosFine);
@@ -208,6 +210,7 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
                 for (const pos of adjustPos) {
                     const filter = exchangeInfo.find(exch => exch.symbol === pos.symbol).lotSizeFilter;
                     const order = await adjustVol(client, pos.symbol, pos.size, myPos, filter);
+                    // console.log("Adjust", order)
                     if (order !== null)
                         batchAdjustPos.request.push(order);
                 }
@@ -222,8 +225,10 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
 
 async function adjustVol(client: UnifiedMarginClient, symbol: string, size: string, myPos: any, filter?: any) {
     try {
-        const newPos = myPos.result.list.filter(c => c.symbol === symbol);
-        if (newPos.length === 1) {
+        const diffPos = _.cloneDeep(myPos.result.list.filter(c => c.symbol === symbol));
+        // console.log(diffPos);
+        if (diffPos.length === 1) {
+            const newPos = diffPos[0];
             const percent = Number(size) / Number(newPos.size);
             newPos.size = Number(newPos.size) * percent - Number(newPos.size);
             if (Number(size) !== 0) {
