@@ -13,12 +13,12 @@ export const bybitTrader: string[] = [
 ];
 export const wagonTrader: string[] = [
     // "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/4854",
-    "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/6260"//8698" // 6260
+    "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/6260"//8698" // 6260 9189
 ];
 export const binanceTrader: { encryptedUid: string; tradeType: string }[] = [
     // {
     //   "encryptedUid": "8FE17CCE0A3EA996ED7D8B538419C826",
     //   "tradeType": "PERPETUAL"
     // }
-]; // 227087068C057B808A83125C8E586BB8 "6408AAEEEBF0C76A3D5F0E39C64AAABA" "8FE17CCE0A3EA996ED7D8B538419C826" "EF6C3AABCBE82294A607E8C94633F082"
+]; // 227087068C057B808A83125C8E586BB8 "6408AAEEEBF0C76A3D5F0E39C64AAABA" "8FE17CCE0A3EA996ED7D8B538419C826" "EF6C3AABCBE82294A607E8C94633F082" 
 export const exchangeInfo: any = [];
