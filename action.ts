@@ -24,7 +24,7 @@ export function convertWagonFormat(clientNumber, position: any[]) {
     const res: Position[] = position.map(pos => {
         return {
             symbol: pos.symbol,
-            size: (Number(pos.positionAmount) / gain[clientNumber]).toFixed(3).toString(),
+            size: (Number(pos.unRealizedSurplus) / gain[clientNumber]).toFixed(3).toString(),
             leverage: (pos.leverage * LEVERAGEBYBIT).toString()
         }
     });
@@ -35,6 +35,17 @@ export function convertBinanceFormat(clientNumber: number, position: any[]) {
     const res: Position[] = position.map(pos => {
         return {
             symbol: pos.symbol,
+            size: ((Number(pos.openMargin) * pos.lever / Number(pos.price)) / gain[clientNumber]).toFixed(3).toString(),
+            leverage: (pos.lever * LEVERAGEBYBIT).toString()
+        }
+    });
+    return res;
+}
+
+export function convertHotCoinFormat(clientNumber: number, position: any[]) {
+    const res: Position[] = position.map(pos => {
+        return {
+            symbol: pos.contractCodeDisplayName,
             size: (Number(pos.amount) / gain[clientNumber]).toFixed(3).toString(),
             leverage: (pos.leverage * LEVERAGEBYBIT).toString()
         }
