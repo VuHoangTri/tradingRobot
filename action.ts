@@ -142,7 +142,7 @@ export async function openBatchOrders(clientNumber: number, client: UnifiedMargi
                 const chunkBatchOrders: BatchOrders = _.cloneDeep(batchOrders);
                 chunkBatchOrders.request = chunkBatchOrders.request.slice(i, i + 9);
                 const resCreate = await createBatchOrders(client, chunkBatchOrders);
-                // console.log(140, batchOrders.request, resCreate.result.list);
+                console.log(140, batchOrders.request, resCreate);
                 for (let i = 0; i < resCreate.result.list.length; i++) {
                     if (resCreate.retCode === 0 && resCreate.result.list[i].orderId !== '') {
                         const order = batchOrders.request[i];

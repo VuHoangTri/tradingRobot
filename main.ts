@@ -16,10 +16,15 @@ const account: Account[] = [
   //   secret: 'OOJVCPQYRIMCWYGQNDBHFTIIZKRGEGZZJFGQ',
   //   testnet: true,
   // },
+  // {
+  //   key: 'CRYDWOZBKFVRRTDOHN',
+  //   secret: 'MLVUFLNGJEBAOYOYXDJGMZPCDGNREQZTMMJS',
+  //   testnet: true,
+  // }
   {
-    key: 'CRYDWOZBKFVRRTDOHN',
-    secret: 'MLVUFLNGJEBAOYOYXDJGMZPCDGNREQZTMMJS',
-    testnet: true,
+    key: 'qQ94jsKBk7VJ7yvVsw',
+    secret: '1NYC7ffuYcfv2fuW0tv7fc2QczJsQgLrU2Em',
+    testnet: false,
   }
 ];
 
