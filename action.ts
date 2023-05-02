@@ -24,7 +24,7 @@ export function convertWagonFormat(clientNumber, position: any[]) {
     const res: Position[] = position.map(pos => {
         return {
             symbol: pos.symbol,
-            size: (Number(pos.unRealizedSurplus) / gain[clientNumber]).toFixed(3).toString(),
+            size: (Number(pos.positionAmount) / gain[clientNumber]).toFixed(3).toString(),
             leverage: (pos.leverage * LEVERAGEBYBIT).toString()
         }
     });
@@ -63,7 +63,7 @@ export async function getCopyList() {
     for (let i = 0; i < wagonCopyPos.length; i++) {
         const list = wagonCopyPos[i];
         const response: any = await list.json();
-        if (response.success === true && response.code === "000000") {
+        if (response.success === true && response.code === "000000") {            
             curPosition.push(await convertWagonFormat(i, response.data));
         }
     }
@@ -187,7 +187,7 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
             ) || [];
         }
         const openPosFine = _.cloneDeep(openPos.filter(c => exchangeInfo.some(x => c.symbol === x.symbol)) || []);
-        // console.log("Difference", openPosFine, closePos, adjustPos, new Date());
+        // console.log("Difference", openPosFine, closePos, adjustPos, data.prePosition[clientNumber], curPos, clientNumber, new Date());
         if (openPosFine.length > 0) {
             console.log('Open Position', openPosFine, data.prePosition[clientNumber], clientNumber, new Date());
             await adjustLeverage(client, openPosFine);
