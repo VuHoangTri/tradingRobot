@@ -90,7 +90,8 @@ export async function getExchangeInfo(client: UnifiedMarginClient) {
 
 export async function getClosedPNL(symbol?: string, limit?: number) {
     try {
-        const res = await restClient.getClosedPnL({ category: "linear", symbol: symbol, limit: limit })
+        const time = new Date().getTime() - 2592117632;
+        const res = await restClient.getClosedPnL({ category: "linear", symbol: symbol, limit: limit, startTime: time })
             .then(res => { return res.result.list });
         return res;
     }
