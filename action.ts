@@ -290,23 +290,23 @@ async function adjustVol(client: UnifiedMarginClient, symbol: string, size: stri
     }
 }
 
-function convertAndSendBot(action: string | undefined, order, clientNumber: number, pnl?: string) {
-    // for (const item of data) {
-    let dataString = '';
-    let icon = '';
-    if (order.side === 'Buy') {
-        icon = 'bull';
-    } else {
-        icon = 'bear';
+function convertAndSendBot(action: string | undefined, order, clientNumber: number, pnl: string) {
+    try {
+        let dataString = '';
+        let icon = '';
+        if (order.side === 'Buy') {
+            icon = 'bull';
+        } else {
+            icon = 'bear';
+        }
+        dataString = "Action: " + action + "\nSymbol: " + order.symbol
+            + "\nEntry: " + order.price + "\nSide: " + order.side + "\nLeverage: "
+            + order.leverage + "\nSize: " + order.qty + "\nPnL: " + pnl;
+        //(parseInt(order.size) / SIZEBYBIT).toString();
+        sendChatToBot(icon, dataString, clientNumber);
+    } catch (err: any) {
+        sendError(err)
     }
-    dataString = "Action: " + action + "\nSymbol: " + order.symbol
-        + "\nEntry: " + order.price + "\nSide: " + order.side + "\nLeverage: "
-        + order.leverage + "\nSize: " + order.qty + "\nPnL: " + pnl;
-    //(parseInt(order.size) / SIZEBYBIT).toString();
-    sendChatToBot(icon, dataString, clientNumber);
-    // }   
-    // break;
-    // }
 }
 
 export async function getTotalPnL(nextPageCursor?: string) {
