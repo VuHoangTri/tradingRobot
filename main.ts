@@ -1,32 +1,10 @@
 import { Position, Data, Account } from "./interface";
 import _ from 'lodash';
-import { INTERVAL, BINANCEURL, wagonTrader, binanceTrader, exchangeInfo } from "./constant"
+import { INTERVAL, BINANCEURL, wagonTrader, binanceTrader, exchangeInfo, account, hotcoinTrader } from "./constant"
 import { RestClientV5, UnifiedMarginClient } from "bybit-api";
 import { comparePosition, getCopyList } from "./action";
 import { getExchangeInfo, getMyPositions } from "./bybit";
 
-const account: Account[] = [
-  // {
-  //   key: 'QXvZHULCw7Lzjw5eqB',
-  //   secret: '7EZOTNFfLO64tJhNiMt3AzSC64qv2H19ftH1',
-  //   testnet: true,
-  // },
-  // {
-  //   key: 'FUTDWUTKODGDKSWNLV',
-  //   secret: 'OOJVCPQYRIMCWYGQNDBHFTIIZKRGEGZZJFGQ',
-  //   testnet: true,
-  // },
-  // {
-  //   key: 'CRYDWOZBKFVRRTDOHN',
-  //   secret: 'MLVUFLNGJEBAOYOYXDJGMZPCDGNREQZTMMJS',
-  //   testnet: true,
-  // }
-  {
-    key: 'qQ94jsKBk7VJ7yvVsw',
-    secret: '1NYC7ffuYcfv2fuW0tv7fc2QczJsQgLrU2Em',
-    testnet: false,
-  }
-];
 
 export const restClient: RestClientV5 = new RestClientV5({
   key: account[0].key,
@@ -53,7 +31,7 @@ export let firstGet: boolean = true;
 
 export async function main() {
   try {
-    const copyLength = wagonTrader.length + binanceTrader.length;
+    const copyLength = wagonTrader.length + binanceTrader.length + hotcoinTrader.length;
     // for (let i = 0; i < copyLength; i++) {
     //   data.prePosition.push([])
     // }
@@ -61,23 +39,24 @@ export async function main() {
     exchangeInfo.push(...result);
     for (let i = 0; i < client.length; i++) {
       if (firstGet) {
-        const myPos = await getMyPositions(client[i]);
-        // console.log("myPos", myPos);
-        if (myPos.retMsg !== 'Success') {
-          data.botEnabled = false;
-        }
-        data.prePosition.push(myPos.result.list.map((c: Position) => {
-          return {
-            symbol: c.symbol,
-            size: c.size,
-            leverage: c.leverage
-          }
-        }));
+        // const myPos = await getMyPositions(client[i]);
+        // // console.log("myPos", myPos);
+        // if (myPos.retMsg !== 'Success') {
+        //   data.botEnabled = false;
+        // }
+        // data.prePosition.push(myPos.result.list.map((c: Position) => {
+        //   return {
+        //     symbol: c.symbol,
+        //     size: c.size,
+        //     leverage: c.leverage
+        //   }
+        // }));
+        // console.log("prePos", data.prePosition);
+        const curPosition = await getCopyList();
+        data.prePosition.push(_.cloneDeep(curPosition[i]));
+        // console.log("curPos", curPosition);
+        await comparePosition(i, client[i], curPosition[i]);
       }
-      // console.log("prePos", data.prePosition);
-      const curPosition = await getCopyList();
-      // console.log("curPos", curPosition);
-      await comparePosition(i, client[i], curPosition[i]);
     }
     firstGet = false;
     await new Promise((r) => setTimeout(r, 5000));
