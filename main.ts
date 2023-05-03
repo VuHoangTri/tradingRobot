@@ -36,6 +36,8 @@ export async function main() {
     //   data.prePosition.push([])
     // }
     // console.log(38, await getTotalPnL());
+    //getClosedPNL({cursor: '1947c0a0-d914-4e31-b095-ba50a19d7e93%3A1682970218860306743%2Cff16c553-9522-47bf-826e-2f63987a20cf%3A1682766142982145960'}));
+
     const result = await getExchangeInfo(client[0]);
     exchangeInfo.push(...result);
     for (let i = 0; i < client.length; i++) {

@@ -175,7 +175,7 @@ export async function openBatchOrders(clientNumber: number, client: UnifiedMargi
                         const order = batchOrders.request[i];
                         let actualPNL = "";
                         if (pnl === true)
-                            actualPNL = await getClosedPNL(order.symbol, 1)[0].closedPnl;
+                            actualPNL = await getClosedPNL({ symbol: order.symbol, limit: 1 })[0].closedPnl;
                         convertAndSendBot(order.side, order, clientNumber, actualPNL);
                     }
                 }
@@ -309,10 +309,13 @@ function convertAndSendBot(action: string | undefined, order, clientNumber: numb
     // }
 }
 
-export async function getTotalPnL() {
-    const res = await getClosedPNL();
+export async function getTotalPnL(nextPageCursor?: string) {
+    let res = await getClosedPNL({ cursor: nextPageCursor });
     let sum;
-    if (typeof res !== 'string')
-        sum = res.reduce((acc, cur) => acc + Number(cur.closedPnl), 0);
+    while (typeof res !== 'string' && res.nextPageCursor !== '') {
+        sum = res.list.reduce((acc, cur) => acc + Number(cur.closedPnl), 0);
+        // console.log('317', res.list[res.list.length - 1].closedPnl);
+        res = await getClosedPNL({ cursor: res.nextPageCursor })
+    }
     return sum;
 }
