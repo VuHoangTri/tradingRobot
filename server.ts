@@ -5,6 +5,7 @@ const app = express();
 const port = 3000;
 import { client, data, main } from "./main";
 import { getAccountByBit, getMyPositions, getWalletBalance } from "./bybit";
+import { getTotalPnL } from "./action";
 
 app.use(bodyParser.json()); // to support JSON-encoded bodies
 app.use(
@@ -39,6 +40,15 @@ app.post("/getPosMain", async function (req, res) {
 app.get("/getPosMain", async function (req, res) {
   const response = await getMyPositions(client[0]);
   res.send(response.result.list);
+})
+
+app.post("/getTotalPnl", async function (req, res) {
+  const response = await getTotalPnL();
+  res.send({ pnl: response });
+})
+app.get("/getTotalPnl", async function (req, res) {
+  const response = await getTotalPnL();
+  res.send({ pnl: response });
 })
 
 // app.get("/getPosCopy", async function (req, res) {
@@ -81,6 +91,9 @@ app.get("/getSymbols", async function (req, res) {
 });
 
 app.get("/getData", async function (req, res) {
+  res.json(data.prePosition);
+});
+app.post("/getData", async function (req, res) {
   res.json(data.prePosition);
 });
 

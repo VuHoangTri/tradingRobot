@@ -1,11 +1,11 @@
 import { RequestInit } from "node-fetch";
-import { createBatchOrders, createOrder, getMarkPrice, getMyPositions, setLeverage } from "./bybit";
+import { createBatchOrders, createOrder, getClosedPNL, getMarkPrice, getMyPositions, setLeverage } from "./bybit";
 import { BINANCEURL, LEVERAGEBYBIT, SIZEBYBIT, binanceTrader, exchangeInfo, gain, hotcoinTrader, wagonTrader } from "./constant";
 import { ApiObject, BatchOrders, Leverage, Order, Position } from "./interface";
 import { data, firstGet, } from "./main";
 import { sendChatToBot, sendError } from "./slack";
 import _ from 'lodash';
-import { UnifiedMarginClient } from "bybit-api";
+import { ClosedPnLV5, UnifiedMarginClient } from "bybit-api";
 import fetch from "node-fetch";
 
 export function convertByBitFormat(position: ApiObject[]) {
@@ -162,7 +162,7 @@ export async function adjustLeverage(client: UnifiedMarginClient, positions: Pos
 }
 
 export async function openBatchOrders(clientNumber: number, client: UnifiedMarginClient,
-    batchOrders: BatchOrders) {
+    batchOrders: BatchOrders, pnl: boolean) {
     try {
         if (batchOrders.request.length > 0) {
             for (let i = 0; i < batchOrders.request.length; i += 9) {
@@ -173,7 +173,10 @@ export async function openBatchOrders(clientNumber: number, client: UnifiedMargi
                     if (resCreate.retCode === 0 && resCreate.result.list[i].orderId !== '') {
                         console.log("Batch Order", resCreate.result.list[i].orderId);
                         const order = batchOrders.request[i];
-                        convertAndSendBot(order.side, order, clientNumber)
+                        let actualPNL = "";
+                        if (pnl === true)
+                            actualPNL = await getClosedPNL(order.symbol, 1)[0].closedPnl;
+                        convertAndSendBot(order.side, order, clientNumber, actualPNL);
                     }
                 }
             }
@@ -224,7 +227,7 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
                     batchOpenPos.request.push(order);
                 }
             }
-            await openBatchOrders(clientNumber, client, batchOpenPos)
+            await openBatchOrders(clientNumber, client, batchOpenPos, false)
         }
 
         if (adjustPos.length > 0 || closePos.length > 0) {
@@ -240,7 +243,7 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
                             batchClosePos.request.push(order);
                     }
                 }
-                await openBatchOrders(clientNumber, client, batchClosePos);
+                await openBatchOrders(clientNumber, client, batchClosePos, true);
             }
             if (adjustPos.length > 0) {
                 const batchAdjustPos: BatchOrders = { category: "linear", request: [] };
@@ -255,7 +258,7 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
                     }
                 }
                 if (batchAdjustPos.request.length > 0)
-                    await openBatchOrders(clientNumber, client, batchAdjustPos);
+                    await openBatchOrders(clientNumber, client, batchAdjustPos, true);
             }
         }
         data.prePosition[clientNumber] = _.cloneDeep(curPos);
@@ -287,7 +290,7 @@ async function adjustVol(client: UnifiedMarginClient, symbol: string, size: stri
     }
 }
 
-function convertAndSendBot(action: string | undefined, order, clientNumber: number) {
+function convertAndSendBot(action: string | undefined, order, clientNumber: number, pnl?: string) {
     // for (const item of data) {
     let dataString = '';
     let icon = '';
@@ -298,10 +301,18 @@ function convertAndSendBot(action: string | undefined, order, clientNumber: numb
     }
     dataString = "Action: " + action + "\nSymbol: " + order.symbol
         + "\nEntry: " + order.price + "\nSide: " + order.side + "\nLeverage: "
-        + order.leverage + "\nSize: " + order.qty;
+        + order.leverage + "\nSize: " + order.qty + pnl !== "" ? "\nPnL: " + pnl : "";
     //(parseInt(order.size) / SIZEBYBIT).toString();
     sendChatToBot(icon, dataString, clientNumber);
     // }   
     // break;
     // }
+}
+
+export async function getTotalPnL() {
+    const res = await getClosedPNL();
+    let sum;
+    if (typeof res !== 'string')
+        sum = res.reduce((acc, cur) => acc + Number(cur.closedPnl), 0);
+    return sum;
 }

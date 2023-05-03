@@ -3,6 +3,7 @@ import {
     RestClientV5
 } from 'bybit-api';
 import { BatchOrders, Leverage, Order } from './interface';
+import { restClient } from './main';
 
 
 export function getAccountByBit(client: UnifiedMarginClient) {
@@ -84,5 +85,16 @@ export async function getExchangeInfo(client: UnifiedMarginClient) {
     }
     catch (error) {
         return `exchange ${error}`
+    }
+}
+
+export async function getClosedPNL(symbol?: string, limit?: number) {
+    try {
+        const res = await restClient.getClosedPnL({ category: "linear", symbol: symbol, limit: limit })
+            .then(res => { return res.result.list });
+        return res;
+    }
+    catch (error) {
+        return `getClosePnL ${error}`
     }
 }
