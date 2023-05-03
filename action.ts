@@ -169,9 +169,9 @@ export async function openBatchOrders(clientNumber: number, client: UnifiedMargi
                 const chunkBatchOrders: BatchOrders = _.cloneDeep(batchOrders);
                 chunkBatchOrders.request = chunkBatchOrders.request.slice(i, i + 9);
                 const resCreate = await createBatchOrders(client, chunkBatchOrders);
-                console.log("Batch Order", resCreate.result);
                 for (let i = 0; i < resCreate.result.list.length; i++) {
                     if (resCreate.retCode === 0 && resCreate.result.list[i].orderId !== '') {
+                        console.log("Batch Order", resCreate.result.list[i].orderId);
                         const order = batchOrders.request[i];
                         convertAndSendBot(order.side, order, clientNumber)
                     }
@@ -218,7 +218,7 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
                     : pos.size
                 pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
                 const order = await convertToOrder(client, pos, true);
-                console.log("Open", order, new Date());
+                console.log("Open", order, data.prePosition[clientNumber], curPos, new Date());
                 if (order !== null) {
                     order.leverage = pos.leverage;
                     batchOpenPos.request.push(order);
@@ -233,10 +233,9 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
                 const batchClosePos: BatchOrders = { category: "linear", request: [] };
                 for (const pos of closePos) {
                     const filter = exchangeInfo.find(exch => exch.symbol === pos.symbol);
-                    console.log(filter);
                     if (filter !== undefined) {
                         const order = await adjustVol(client, pos.symbol, '0', myPos);
-                        console.log("Close", order, new Date());
+                        console.log("Close", order, data.prePosition[clientNumber], curPos, new Date());
                         if (order !== null)
                             batchClosePos.request.push(order);
                     }
@@ -250,7 +249,7 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
                     if (filter !== undefined) {
                         const filterSize = filter.lotSizeFilter;
                         const order = await adjustVol(client, pos.symbol, pos.size, myPos, filterSize);
-                        console.log("Adjust", order, new Date())
+                        console.log("Adjust", order, data.prePosition[clientNumber], curPos, new Date())
                         if (order !== null)
                             batchAdjustPos.request.push(order);
                     }
