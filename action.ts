@@ -301,7 +301,7 @@ function convertAndSendBot(action: string | undefined, order, clientNumber: numb
     }
     dataString = "Action: " + action + "\nSymbol: " + order.symbol
         + "\nEntry: " + order.price + "\nSide: " + order.side + "\nLeverage: "
-        + order.leverage + "\nSize: " + order.qty + "\PnL: " + pnl;
+        + order.leverage + "\nSize: " + order.qty + "\nPnL: " + pnl;
     //(parseInt(order.size) / SIZEBYBIT).toString();
     sendChatToBot(icon, dataString, clientNumber);
     // }   
