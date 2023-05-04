@@ -2,8 +2,8 @@ import { Position, Data, Account } from "./interface";
 import _ from 'lodash';
 import { INTERVAL, BINANCEURL, wagonTrader, binanceTrader, exchangeInfo, account, hotcoinTrader } from "./constant"
 import { RestClientV5, UnifiedMarginClient } from "bybit-api";
-import { comparePosition, getCopyList, getTotalPnL } from "./action";
-import { getAccountByBit, getClosedPNL, getExchangeInfo, getMarkPrice, getMyPositions } from "./bybit";
+import { comparePosition, getCopyList, getTotalPnL, getTotalTradeFee } from "./action";
+import { getAccountByBit, getClosedPNL, getExchangeInfo, getMarkPrice, getMyPositions, getTradeFee } from "./bybit";
 import { sendError } from "./slack";
 
 
@@ -36,7 +36,7 @@ export async function main() {
     // for (let i = 0; i < copyLength; i++) {
     //   data.prePosition.push([])
     // }
-    // console.log(38, await getTotalPnL());
+    // console.log(38, await getTotalTradeFee());
     //getClosedPNL({cursor: '1947c0a0-d914-4e31-b095-ba50a19d7e93%3A1682970218860306743%2Cff16c553-9522-47bf-826e-2f63987a20cf%3A1682766142982145960'}));
     for (const [index, item] of client.entries()) {
       const res = await getAccountByBit(item);

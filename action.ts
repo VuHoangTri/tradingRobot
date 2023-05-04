@@ -1,5 +1,5 @@
 import { RequestInit } from "node-fetch";
-import { createBatchOrders, createOrder, getClosedPNL, getMarkPrice, getMyPositions, setLeverage } from "./bybit";
+import { createBatchOrders, createOrder, getClosedPNL, getMarkPrice, getMyPositions, getTradeFee, setLeverage } from "./bybit";
 import { BINANCEURL, LEVERAGEBYBIT, SIZEBYBIT, binanceTrader, exchangeInfo, gain, hotcoinTrader, mexcTrader, wagonTrader } from "./constant";
 import { ApiObject, BatchOrders, Leverage, Order, Position } from "./interface";
 import { data, firstGet, } from "./main";
@@ -72,62 +72,69 @@ export function convertHotCoinFormat(clientNumber: number, position: any[]) {
 }
 
 export async function getCopyList() {
-    const curPosition: Position[][] = [];
-    const wagonCopyPos: any = [];
-    for (const trader of wagonTrader) {
-        wagonCopyPos.push(await fetch(trader));
-    }
-    for (let i = 0; i < wagonCopyPos.length; i++) {
-        const list = wagonCopyPos[i];
-        const response: any = await list.json();
-        if (response.success === true && response.code === "000000") {
-            curPosition.push(await convertWagonFormat(i, response.data));
+    try {
+        const curPosition: Position[][] = [];
+        const wagonCopyPos: any = [];
+        for (const trader of wagonTrader) {
+            wagonCopyPos.push(await fetch(trader));
         }
-    }
-    const binanceCopyPos: any = [];
-    for (const trader of binanceTrader) {
-        const requestOptions: RequestInit = {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            redirect: "follow",
-            body: JSON.stringify(trader),
-        };
-        binanceCopyPos.push(await fetch(BINANCEURL, requestOptions));
-    }
-    const length = curPosition.length;
-    for (let i = length; i < binanceCopyPos.length + length; i++) {
-        const list = binanceCopyPos[i - length];
-        const response: any = await list.json();
-        if (response.success === true && response.code === "000000") {
-            const data = await convertBinanceFormat(i, response.data.otherPositionRetList);
-            curPosition.push(data);
+        for (let i = 0; i < wagonCopyPos.length; i++) {
+            const list = wagonCopyPos[i];
+            const response: any = await list.json();
+            if (response.success === true && response.code === "000000") {
+                curPosition.push(await convertWagonFormat(i, response.data));
+            }
         }
-    }
-    const hotcoinCopyPos: any = [];
-    for (const trader of hotcoinTrader) {
-        hotcoinCopyPos.push(await fetch(trader));
-    }
-    for (let i = 0; i < hotcoinCopyPos.length; i++) {
-        const list = hotcoinCopyPos[i];
-        const response: any = await list.json();
-        if (response.msg === "success" && response.code === 200) {
-            curPosition.push(await convertHotCoinFormat(i, response.data));
+        const binanceCopyPos: any = [];
+        for (const trader of binanceTrader) {
+            const requestOptions: RequestInit = {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                redirect: "follow",
+                body: JSON.stringify(trader),
+            };
+            binanceCopyPos.push(await fetch(BINANCEURL, requestOptions));
         }
-    }
-    const mexcCopyPos: any = [];
-    for (const trader of mexcTrader) {
-        mexcCopyPos.push(await fetch(trader));
-    }
-    for (let i = 0; i < mexcCopyPos.length; i++) {
-        const list = mexcCopyPos[i];
-        const response: any = await list.json();
-        if (response.success === true && response.code === 0) {
-            curPosition.push(await convertMEXCFormat(i, response.data.content));
+        const length = curPosition.length;
+        for (let i = length; i < binanceCopyPos.length + length; i++) {
+            const list = binanceCopyPos[i - length];
+            const response: any = await list.json();
+            if (response.success === true && response.code === "000000") {
+                const data = await convertBinanceFormat(i, response.data.otherPositionRetList);
+                curPosition.push(data);
+            }
         }
+        const hotcoinCopyPos: any = [];
+        for (const trader of hotcoinTrader) {
+            hotcoinCopyPos.push(await fetch(trader));
+        }
+        for (let i = 0; i < hotcoinCopyPos.length; i++) {
+            const list = hotcoinCopyPos[i];
+            const response: any = await list.json();
+            if (response.msg === "success" && response.code === 200) {
+                curPosition.push(await convertHotCoinFormat(i, response.data));
+            }
+        }
+        const mexcCopyPos: any = [];
+        for (const trader of mexcTrader) {
+            mexcCopyPos.push(await fetch(trader));
+        }
+        for (let i = 0; i < mexcCopyPos.length; i++) {
+            const list = mexcCopyPos[i];
+            const response: any = await list.json();
+            if (response.success === true && response.code === 0) {
+                curPosition.push(await convertMEXCFormat(i, response.data.content));
+            }
+        }
+        return curPosition;
     }
-    return curPosition;
+    catch (err) {
+        sendError(`Lỗi ${err}`);
+        data.botEnabled = false;
+        return [];
+    }
 }
 
 export async function convertToOrder(client: UnifiedMarginClient, pos: Position, isBatch: boolean) {
@@ -339,12 +346,21 @@ function convertAndSendBot(action: string | undefined, order, clientNumber: numb
 export async function getTotalPnL(nextPageCursor?: string) {
     let res = await getClosedPNL({ cursor: nextPageCursor });
     let sum = 0;
-    // let count = 1;
     while (typeof res !== 'string' && res.nextPageCursor !== '') {
         sum = sum + res.list.reduce((acc, cur) => acc + Number(cur.closedPnl), 0);
-        // console.log('317', sum, res.list[0].closedPnl, res.list[1].closedPnl, Number(res.list[0].closedPnl) + Number(res.list[1].closedPnl));
         res = await getClosedPNL({ cursor: res.nextPageCursor })
     }
-    // console.log(count);
+    return sum;
+}
+
+export async function getTotalTradeFee(nextPageCursor?: string) {
+    let res = await getTradeFee({ cursor: nextPageCursor });
+    let sum = 0;
+    let length = 0;
+    while (typeof res !== 'string' && Boolean(res.nextPageCursor)) {
+        length = length + res.list.length;
+        sum = sum + res.list.reduce((acc, cur) => acc + Number(cur.fee), 0);
+        res = await getTradeFee({ cursor: res.nextPageCursor })
+    }
     return sum;
 }

@@ -18,9 +18,9 @@ app.use(
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 app.get("/", (req: Request, res: Response) => {
-  res.json({
-    status: 'runring'
-  });
+  if (data.botEnabled)
+    res.send({ status: 'running' })
+  else res.send({ status: 'stoping' })
 });
 
 app.post("/run", async function (req, res) {
