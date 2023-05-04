@@ -102,3 +102,19 @@ export async function getClosedPNL(pnlParam: { symbol?: string, limit?: number, 
         return `getClosePnL ${error}`
     }
 }
+
+export async function getTradeFee(pnlParam: { symbol?: string, limit?: number, cursor?: string }) {
+    try {
+        const time = new Date().getTime() - 2592117632;
+        const res = await restClient.getTransactionLog({
+            type: 'TRADE', currency: 'USDT', accountType: 'UNIFIED',
+            category: "linear"
+            , startTime: time, cursor: pnlParam.cursor
+        })
+            .then(res => { return res.result });
+        return res;
+    }
+    catch (error) {
+        return `getClosePnL ${error}`
+    }
+}
