@@ -253,7 +253,7 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
             if (adjustPos.length > 0) {
                 const batchAdjustPos: BatchOrders = { category: "linear", request: [] };
                 for (const pos of adjustPos) {
-                    const prePos = data.prePosition[clientNumber].find(c => c.symbol = pos.symbol);
+                    const prePos = data.prePosition[clientNumber].find(c => c.symbol === pos.symbol);
                     const filter = exchangeInfo.find(exch => exch.symbol === pos.symbol);
                     if (filter !== undefined && prePos !== undefined) {
                         const filterSize = filter.lotSizeFilter;
