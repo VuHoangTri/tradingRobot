@@ -3,7 +3,8 @@ import _ from 'lodash';
 import { INTERVAL, BINANCEURL, wagonTrader, binanceTrader, exchangeInfo, account, hotcoinTrader } from "./constant"
 import { RestClientV5, UnifiedMarginClient } from "bybit-api";
 import { comparePosition, getCopyList, getTotalPnL } from "./action";
-import { getClosedPNL, getExchangeInfo, getMarkPrice, getMyPositions } from "./bybit";
+import { getAccountByBit, getClosedPNL, getExchangeInfo, getMarkPrice, getMyPositions } from "./bybit";
+import { sendError } from "./slack";
 
 
 export const restClient: RestClientV5 = new RestClientV5({
@@ -37,7 +38,11 @@ export async function main() {
     // }
     // console.log(38, await getTotalPnL());
     //getClosedPNL({cursor: '1947c0a0-d914-4e31-b095-ba50a19d7e93%3A1682970218860306743%2Cff16c553-9522-47bf-826e-2f63987a20cf%3A1682766142982145960'}));
-
+    for (const [index, item] of client.entries()) {
+      const res = await getAccountByBit(item);
+      if (res.retMsg !== 'OK') { sendError(`Lỗi acc ${index}`) }
+      // console.log(res);
+    }
     const result = await getExchangeInfo(client[0]);
     exchangeInfo.push(...result);
 

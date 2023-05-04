@@ -39,7 +39,7 @@ export async function sendChatToBot(icon: string, text: string, botNumber: numbe
 }
 
 export async function sendError(text: string) {
-    const errBot = 'https://hooks.slack.com/services/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';
+    const errBot = 'https://hooks.slack.com/services/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';
     const body =
     {
         "blocks": [

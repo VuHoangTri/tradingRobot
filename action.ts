@@ -1,6 +1,6 @@
 import { RequestInit } from "node-fetch";
 import { createBatchOrders, createOrder, getClosedPNL, getMarkPrice, getMyPositions, setLeverage } from "./bybit";
-import { BINANCEURL, LEVERAGEBYBIT, SIZEBYBIT, binanceTrader, exchangeInfo, gain, hotcoinTrader, wagonTrader } from "./constant";
+import { BINANCEURL, LEVERAGEBYBIT, SIZEBYBIT, binanceTrader, exchangeInfo, gain, hotcoinTrader, mexcTrader, wagonTrader } from "./constant";
 import { ApiObject, BatchOrders, Leverage, Order, Position } from "./interface";
 import { data, firstGet, } from "./main";
 import { sendChatToBot, sendError } from "./slack";
@@ -42,6 +42,17 @@ export function convertBinanceFormat(clientNumber: number, position: any[]) {
     return res;
 }
 
+export function convertMEXCFormat(clientNumber: number, position: any[]) {
+    const res: Position[] = position.map(pos => {
+        return {
+            symbol: pos.symbol.split('_').join(''),
+            size: (Number(pos.orderAmount) / gain[clientNumber]).toFixed(3).toString(),
+            leverage: (pos.leverage * LEVERAGEBYBIT).toString()
+        }
+    });
+    return res;
+}
+
 export function convertHotCoinFormat(clientNumber: number, position: any[]) {
     const res: Position[] = position.map(pos => {
         const filter = exchangeInfo.find(exch => exch.symbol === pos.contractCodeDisplayName);
@@ -62,7 +73,6 @@ export function convertHotCoinFormat(clientNumber: number, position: any[]) {
 
 export async function getCopyList() {
     const curPosition: Position[][] = [];
-
     const wagonCopyPos: any = [];
     for (const trader of wagonTrader) {
         wagonCopyPos.push(await fetch(trader));
@@ -104,6 +114,17 @@ export async function getCopyList() {
         const response: any = await list.json();
         if (response.msg === "success" && response.code === 200) {
             curPosition.push(await convertHotCoinFormat(i, response.data));
+        }
+    }
+    const mexcCopyPos: any = [];
+    for (const trader of mexcTrader) {
+        mexcCopyPos.push(await fetch(trader));
+    }
+    for (let i = 0; i < mexcCopyPos.length; i++) {
+        const list = mexcCopyPos[i];
+        const response: any = await list.json();
+        if (response.success === true && response.code === 0) {
+            curPosition.push(await convertMEXCFormat(i, response.data.content));
         }
     }
     return curPosition;

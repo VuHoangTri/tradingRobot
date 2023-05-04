@@ -8,8 +8,8 @@ import { restClient } from './main';
 export function getAccountByBit(client: UnifiedMarginClient) {
     const info = client.getPrivate('/unified/v3/private/account/info')
         .then(result => {
-            console.log("getAccountInfo result: ", result);
-            return result.result;
+            // console.log("getAccountInfo result: ", result);
+            return result;
         })
         .catch(err => {
             console.error("getAccountInfo error: ", err);
