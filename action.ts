@@ -1,12 +1,13 @@
-import { RequestInit } from "node-fetch";
-import { createBatchOrders, createOrder, getClosedPNL, getMarkPrice, getMyPositions, getTradeFee, setLeverage } from "./bybit";
-import { BINANCEURL, LEVERAGEBYBIT, SIZEBYBIT, binanceTrader, exchangeInfo, gain, hotcoinTrader, mexcTrader, wagonTrader } from "./constant";
+// import { RequestInit } from "node-fetch";
+// import { createBatchOrders, createOrder, getClosedPNL, getMarkPrice, getMyPositions, getTradeFee, setLeverage } from "./bybit";
+import { LEVERAGEBYBIT } from "./constant";
 import { ApiObject, BatchOrders, Leverage, Order, Position } from "./interface";
-import { data, firstGet, } from "./main";
+// import { data, firstGet, } from "./main";
 import { sendChatToBot, sendError } from "./slack";
 import _ from 'lodash';
-import { UnifiedMarginClient } from "bybit-api";
-import fetch from "node-fetch";
+import { BybitAPI } from "./bybit";
+// import { UnifiedMarginClient } from "bybit-api";
+// import fetch from "node-fetch";
 
 export function convertByBitFormat(position: ApiObject[]) {
     const res: Position[] = position.map(pos => {
@@ -20,45 +21,45 @@ export function convertByBitFormat(position: ApiObject[]) {
     return res;
 }
 
-export function convertWagonFormat(clientNumber, position: any[]) {
+export function convertWagonFormat(gain: number, position: any[]) {
     const res: Position[] = position.map(pos => {
         return {
             symbol: pos.symbol,
-            size: (Number(pos.positionAmount) / gain[clientNumber]).toFixed(3).toString(),
+            size: (Number(pos.positionAmount) / gain).toFixed(3).toString(),
             leverage: (pos.leverage * LEVERAGEBYBIT).toString()
         }
     });
     return res;
 }
 
-export function convertBinanceFormat(clientNumber: number, position: any[]) {
+export function convertBinanceFormat(gain, position: any[]) {
     const res: Position[] = position.map(pos => {
         return {
             symbol: pos.symbol,
-            size: (Number(pos.amount) / gain[clientNumber]).toFixed(3).toString(),
+            size: (Number(pos.amount) / gain).toFixed(3).toString(),
             leverage: (pos.leverage * LEVERAGEBYBIT).toString()
         }
     });
     return res;
 }
 
-export function convertMEXCFormat(clientNumber: number, position: any[]) {
+export function convertMEXCFormat(gain: number, position: any[]) {
     const res: Position[] = position.map(pos => {
         return {
             symbol: pos.symbol.split('_').join(''),
-            size: (Number(pos.orderAmount) / gain[clientNumber]).toFixed(3).toString(),
+            size: (Number(pos.orderAmount) / gain).toFixed(3).toString(),
             leverage: (pos.leverage * LEVERAGEBYBIT).toString()
         }
     });
     return res;
 }
 
-export function convertHotCoinFormat(clientNumber: number, position: any[]) {
+export function convertHotCoinFormat(exchangeInfo, gain: number, position: any[]) {
     const res: Position[] = position.map(pos => {
         const filter = exchangeInfo.find(exch => exch.symbol === pos.contractCodeDisplayName);
         let sideConverter = 1;
         if (pos.side === "short") sideConverter = -1;
-        const size = (((Number(pos.openMargin) * pos.lever / Number(pos.price)) / gain[clientNumber]) * sideConverter);
+        const size = (((Number(pos.openMargin) * pos.lever / Number(pos.price)) / gain) * sideConverter);
         pos.size = pos.lever > filter.leverageFilter.maxLeverage
             ? (size * (Number(pos.lever) / Number(filter.leverageFilter.maxLeverage))).toString()
             : size
@@ -71,88 +72,24 @@ export function convertHotCoinFormat(clientNumber: number, position: any[]) {
     return res;
 }
 
-export async function getCopyList() {
-    try {
-        const curPosition: Position[][] = [];
-        const wagonCopyPos: any = [];
-        for (const trader of wagonTrader) {
-            wagonCopyPos.push(await fetch(trader));
-        }
-        for (let i = 0; i < wagonCopyPos.length; i++) {
-            const list = wagonCopyPos[i];
-            const response: any = await list.json();
-            if (response.success === true && response.code === "000000") {
-                curPosition.push(await convertWagonFormat(i, response.data));
-            }
-        }
-        const binanceCopyPos: any = [];
-        for (const trader of binanceTrader) {
-            const requestOptions: RequestInit = {
-                method: 'POST',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                redirect: "follow",
-                body: JSON.stringify(trader),
-            };
-            binanceCopyPos.push(await fetch(BINANCEURL, requestOptions));
-        }
-        const length = curPosition.length;
-        for (let i = length; i < binanceCopyPos.length + length; i++) {
-            const list = binanceCopyPos[i - length];
-            const response: any = await list.json();
-            if (response.success === true && response.code === "000000") {
-                const data = await convertBinanceFormat(i, response.data.otherPositionRetList);
-                curPosition.push(data);
-            }
-        }
-        const hotcoinCopyPos: any = [];
-        for (const trader of hotcoinTrader) {
-            hotcoinCopyPos.push(await fetch(trader));
-        }
-        for (let i = 0; i < hotcoinCopyPos.length; i++) {
-            const list = hotcoinCopyPos[i];
-            const response: any = await list.json();
-            if (response.msg === "success" && response.code === 200) {
-                curPosition.push(await convertHotCoinFormat(i, response.data));
-            }
-        }
-        const mexcCopyPos: any = [];
-        for (const trader of mexcTrader) {
-            mexcCopyPos.push(await fetch(trader));
-        }
-        for (let i = 0; i < mexcCopyPos.length; i++) {
-            const list = mexcCopyPos[i];
-            const response: any = await list.json();
-            if (response.success === true && response.code === 0) {
-                curPosition.push(await convertMEXCFormat(i, response.data.content));
-            }
-        }
-        return curPosition;
-    }
-    catch (err) {
-        sendError(`Lỗi ${err}`);
-        data.botEnabled = false;
-        return [];
-    }
-}
+export
 
-export async function convertToOrder(client: UnifiedMarginClient, pos: Position, isBatch: boolean) {
+    function convertToOrder(pos: Position, isBatch: boolean) {
     try {
-        const price = await getMarkPrice(pos.symbol);
+        // const price = await this.getMarkPrice(pos.symbol);
         const newSide = Number(pos.size) < 0 ? 'Sell' : 'Buy';
-        let newPrice = '';
-        if (newSide === 'Buy') {
-            newPrice = ((Number(price) * 1.1)).toFixed(3).toString()
-        } else {
-            newPrice = (Number(price) * 0.9).toFixed(3).toString()
-        }
+        // let newPrice = '';
+        // if (newSide === 'Buy') {
+        //     newPrice = ((Number(price) * 1.1)).toFixed(3).toString()
+        // } else {
+        //     newPrice = (Number(price) * 0.9).toFixed(3).toString()
+        // }
         const res: Order = {
             symbol: pos.symbol,
-            orderType: 'Limit',
+            orderType: 'Market',
             qty: Math.abs(Number(pos.size)).toString(),
             side: newSide,
-            price: newPrice,
+            // price: newPrice,
             timeInForce: 'GoodTillCancel',
         };
         if (!isBatch) {
@@ -165,62 +102,31 @@ export async function convertToOrder(client: UnifiedMarginClient, pos: Position,
     }
 }
 
-export async function adjustLeverage(client: UnifiedMarginClient, positions: Position[], filter: any) {
-    try {
-        let count = 0;
-        for await (const pos of positions) {
-            const leverageFilter = exchangeInfo.find(c => c.symbol === pos.symbol).leverageFilter;
-            const lever = (Number(pos.leverage) / LEVERAGEBYBIT).toString();
-            const selectedLever = (lever >= leverageFilter.maxLeverage)
-                ? leverageFilter.maxLeverage
-                : lever;
-            const leverage: Leverage = {
-                category: 'linear',
-                symbol: pos.symbol,
-                sellLeverage: selectedLever,
-                buyLeverage: selectedLever
-            };
-            const res = await setLeverage(client, leverage);
-            // console.log(res);
-            if (count === 3) {
-                await new Promise((r) => setTimeout(r, 2000));
-                count = 0;
-            } else {
-                count++;
-            }
-        }
-    } catch (err: any) {
-        sendError(err);
-    }
-}
-
-export async function openBatchOrders(clientNumber: number, client: UnifiedMarginClient,
-    batchOrders: BatchOrders, pnl: boolean) {
-    try {
-        if (batchOrders.request.length > 0) {
-            for (let i = 0; i < batchOrders.request.length; i += 9) {
-                const chunkBatchOrders: BatchOrders = _.cloneDeep(batchOrders);
-                chunkBatchOrders.request = chunkBatchOrders.request.slice(i, i + 9);
-                const resCreate = await createBatchOrders(client, chunkBatchOrders);
-                for (let i = 0; i < resCreate.result.list.length; i++) {
-                    if (resCreate.retCode === 0 && resCreate.result.list[i].orderId !== '') {
-                        console.log("Batch Order", resCreate.result.list[i].orderId);
-                        const order = batchOrders.request[i];
-                        let actualPNL = "";
-                        if (pnl === true) {
-                            const res = await getClosedPNL({ symbol: order.symbol, limit: 1 });
-                            if (typeof res !== 'string')
-                                actualPNL = res.list[0].closedPnl;
-                        }
-                        convertAndSendBot(order.side, order, clientNumber, actualPNL);
-                    }
-                }
-            }
-        }
-    } catch (err: any) {
-        sendError(err);
-    }
-}
+// export async function openBatchOrders(batchOrders: BatchOrders, pnl: boolean) {
+//     try {
+//         if (batchOrders.request.length > 0) {
+//             for (let i = 0; i < batchOrders.request.length; i += 9) {
+//                 const chunkBatchOrders: BatchOrders = _.cloneDeep(batchOrders);
+//                 chunkBatchOrders.request = chunkBatchOrders.request.slice(i, i + 9);
+//                 const resCreate = await submitBatchOrders(client, chunkBatchOrders);
+//                 for (let i = 0; i < resCreate.result.list.length; i++) {
+//                     if (resCreate.retCode === 0 && resCreate.result.list[i].orderId !== '') {
+//                         const order = batchOrders.request[i];
+//                         let actualPNL = "";
+//                         if (pnl === true) {
+//                             const res = await getClosedPNL({ symbol: order.symbol, limit: 1 });
+//                             if (typeof res !== 'string')
+//                                 actualPNL = res.list[0].closedPnl;
+//                         }
+//                         convertAndSendBot(order.side, order, clientNumber, actualPNL);
+//                     }
+//                 }
+//             }
+//         }
+//     } catch (err: any) {
+//         sendError(err);
+//     }
+// }
 
 function roundQuantity(size, minOrderQty, qtyStep) {
     const decimalLen = minOrderQty.toString().split('.')[1]?.length ?? 0;
@@ -231,100 +137,116 @@ function roundQuantity(size, minOrderQty, qtyStep) {
     return (size < 0 ? -nearestMultiple : nearestMultiple).toFixed(decimalLen);
 }
 
-export async function comparePosition(clientNumber: number, client: UnifiedMarginClient, curPos: Position[]): Promise<void> {
+export async function comparePosition(compare: { firstGet: boolean, curPos: Position[], prePos: Position[] }) {
     try {
-        const openPos = _.differenceBy(curPos, data.prePosition[clientNumber], 'symbol');
-        const closePos = _.differenceBy(data.prePosition[clientNumber], curPos, 'symbol');
-        let adjustPos: any = [];
+        const { firstGet, curPos, prePos } = compare;
+        const openPos: Position[] = _.differenceBy(curPos, prePos, 'symbol');
+        const closePos: Position[] = _.differenceBy(prePos, curPos, 'symbol');
+        let adjustPos: Position[] = [];
         if (firstGet !== true) {
             adjustPos = curPos.filter(pP =>
-                data.prePosition[clientNumber].some(cP =>
+                prePos.some(cP =>
                     cP.symbol === pP.symbol && Number(cP.size) !== Number(pP.size)
                 )
             ) || [];
         }
-        // console.log("Difference", openPos, closePos, adjustPos, data.prePosition[clientNumber], curPos, clientNumber, new Date());
-        if (openPos.length > 0) {
-            const openPosFine = _.cloneDeep(openPos.filter(c => exchangeInfo.some(x => c.symbol === x.symbol)) || []);
-            // console.log('Open Position', openPosFine, data.prePosition[clientNumber], clientNumber, new Date());
-            await adjustLeverage(client, openPosFine, exchangeInfo);
-            const batchOpenPos: BatchOrders = { category: "linear", request: [] };
-            for await (const pos of openPosFine) {
-                const filter = exchangeInfo.find(exch => exch.symbol === pos.symbol);
-                const lotSizeFilter = filter.lotSizeFilter;
-                pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
-                const order = await convertToOrder(client, pos, true);
-                console.log("Open", order, data.prePosition[clientNumber], curPos, new Date());
-                if (order !== null) {
-                    order.leverage = pos.leverage;
-                    batchOpenPos.request.push(order);
-                }
-            }
-            await openBatchOrders(clientNumber, client, batchOpenPos, false)
-        }
-
-        if (adjustPos.length > 0 || closePos.length > 0) {
-            const myPos = await getMyPositions(client);
-            if (closePos.length > 0) {
-                const batchClosePos: BatchOrders = { category: "linear", request: [] };
-                for (const pos of closePos) {
-                    const filter = exchangeInfo.find(exch => exch.symbol === pos.symbol);
-                    if (filter !== undefined) {
-                        const order = await adjustVol({ client, symbol: pos.symbol, preSize: pos.size, newSize: '0', myPos });
-                        console.log("Close", order, data.prePosition[clientNumber], curPos, new Date());
-                        if (order !== null)
-                            batchClosePos.request.push(order);
-                    }
-                }
-                await openBatchOrders(clientNumber, client, batchClosePos, true);
-            }
-            if (adjustPos.length > 0) {
-                const batchAdjustPos: BatchOrders = { category: "linear", request: [] };
-                for (const pos of adjustPos) {
-                    const prePos = data.prePosition[clientNumber].find(c => c.symbol === pos.symbol);
-                    const filter = exchangeInfo.find(exch => exch.symbol === pos.symbol);
-                    if (filter !== undefined && prePos !== undefined) {
-                        const filterSize = filter.lotSizeFilter;
-                        const order = await adjustVol({ client, symbol: pos.symbol, preSize: prePos.size, newSize: pos.size, myPos, filter: filterSize });
-                        console.log("Adjust", order, data.prePosition[clientNumber], curPos, new Date())
-                        if (order !== null)
-                            batchAdjustPos.request.push(order);
-                    }
-                }
-                if (batchAdjustPos.request.length > 0)
-                    await openBatchOrders(clientNumber, client, batchAdjustPos, true);
-            }
-        }
-        data.prePosition[clientNumber] = _.cloneDeep(curPos);
-    } catch (err: any) {
-        sendError(err);
+        return { openPos: openPos, closePos: closePos, adjustPos: adjustPos }
+    } catch (err) {
+        sendError(`Compare error: ${err}`)
     }
 }
 
-async function adjustVol(adjVol: { client: UnifiedMarginClient, symbol: string, preSize: string, newSize: string, myPos: any, filter?: any }) {
+export function openedPosition(position: Position[], trader: BybitAPI) {
     try {
-        const { client, symbol, preSize, newSize, myPos, filter } = adjVol;
-        const diffPos = _.cloneDeep(myPos.result.list.filter(c => c.symbol === symbol));
-        if (diffPos.length === 1) {
-            const newPos = diffPos[0];
-            const percent = Number(newSize) / Number(preSize);
-            newPos.size = Number(newPos.size) * percent - Number(newPos.size);
-            if (Number(newSize) !== 0) {
-                newPos.size = roundQuantity(newPos.size, filter.minOrderQty, filter.qtyStep);
+        const batchOpenPos: BatchOrders = { category: "linear", request: [] };
+        console.log("Cur and Pre Position - Open ", trader._prePos, trader._curPos);
+        for (const pos of position) {
+            const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
+            const lotSizeFilter = filter.lotSizeFilter;
+            pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
+            const order = convertToOrder(pos, true);
+            console.log("Action Open", order, new Date());
+            if (order !== null) {
+                order.leverage = pos.leverage;
+                batchOpenPos.request.push(order);
             }
-            const order = await convertToOrder(client, newPos, true);
-            if (order !== null)
-                order.leverage = newPos.leverage;
-            return order;
         }
-        return null;
-    } catch (err: any) {
-        sendError(err);
-        return null;
+        return batchOpenPos;
+    }
+    catch (err) {
+        sendError(`Create adjust pos error ${err}`);
+        const batchEmpty: BatchOrders = { category: "linear", request: [] };
+        return batchEmpty
     }
 }
 
-function convertAndSendBot(action: string | undefined, order, clientNumber: number, pnl: string) {
+export function closedPosition(position: Position[], trader: BybitAPI) {
+    try {
+        const batchClosePos: BatchOrders = { category: "linear", request: [] };
+        console.log("Cur Position - Close", trader._curPos);
+        for (const pos of position) {
+            const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
+            if (filter !== undefined) {
+                pos.size = (Number(pos.size) * -1).toString();
+                const order = convertToOrder(pos, true)
+                console.log("Action Close", order, new Date());
+                if (order !== null)
+                    batchClosePos.request.push(order);
+            }
+        }
+        return batchClosePos;
+    }
+    catch (err) {
+        sendError(`Create adjust pos error ${err}`);
+        const batchEmpty: BatchOrders = { category: "linear", request: [] };
+        return batchEmpty
+    }
+}
+
+export async function adjustPosition(position: Position[], trader: BybitAPI) {
+    try {
+        const batchAdjustPos: BatchOrders = { category: "linear", request: [] };
+        console.log('Cur and Pre Position - Adjust', trader._prePos, trader._curPos);
+        let pnl = true;
+        for await (const pos of position) {
+            const prePos = trader._prePos.find(c => c.symbol === pos.symbol);
+            if (prePos) {
+                const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
+                if (filter !== undefined && prePos !== undefined) {
+                    const filterSize = filter.lotSizeFilter;
+                    const percent = Number(pos.size) / Number(prePos.size);
+                    const myPos = await trader.getMyPositions();
+                    const adjustedPos = myPos.result.list.filter(c => c.symbol === pos.symbol) || [];
+                    if (adjustedPos.length > 0) {
+                        const newPos: Position = {
+                            symbol: pos.symbol,
+                            size: (Number(adjustedPos[0].size) * percent - Number(adjustedPos[0].size)).toString(),
+                            leverage: pos.leverage
+                        }
+                        if (Number(newPos.size) * Number(adjustedPos[0].size) > 0) pnl = false
+                        else pnl = true;
+                        newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
+                        const order = convertToOrder(newPos, true);
+                        console.log("Action Adjust", order, new Date())
+                        if (order !== null) {
+                            order.leverage = newPos.leverage;
+                            batchAdjustPos.request.push(order);
+                        }
+                    }
+                }
+            }
+        }
+        return { batch: batchAdjustPos, pnl };
+    }
+    catch (err) {
+        console.log(err);
+        sendError(`Create adjust pos error ${err}`);
+        const batchEmpty: BatchOrders = { category: "linear", request: [] };
+        return { batch: batchEmpty, pnl: false }
+    }
+}
+
+export function convertAndSendBot(action: string | undefined, order, clientNumber: number, pnl: string) {
     try {
         let dataString = '';
         let icon = '';
@@ -343,24 +265,24 @@ function convertAndSendBot(action: string | undefined, order, clientNumber: numb
     }
 }
 
-export async function getTotalPnL(nextPageCursor?: string) {
-    let res = await getClosedPNL({ cursor: nextPageCursor });
-    let sum = 0;
-    while (typeof res !== 'string' && res.nextPageCursor !== '') {
-        sum = sum + res.list.reduce((acc, cur) => acc + Number(cur.closedPnl), 0);
-        res = await getClosedPNL({ cursor: res.nextPageCursor })
-    }
-    return sum;
-}
+// export async function getTotalPnL(nextPageCursor?: string) {
+//     let res = await getClosedPNL({ cursor: nextPageCursor });
+//     let sum = 0;
+//     while (typeof res !== 'string' && res.nextPageCursor !== '') {
+//         sum = sum + res.list.reduce((acc, cur) => acc + Number(cur.closedPnl), 0);
+//         res = await getClosedPNL({ cursor: res.nextPageCursor })
+//     }
+//     return sum;
+// }
 
-export async function getTotalTradeFee(nextPageCursor?: string) {
-    let res = await getTradeFee({ cursor: nextPageCursor });
-    let sum = 0;
-    let length = 0;
-    while (typeof res !== 'string' && Boolean(res.nextPageCursor)) {
-        length = length + res.list.length;
-        sum = sum + res.list.reduce((acc, cur) => acc + Number(cur.fee), 0);
-        res = await getTradeFee({ cursor: res.nextPageCursor })
-    }
-    return sum;
-}
+// export async function getTotalTradeFee(nextPageCursor?: string) {
+//     let res = await getTradeFee({ cursor: nextPageCursor });
+//     let sum = 0;
+//     let length = 0;
+//     while (typeof res !== 'string' && Boolean(res.nextPageCursor)) {
+//         length = length + res.list.length;
+//         sum = sum + res.list.reduce((acc, cur) => acc + Number(cur.fee), 0);
+//         res = await getTradeFee({ cursor: res.nextPageCursor })
+//     }
+//     return sum;
+// }

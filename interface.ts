@@ -32,7 +32,7 @@ export interface Order {
     symbol: string;
     category?: 'linear' | 'option';
     price?: string;
-    side: 'Buy' | 'Sell' | undefined;
+    side: 'Buy' | 'Sell';
     orderType: 'Market' | 'Limit';
     qty: string;
     timeInForce: 'GoodTillCancel' | 'ImmediateOrCancel' | 'FillOrKill' | 'PostOnly';
@@ -63,4 +63,12 @@ export interface Account {
     key: string;
     secret: string;
     testnet: boolean;
+    trader: string | BinanceTrader;
+    gain: number;
+    platform: string;
+}
+
+export interface BinanceTrader {
+    encryptedUid: string;
+    tradeType: string;
 }

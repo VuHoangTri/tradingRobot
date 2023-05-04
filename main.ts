@@ -1,93 +1,81 @@
-import { Position, Data, Account } from "./interface";
 import _ from 'lodash';
-import { INTERVAL, BINANCEURL, wagonTrader, binanceTrader, exchangeInfo, account, hotcoinTrader } from "./constant"
-import { RestClientV5, UnifiedMarginClient } from "bybit-api";
-import { comparePosition, getCopyList, getTotalPnL, getTotalTradeFee } from "./action";
-import { getAccountByBit, getClosedPNL, getExchangeInfo, getMarkPrice, getMyPositions, getTradeFee } from "./bybit";
+import { INTERVAL, accounts, } from "./constant"
+import { BybitAPI } from "./bybit";
 import { sendError } from "./slack";
+import { adjustPosition, closedPosition, comparePosition, openedPosition } from "./action";
 
+export let bot: { enabled: boolean } = { enabled: true };
+export const traderAPIs: BybitAPI[] = [];
 
-export const restClient: RestClientV5 = new RestClientV5({
-  key: account[0].key,
-  secret: account[0].secret,
-  testnet: account[0].testnet
-});
-
-
-export const client: UnifiedMarginClient[] = [];
-for (const acc of account) {
-  const newClient = new UnifiedMarginClient(acc);
-  client.push(newClient);
+function accGenAPI() {
+  for (const account of accounts) {
+    traderAPIs.push(new BybitAPI(
+      account
+    ))
+  }
 }
 
-export let data: Data = {
-  // close: [],
-  // open: [],
-  botEnabled: true,
-  symbols: [],
-  prePosition: [],
+function* traderGenerator(): Generator<BybitAPI> {
+  let i = 0;
+  while (true) {
+    yield traderAPIs[i];
+    i = (i + 1) % traderAPIs.length;
+  }
 }
-export let firstGet: boolean = true;
-
 
 export async function main() {
   try {
-    // const copyLength = wagonTrader.length + binanceTrader.length + hotcoinTrader.length;
-    // for (let i = 0; i < copyLength; i++) {
-    //   data.prePosition.push([])
-    // }
-    // console.log(38, await getTotalTradeFee());
-    //getClosedPNL({cursor: '1947c0a0-d914-4e31-b095-ba50a19d7e93%3A1682970218860306743%2Cff16c553-9522-47bf-826e-2f63987a20cf%3A1682766142982145960'}));
-    for (const [index, item] of client.entries()) {
-      const res = await getAccountByBit(item);
-      if (res.retMsg !== 'OK') { sendError(`Lỗi acc ${index}`) }
-      // console.log(res);
+    accGenAPI();
+    const generator = traderGenerator();
+    const result = await traderAPIs[0].getExchangeInfo();
+    for (let i = 0; i < traderAPIs.length; i++) {
+      const trader: BybitAPI = generator.next().value;
+      trader._exchangeInfo = [...result]
+      const curPos = await trader.getCopyList();
+      trader._prePos = curPos;
+      // const myPos = (await trader.getMyPositions()).result;//curPos;
+      // trader._prePos = myPos.list.map((c: Position) => {
+      //   return { symbol: c.symbol, size: c.size, leverage: c.leverage }
+      // });
+      trader._firstGet = false;
+      // console.log(38, trader._curPos, trader._prePos)
     }
-    const result = await getExchangeInfo(client[0]);
-    exchangeInfo.push(...result);
-
-    // console.log(40, await getMarkPrice("BTCUSDT"));
-    // console.log(await getCopyList());
-
-    for (let i = 0; i < client.length; i++) {
-      if (firstGet) {
-        // const myPos = await getMyPositions(client[i]);
-        // // console.log("myPos", myPos);
-        // if (myPos.retMsg !== 'Success') {
-        //   data.botEnabled = false;
-        // }
-        // data.prePosition.push(myPos.result.list.map((c: Position) => {
-        //   return {
-        //     symbol: c.symbol,
-        //     size: c.size,
-        //     leverage: c.leverage
-        //   }
-        // }));
-        // console.log("prePos", data.prePosition);
-        const curPosition = await getCopyList();
-        data.prePosition.push(_.cloneDeep(curPosition[i]));
-        // console.log("curPos", curPosition);
-        await comparePosition(i, client[i], curPosition[i]);
-      }
-    }
-    firstGet = false;
-    await new Promise((r) => setTimeout(r, 5000));
-    await mainExecution();
+    mainExecution(generator)
   } catch (err) {
-    console.log(err);
+    sendError(`Main error:${err}`);
     await new Promise((r) => setTimeout(r, INTERVAL));
   }
 }
 
-export async function mainExecution() {
-  if (data.botEnabled) {
-    const curPosition = await getCopyList();
-    for (let i = 0; i < curPosition.length; i++) {
-      await comparePosition(i, client[i], curPosition[i])
+export async function mainExecution(generator: Generator<BybitAPI>) {
+  const traderGen = generator.next();
+  const trader: BybitAPI = traderGen.value;
+  if (bot.enabled) {
+    const curPos = await trader.getCopyList();
+    const diffStatus = await comparePosition({ firstGet: trader._firstGet, curPos: trader._curPos, prePos: trader._prePos })
+    if (diffStatus) {
+      const { openPos, closePos, adjustPos } = diffStatus;
+      if (openPos.length > 0) {
+        const openPosFine = _.cloneDeep(openPos.filter((c: any) => trader._exchangeInfo.some((x: any) => c.symbol === x.symbol)) || []);
+        if (openPosFine.length > 0) {
+          await trader.adjustLeverage(openPosFine);
+          const batchOpen = openedPosition(openPosFine, trader);
+          trader.openBatchOrders(batchOpen, false);
+        }
+      }
+      if (closePos.length > 0) {
+        const batchClose = closedPosition(closePos, trader);
+        trader.openBatchOrders(batchClose, true);
+      }
+      if (adjustPos.length > 0) {
+        const result = await adjustPosition(adjustPos, trader);
+        trader.openBatchOrders(result.batch, result.pnl);
+      }
     }
     await new Promise((r) => setTimeout(r, INTERVAL));
+    trader._prePos = curPos;
     // console.log('Next');
-    await mainExecution();
+    await mainExecution(generator);
     // console.log(1);
   }
 }

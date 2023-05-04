@@ -3,9 +3,9 @@ import bodyParser from "body-parser";
 
 const app = express();
 const port = 3000;
-import { client, data, main } from "./main";
-import { getAccountByBit, getMyPositions, getTradeFee, getWalletBalance } from "./bybit";
-import { getTotalPnL, getTotalTradeFee } from "./action";
+import { bot, main } from "./main";
+// import { getAccountByBit, getMyPositions, getTradeFee, getWalletBalance } from "./bybit";
+// import { getTotalPnL, getTotalTradeFee } from "./action";
 
 app.use(bodyParser.json()); // to support JSON-encoded bodies
 app.use(
@@ -18,81 +18,77 @@ app.use(
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 app.get("/", (req: Request, res: Response) => {
-  if (data.botEnabled)
+  if (bot.enabled)
     res.send({ status: 'running' })
   else res.send({ status: 'stoping' })
 });
 
 app.post("/run", async function (req, res) {
-  data.botEnabled = true;
+  bot.enabled = true;
   res.send("Đã chạy");
 });
 
 app.post("/stop", async function (req, res) {
-  data.botEnabled = false;
+  bot.enabled = false;
   res.send("Đã dừng");
 });
 
-app.post("/getPosMain", async function (req, res) {
-  const response = await getMyPositions(client[0]);
-  res.send(response.result.list);
-})
-app.get("/getPosMain", async function (req, res) {
-  const response = await getMyPositions(client[0]);
-  res.send(response.result.list);
-})
+// app.post("/getPosMain", async function (req, res) {
+//   const response = await getMyPositions(client[0]);
+//   res.send(response.result.list);
+// })
+// app.get("/getPosMain", async function (req, res) {
+//   const response = await getMyPositions(client[0]);
+//   res.send(response.result.list);
+// })
 
-app.post("/getTotalPnl", async function (req, res) {
-  const response = await getTotalPnL();
-  res.send({ pnl: response });
-})
-app.get("/getTotalPnl", async function (req, res) {
-  const response = await getTotalPnL();
-  res.send({ pnl: response });
-})
+// app.post("/getTotalPnl", async function (req, res) {
+//   const response = await getTotalPnL();
+//   res.send({ pnl: response });
+// })
+// app.get("/getTotalPnl", async function (req, res) {
+//   const response = await getTotalPnL();
+//   res.send({ pnl: response });
+// })
 
-app.post("/getTradeFee", async function (req, res) {
-  const response = await getTotalTradeFee();
-  res.send({ pnl: response });
-})
-app.get("/getTradeFee", async function (req, res) {
-  const response = await getTotalTradeFee();
-  res.send({ pnl: response });
-})
+// app.post("/getTradeFee", async function (req, res) {
+//   const response = await getTotalTradeFee();
+//   res.send({ pnl: response });
+// })
+// app.get("/getTradeFee", async function (req, res) {
+//   const response = await getTotalTradeFee();
+//   res.send({ pnl: response });
+// })
 
-app.post("/getPosSub1", async function (req, res) {
-  const response = await getMyPositions(client[1]);
-  res.send(response.result.list);
-})
-app.get("/getPosSub1", async function (req, res) {
-  const response = await getMyPositions(client[1]);
-  res.send(response.result.list);
-})
+// app.post("/getPosSub1", async function (req, res) {
+//   const response = await getMyPositions(client[1]);
+//   res.send(response.result.list);
+// })
+// app.get("/getPosSub1", async function (req, res) {
+//   const response = await getMyPositions(client[1]);
+//   res.send(response.result.list);
+// })
 
-app.post("/getPosSub2", async function (req, res) {
-  const response = await getMyPositions(client[2]);
-  res.send(response.result.list);
-})
-app.get("/getPosSub2", async function (req, res) {
-  const response = await getMyPositions(client[2]);
-  res.send(response.result.list);
-})
+// app.post("/getPosSub2", async function (req, res) {
+//   const response = await getMyPositions(client[2]);
+//   res.send(response.result.list);
+// })
+// app.get("/getPosSub2", async function (req, res) {
+//   const response = await getMyPositions(client[2]);
+//   res.send(response.result.list);
+// })
 
 app.get("/stop", async function (req, res) {
-  data.botEnabled = false;
+  bot.enabled = false;
   res.send("Đã dừng");
 });
 
-app.get("/getSymbols", async function (req, res) {
-  res.json(data.symbols);
-});
-
-app.get("/getData", async function (req, res) {
-  res.json(data.prePosition);
-});
-app.post("/getData", async function (req, res) {
-  res.json(data.prePosition);
-});
+// app.get("/getData", async function (req, res) {
+//   res.json(data.prePosition);
+// });
+// app.post("/getData", async function (req, res) {
+//   res.json(data.prePosition);
+// });
 
 // app.get("/getClosedList", async function (req, res) {
 //   res.json(data.close);
