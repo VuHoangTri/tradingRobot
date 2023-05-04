@@ -317,11 +317,11 @@ function convertAndSendBot(action: string | undefined, order, clientNumber: numb
 
 export async function getTotalPnL(nextPageCursor?: string) {
     let res = await getClosedPNL({ cursor: nextPageCursor });
-    let sum;
+    let sum = 0;
     // let count = 1;
     while (typeof res !== 'string' && res.nextPageCursor !== '') {
-        sum = res.list.reduce((acc, cur) => acc + Number(cur.closedPnl), 0);
-        // console.log('317', res.list[0].closedPnl, res.list[1].closedPnl, Number(res.list[0].closedPnl) + Number(res.list[1].closedPnl));
+        sum = sum + res.list.reduce((acc, cur) => acc + Number(cur.closedPnl), 0);
+        // console.log('317', sum, res.list[0].closedPnl, res.list[1].closedPnl, Number(res.list[0].closedPnl) + Number(res.list[1].closedPnl));
         res = await getClosedPNL({ cursor: res.nextPageCursor })
     }
     // console.log(count);
