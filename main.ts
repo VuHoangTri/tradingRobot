@@ -44,30 +44,30 @@ export async function main() {
     // console.log(40, await getMarkPrice("BTCUSDT"));
     // console.log(await getCopyList());
 
-    // for (let i = 0; i < client.length; i++) {
-    //   if (firstGet) {
-    //     // const myPos = await getMyPositions(client[i]);
-    //     // // console.log("myPos", myPos);
-    //     // if (myPos.retMsg !== 'Success') {
-    //     //   data.botEnabled = false;
-    //     // }
-    //     // data.prePosition.push(myPos.result.list.map((c: Position) => {
-    //     //   return {
-    //     //     symbol: c.symbol,
-    //     //     size: c.size,
-    //     //     leverage: c.leverage
-    //     //   }
-    //     // }));
-    //     // console.log("prePos", data.prePosition);
-    //     const curPosition = await getCopyList();
-    //     data.prePosition.push(_.cloneDeep(curPosition[i]));
-    //     // console.log("curPos", curPosition);
-    //     await comparePosition(i, client[i], curPosition[i]);
-    //   }
-    // }
-    // firstGet = false;
-    // await new Promise((r) => setTimeout(r, 5000));
-    // await mainExecution();
+    for (let i = 0; i < client.length; i++) {
+      if (firstGet) {
+        // const myPos = await getMyPositions(client[i]);
+        // // console.log("myPos", myPos);
+        // if (myPos.retMsg !== 'Success') {
+        //   data.botEnabled = false;
+        // }
+        // data.prePosition.push(myPos.result.list.map((c: Position) => {
+        //   return {
+        //     symbol: c.symbol,
+        //     size: c.size,
+        //     leverage: c.leverage
+        //   }
+        // }));
+        // console.log("prePos", data.prePosition);
+        const curPosition = await getCopyList();
+        data.prePosition.push(_.cloneDeep(curPosition[i]));
+        // console.log("curPos", curPosition);
+        await comparePosition(i, client[i], curPosition[i]);
+      }
+    }
+    firstGet = false;
+    await new Promise((r) => setTimeout(r, 5000));
+    await mainExecution();
   } catch (err) {
     console.log(err);
     await new Promise((r) => setTimeout(r, INTERVAL));
