@@ -4,8 +4,8 @@ import bodyParser from "body-parser";
 const app = express();
 const port = 3000;
 import { client, data, main } from "./main";
-import { getAccountByBit, getMyPositions, getWalletBalance } from "./bybit";
-import { getTotalPnL } from "./action";
+import { getAccountByBit, getMyPositions, getTradeFee, getWalletBalance } from "./bybit";
+import { getTotalPnL, getTotalTradeFee } from "./action";
 
 app.use(bodyParser.json()); // to support JSON-encoded bodies
 app.use(
@@ -51,18 +51,14 @@ app.get("/getTotalPnl", async function (req, res) {
   res.send({ pnl: response });
 })
 
-// app.get("/getPosCopy", async function (req, res) {
-//   const listCopyPos: any = [];
-//   const resPos: any = [];
-//   for (const trader of bybitTrader) {
-//     listCopyPos.push(await fetch(trader));
-//   }
-//   for (const list of listCopyPos) {
-//     const response: any = await list.json();
-//     resPos.push(...response.result.data)
-//   }
-//   res.send(resPos);
-// })
+app.post("/getTradeFee", async function (req, res) {
+  const response = await getTotalTradeFee();
+  res.send({ pnl: response });
+})
+app.get("/getTradeFee", async function (req, res) {
+  const response = await getTotalTradeFee();
+  res.send({ pnl: response });
+})
 
 app.post("/getPosSub1", async function (req, res) {
   const response = await getMyPositions(client[1]);
