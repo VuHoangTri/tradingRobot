@@ -5,7 +5,7 @@ import { ApiObject, BatchOrders, Leverage, Order, Position } from "./interface";
 import { data, firstGet, } from "./main";
 import { sendChatToBot, sendError } from "./slack";
 import _ from 'lodash';
-import { ClosedPnLV5, UnifiedMarginClient } from "bybit-api";
+import { UnifiedMarginClient } from "bybit-api";
 import fetch from "node-fetch";
 
 export function convertByBitFormat(position: ApiObject[]) {
@@ -242,7 +242,7 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
                 for (const pos of closePos) {
                     const filter = exchangeInfo.find(exch => exch.symbol === pos.symbol);
                     if (filter !== undefined) {
-                        const order = await adjustVol(client, pos.symbol, '0', myPos);
+                        const order = await adjustVol({ client, symbol: pos.symbol, preSize: pos.size, newSize: '0', myPos });
                         console.log("Close", order, data.prePosition[clientNumber], curPos, new Date());
                         if (order !== null)
                             batchClosePos.request.push(order);
@@ -253,10 +253,11 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
             if (adjustPos.length > 0) {
                 const batchAdjustPos: BatchOrders = { category: "linear", request: [] };
                 for (const pos of adjustPos) {
+                    const prePos = data.prePosition[clientNumber].find(c => c.symbol = pos.symbol);
                     const filter = exchangeInfo.find(exch => exch.symbol === pos.symbol);
-                    if (filter !== undefined) {
+                    if (filter !== undefined && prePos !== undefined) {
                         const filterSize = filter.lotSizeFilter;
-                        const order = await adjustVol(client, pos.symbol, pos.size, myPos, filterSize);
+                        const order = await adjustVol({ client, symbol: pos.symbol, preSize: prePos.size, newSize: pos.size, myPos, filter: filterSize });
                         console.log("Adjust", order, data.prePosition[clientNumber], curPos, new Date())
                         if (order !== null)
                             batchAdjustPos.request.push(order);
@@ -272,15 +273,15 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
     }
 }
 
-async function adjustVol(client: UnifiedMarginClient, symbol: string, size: string, myPos: any, filter?: any) {
+async function adjustVol(adjVol: { client: UnifiedMarginClient, symbol: string, preSize: string, newSize: string, myPos: any, filter?: any }) {
     try {
+        const { client, symbol, preSize, newSize, myPos, filter } = adjVol;
         const diffPos = _.cloneDeep(myPos.result.list.filter(c => c.symbol === symbol));
-        // console.log(diffPos);
         if (diffPos.length === 1) {
             const newPos = diffPos[0];
-            const percent = Number(size) / Number(newPos.size);
+            const percent = Number(newSize) / Number(preSize);
             newPos.size = Number(newPos.size) * percent - Number(newPos.size);
-            if (Number(size) !== 0) {
+            if (Number(newSize) !== 0) {
                 newPos.size = roundQuantity(newPos.size, filter.minOrderQty, filter.qtyStep);
             }
             const order = await convertToOrder(client, newPos, true);
