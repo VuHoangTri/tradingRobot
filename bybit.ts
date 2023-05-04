@@ -1,6 +1,5 @@
 import {
     UnifiedMarginClient,
-    RestClientV5
 } from 'bybit-api';
 import { BatchOrders, Leverage, Order } from './interface';
 import { restClient } from './main';
@@ -18,11 +17,12 @@ export function getAccountByBit(client: UnifiedMarginClient) {
     return info;
 }
 
-export async function getMarkPrice(client: UnifiedMarginClient, symbol: string | undefined): Promise<string> {
+export async function getMarkPrice(symbol: string): Promise<string> {
     try {
-        const res = await client.getPrivate('/v5/market/tickers?category=inverse&symbol=' + symbol)
-            .then(res => { return res.result.list[0].markPrice });
-        return res;
+        const res = await restClient.getTickers({ category: "linear", symbol: symbol })
+            .then(res => { return res.result.list[0] });
+        const markPrice: any = res;
+        return markPrice.markPrice;
     }
     catch {
         return "error"

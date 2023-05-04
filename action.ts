@@ -44,11 +44,16 @@ export function convertBinanceFormat(clientNumber: number, position: any[]) {
 
 export function convertHotCoinFormat(clientNumber: number, position: any[]) {
     const res: Position[] = position.map(pos => {
+        const filter = exchangeInfo.find(exch => exch.symbol === pos.contractCodeDisplayName);
         let sideConverter = 1;
         if (pos.side === "short") sideConverter = -1;
+        const size = (((Number(pos.openMargin) * pos.lever / Number(pos.price)) / gain[clientNumber]) * sideConverter);
+        pos.size = pos.lever > filter.leverageFilter.maxLeverage
+            ? (size * (Number(pos.lever) / Number(filter.leverageFilter.maxLeverage))).toString()
+            : size
         return {
             symbol: pos.contractCodeDisplayName,
-            size: (((Number(pos.openMargin) * pos.lever / Number(pos.price)) / gain[clientNumber]) * sideConverter).toFixed(3).toString(),
+            size: Number(pos.size).toFixed(3).toString(),
             leverage: (pos.lever * LEVERAGEBYBIT).toString()
         }
     });
@@ -106,7 +111,7 @@ export async function getCopyList() {
 
 export async function convertToOrder(client: UnifiedMarginClient, pos: Position, isBatch: boolean) {
     try {
-        const price = await getMarkPrice(client, pos.symbol);
+        const price = await getMarkPrice(pos.symbol);
         const newSide = Number(pos.size) < 0 ? 'Sell' : 'Buy';
         let newPrice = '';
         if (newSide === 'Buy') {
@@ -219,9 +224,6 @@ export async function comparePosition(clientNumber: number, client: UnifiedMargi
             for await (const pos of openPosFine) {
                 const filter = exchangeInfo.find(exch => exch.symbol === pos.symbol);
                 const lotSizeFilter = filter.lotSizeFilter;
-                pos.size = pos.leverage > filter.leverageFilter.maxLeverage
-                    ? (Number(pos.size) * (Number(pos.leverage) / LEVERAGEBYBIT / Number(filter.leverageFilter.maxLeverage))).toString()
-                    : pos.size
                 pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
                 const order = await convertToOrder(client, pos, true);
                 console.log("Open", order, data.prePosition[clientNumber], curPos, new Date());
