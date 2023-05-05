@@ -5,7 +5,7 @@ import {
 import { Account, BatchOrders, BinanceTrader, Leverage, Position } from './interface';
 import { BINANCEURL, LEVERAGEBYBIT } from './constant';
 import { convertAndSendBot, convertBinanceFormat, convertHotCoinFormat, convertMEXCFormat, convertWagonFormat } from './action';
-import { sendError } from './slack';
+import { sendNoti } from './slack';
 import _ from 'lodash';
 import { RequestInit } from "node-fetch";
 import fetch from "node-fetch";
@@ -125,7 +125,7 @@ export class BybitAPI {
                 }
             }
         } catch (err: any) {
-            sendError(err);
+            sendNoti(`Adjust leverage Err: ${err}`);
         }
     }
 
@@ -143,7 +143,7 @@ export class BybitAPI {
                                 let actualPNL = "";
                                 if (pnl === true) {
                                     const res = await this.getClosedPNL({ symbol: order.symbol, limit: 1 });
-                                    if (typeof res !== 'string')
+                                    if (typeof res !== 'string' && typeof res !== 'undefined')
                                         actualPNL = res.list[0].closedPnl;
                                 } else actualPNL = "Increase vol";
                                 order.price = await this.getMarkPrice(order.symbol);
@@ -154,7 +154,7 @@ export class BybitAPI {
                 }
             }
         } catch (err: any) {
-            sendError(err);
+            sendNoti(`Submit batch order error: ${err}`);
         }
     }
 
@@ -164,7 +164,8 @@ export class BybitAPI {
                 return result;
             })
             .catch(err => {
-                console.error("getAccountInfo error: ", err);
+                sendNoti(`getAccountInfo error: ${err}`);
+                return undefined;
             });
         return info;
     }
@@ -172,7 +173,11 @@ export class BybitAPI {
     async getMarkPrice(symbol: string): Promise<string> {
         try {
             const res = await this._client.getSymbolTicker("linear", symbol)
-                .then(res => { return res.result.list[0] });
+                .then(res => { return res.result.list[0] })
+                .catch(err => {
+                    sendNoti(`getAccountInfo error: ${err}`);
+                    return undefined;
+                });
             const markPrice: any = res;
             return markPrice.markPrice;
         }
@@ -183,7 +188,11 @@ export class BybitAPI {
 
     async getWalletBalance() {
         const res = this._client.getBalances()
-            .then(res => { return res });
+            .then(res => { return res })
+            .catch(err => {
+                sendNoti(`getAccountInfo error: ${err}`);
+                return undefined;
+            });
         return res
     }
 
@@ -194,6 +203,10 @@ export class BybitAPI {
             .then(res => {
                 // console.log(res);
                 return res;
+            })
+            .catch(err => {
+                sendNoti(`getAccountInfo error: ${err}`);
+                return undefined;
             });
         return res;
     }
@@ -202,7 +215,11 @@ export class BybitAPI {
         try {
             const result = this._client.batchSubmitOrders('linear', batchOrders.request)
                 // const result = await client.postPrivate('/unified/v3/private/order/create-batch', batchOrders)
-                .then(res => { return res });
+                .then(res => { return res })
+                .catch(err => {
+                    sendNoti(`getAccountInfo error: ${err}`);
+                    return undefined;
+                });
             return result;
         } catch (error) {
             console.error(error);
@@ -210,22 +227,27 @@ export class BybitAPI {
     }
 
     async setLeverage(leverage: Leverage) {
-        try {
-            // const { category, symbol, buyLeverage, sellLeverage } = leverage
-            const result = await this._client
-                // .setLeverage(category, symbol, Number(buyLeverage), Number(sellLeverage))
-                .postPrivate('unified/v3/private/position/set-leverage', leverage)
-                .then(res => { return res });
-            return result;
-        } catch (error) {
-            console.error(`Lever ${error}`);
-        }
+        // const { category, symbol, buyLeverage, sellLeverage } = leverage
+        const result = await this._client
+            // .setLeverage(category, symbol, Number(buyLeverage), Number(sellLeverage))
+            .postPrivate('unified/v3/private/position/set-leverage', leverage)
+            .then(res => { return res })
+            .catch(err => {
+                sendNoti(`getAccountInfo error: ${err}`);
+                return undefined;
+            });
+        return result;
+
     }
 
     async getExchangeInfo() {
         try {
             const res = await this._client.getInstrumentInfo({ category: 'linear' })
-                .then(res => { return res.result.list });
+                .then(res => { return res.result.list })
+                .catch(err => {
+                    sendNoti(`getAccountInfo error: ${err}`);
+                    return undefined;
+                });
             return res;
         }
         catch (error) {
@@ -240,7 +262,11 @@ export class BybitAPI {
                 category: "linear", symbol: pnlParam.symbol, limit: pnlParam.limit
                 , startTime: time, cursor: pnlParam.cursor
             })
-                .then(res => { return res.result });
+                .then(res => { return res.result })
+                .catch(err => {
+                    sendNoti(`getAccountInfo error: ${err}`);
+                    return undefined;
+                });
             return res;
         }
         catch (error) {
@@ -256,7 +282,11 @@ export class BybitAPI {
                 category: "linear", limit: pnlParam.limit
                 , startTime: time, cursor: pnlParam.cursor
             })
-                .then(res => { return res.result });
+                .then(res => { return res.result })
+                .catch(err => {
+                    sendNoti(`getAccountInfo error: ${err}`);
+                    return undefined;
+                });
             return res;
         }
         catch (error) {

@@ -1,6 +1,6 @@
 import { LEVERAGEBYBIT } from "./constant";
 import { ApiObject, BatchOrders, Order, Position } from "./interface";
-import { sendChatToBot, sendError } from "./slack";
+import { sendChatToBot, sendNoti } from "./slack";
 import _ from 'lodash';
 import { BybitAPI } from "./bybit";
 
@@ -67,9 +67,7 @@ export function convertHotCoinFormat(exchangeInfo, gain: number, position: any[]
     return res;
 }
 
-export
-
-    function convertToOrder(pos: Position, isBatch: boolean) {
+export function convertToOrder(pos: Position, isBatch: boolean) {
     try {
         // const price = await this.getMarkPrice(pos.symbol);
         const newSide = Number(pos.size) < 0 ? 'Sell' : 'Buy';
@@ -92,7 +90,7 @@ export
         }
         return res;
     } catch (err: any) {
-        sendError(err);
+        sendNoti(err);
         return null;
     }
 }
@@ -121,7 +119,7 @@ export async function comparePosition(compare: { firstGet: boolean, curPos: Posi
         }
         return { openPos: openPos, closePos: closePos, adjustPos: adjustPos }
     } catch (err) {
-        sendError(`Compare error: ${err}`)
+        sendNoti(`Compare error: ${err}`)
     }
 }
 
@@ -143,7 +141,7 @@ export function openedPosition(position: Position[], trader: BybitAPI) {
         return batchOpenPos;
     }
     catch (err) {
-        sendError(`Create adjust pos error ${err}`);
+        sendNoti(`Create open pos error ${err}`);
         const batchEmpty: BatchOrders = { category: "linear", request: [] };
         return batchEmpty
     }
@@ -166,7 +164,7 @@ export function closedPosition(position: Position[], trader: BybitAPI) {
         return batchClosePos;
     }
     catch (err) {
-        sendError(`Create adjust pos error ${err}`);
+        sendNoti(`Create close pos error ${err}`);
         const batchEmpty: BatchOrders = { category: "linear", request: [] };
         return batchEmpty
     }
@@ -185,21 +183,23 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
                     const filterSize = filter.lotSizeFilter;
                     const percent = Number(pos.size) / Number(prePos.size);
                     const myPos = await trader.getMyPositions();
-                    const adjustedPos = myPos.result.list.filter(c => c.symbol === pos.symbol) || [];
-                    if (adjustedPos.length > 0) {
-                        const newPos: Position = {
-                            symbol: pos.symbol,
-                            size: (Number(adjustedPos[0].size) * percent - Number(adjustedPos[0].size)).toString(),
-                            leverage: pos.leverage
-                        }
-                        if (Number(newPos.size) * Number(adjustedPos[0].size) > 0) pnl = false
-                        else pnl = true;
-                        newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
-                        const order = convertToOrder(newPos, true);
-                        console.log("Action Adjust", order, new Date())
-                        if (order !== null) {
-                            order.leverage = newPos.leverage;
-                            batchAdjustPos.request.push(order);
+                    if (myPos !== undefined) {
+                        const adjustedPos = myPos.result.list.filter(c => c.symbol === pos.symbol) || [];
+                        if (adjustedPos.length > 0) {
+                            const newPos: Position = {
+                                symbol: pos.symbol,
+                                size: (Number(adjustedPos[0].size) * percent - Number(adjustedPos[0].size)).toString(),
+                                leverage: pos.leverage
+                            }
+                            if (Number(newPos.size) * Number(adjustedPos[0].size) > 0) pnl = false
+                            else pnl = true;
+                            newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
+                            const order = convertToOrder(newPos, true);
+                            console.log("Action Adjust", order, new Date())
+                            if (order !== null) {
+                                order.leverage = newPos.leverage;
+                                batchAdjustPos.request.push(order);
+                            }
                         }
                     }
                 }
@@ -209,7 +209,7 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
     }
     catch (err) {
         console.log(err);
-        sendError(`Create adjust pos error ${err}`);
+        sendNoti(`Create adjust pos error ${err}`);
         const batchEmpty: BatchOrders = { category: "linear", request: [] };
         return { batch: batchEmpty, pnl: false }
     }
@@ -230,7 +230,7 @@ export function convertAndSendBot(action: string | undefined, order, botChat: st
         //(parseInt(order.size) / SIZEBYBIT).toString();
         sendChatToBot(icon, dataString, botChat);
     } catch (err: any) {
-        sendError(err)
+        sendNoti(`Send chatbot error: ${err}`)
     }
 }
 // export async function getTotalPnL(nextPageCursor?: string) {

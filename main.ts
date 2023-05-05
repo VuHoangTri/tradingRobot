@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { INTERVAL, accounts, axiosProxyArr, proxyArr } from "./constant"
 import { BybitAPI } from "./bybit";
-import { sendError } from "./slack";
+import { sendNoti } from "./slack";
 import { adjustPosition, closedPosition, comparePosition, openedPosition } from "./action";
 import { Position } from './interface';
 import { AxiosProxyConfig } from 'axios';
@@ -49,7 +49,7 @@ export async function main() {
     const result = await traderAPIs[0].getExchangeInfo();
     for (let i = 0; i < traderAPIs.length; i++) {
       const trader: BybitAPI = generator.next().value;
-      trader._exchangeInfo = [...result]
+      trader._exchangeInfo = result || [];
       const curPos = await trader.getCopyList();
       trader._prePos = curPos;
       // const myPos = (await trader.getMyPositions()).result;//curPos;
@@ -59,9 +59,10 @@ export async function main() {
       trader._firstGet = false;
       // console.log(38, trader._curPos, trader._prePos)
     }
+    sendNoti("Đã chạy");
     mainExecution(generator)
   } catch (err) {
-    sendError(`Main error:${err}`);
+    sendNoti(`Main error:${err}`);
     await new Promise((r) => setTimeout(r, INTERVAL));
   }
 }
@@ -96,7 +97,7 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
             )
           ) || [];
           if (adjustedLeverage.length > 0) {
-            sendError(`Đã chỉnh đòn bẩy`);
+            sendNoti(`Đã chỉnh đòn bẩy ${adjustedLeverage.map(c => c.symbol)}`);
             await trader.adjustLeverage(adjustedLeverage);
           }
           const result = await adjustPosition(adjustPos, trader);
@@ -110,6 +111,6 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
       // console.log(1);
     }
   } catch (err) {
-    sendError(`Execution error: ${err}`);
+    sendNoti(`Execution error: ${err}`);
   }
 }
