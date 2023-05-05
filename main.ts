@@ -3,6 +3,7 @@ import { INTERVAL, accounts, } from "./constant"
 import { BybitAPI } from "./bybit";
 import { sendError } from "./slack";
 import { adjustPosition, closedPosition, comparePosition, openedPosition } from "./action";
+import { Position } from './interface';
 
 export let bot: { enabled: boolean } = { enabled: true };
 export const traderAPIs: BybitAPI[] = [];
@@ -52,7 +53,8 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
   const trader: BybitAPI = traderGen.value;
   if (bot.enabled) {
     const curPos = await trader.getCopyList();
-    const diffStatus = await comparePosition({ firstGet: trader._firstGet, curPos: trader._curPos, prePos: trader._prePos })
+    const diffStatus = await comparePosition({ firstGet: trader._firstGet, curPos: trader._curPos, prePos: trader._prePos });
+    // console.log(diffStatus);
     if (diffStatus) {
       const { openPos, closePos, adjustPos } = diffStatus;
       if (openPos.length > 0) {

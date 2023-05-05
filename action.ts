@@ -47,7 +47,7 @@ export function convertMEXCFormat(gain: number, position: any[]) {
     const res: Position[] = position.map(pos => {
         return {
             symbol: pos.symbol.split('_').join(''),
-            size: (Number(pos.orderAmount) / gain).toFixed(3).toString(),
+            size: (Number(pos.amount) / gain).toFixed(3).toString(),
             leverage: (pos.leverage * LEVERAGEBYBIT).toString()
         }
     });

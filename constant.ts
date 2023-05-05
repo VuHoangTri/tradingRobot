@@ -32,20 +32,20 @@ export const hotcoinTrader: string[] = [
 // ]
 
 export const accounts: Account[] = [
-    {
-        key: 'qQ94jsKBk7VJ7yvVsw',
-        secret: '1NYC7ffuYcfv2fuW0tv7fc2QczJsQgLrU2Em',
-        testnet: false,
-        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/8303",
-        gain: 44,
-        platform: "Wagon"
-    },
+    // {
+    //     key: 'qQ94jsKBk7VJ7yvVsw',
+    //     secret: '1NYC7ffuYcfv2fuW0tv7fc2QczJsQgLrU2Em',
+    //     testnet: false,
+    //     trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/9449",//8303",
+    //     gain: 9,
+    //     platform: "Wagon"
+    // },
     {
         key: 'QXvZHULCw7Lzjw5eqB',
         secret: '7EZOTNFfLO64tJhNiMt3AzSC64qv2H19ftH1',
         testnet: true,
-        trader: "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=83129161",
-        gain: 1500,
+        trader: "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=12004256",//83129161",
+        gain: 120,
         platform: "Mexc"
     },
     // {
