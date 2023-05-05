@@ -69,14 +69,7 @@ export function convertHotCoinFormat(exchangeInfo, gain: number, position: any[]
 
 export function convertToOrder(pos: Position, isBatch: boolean) {
     try {
-        // const price = await this.getMarkPrice(pos.symbol);
         const newSide = Number(pos.size) < 0 ? 'Sell' : 'Buy';
-        // let newPrice = '';
-        // if (newSide === 'Buy') {
-        //     newPrice = ((Number(price) * 1.1)).toFixed(3).toString()
-        // } else {
-        //     newPrice = (Number(price) * 0.9).toFixed(3).toString()
-        // }
         const res: Order = {
             symbol: pos.symbol,
             orderType: 'Market',
@@ -147,14 +140,15 @@ export function openedPosition(position: Position[], trader: BybitAPI) {
     }
 }
 
-export function closedPosition(position: Position[], trader: BybitAPI) {
+export function closedPosition(position: Position[], trader: BybitAPI, myPos: any) {
     try {
         const batchClosePos: BatchOrders = { category: "linear", request: [] };
         console.log("Cur Position - Close", trader._curPos);
         for (const pos of position) {
+            const closePos = myPos.result.list.find(c => c.symbol === pos.symbol);
             const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
             if (filter !== undefined) {
-                pos.size = (Number(pos.size) * -1).toString();
+                pos.size = (Number(closePos.size) * -1).toString();
                 const order = convertToOrder(pos, true)
                 console.log("Action Close", order, new Date());
                 if (order !== null)
@@ -170,7 +164,7 @@ export function closedPosition(position: Position[], trader: BybitAPI) {
     }
 }
 
-export async function adjustPosition(position: Position[], trader: BybitAPI) {
+export async function adjustPosition(position: Position[], trader: BybitAPI, myPos: any) {
     try {
         const batchAdjustPos: BatchOrders = { category: "linear", request: [] };
         console.log('Cur and Pre Position - Adjust', position, trader._curPos);
@@ -182,7 +176,6 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
                 if (filter !== undefined && prePos !== undefined) {
                     const filterSize = filter.lotSizeFilter;
                     const percent = Number(pos.size) / Number(prePos.size);
-                    const myPos = await trader.getMyPositions();
                     if (myPos !== undefined) {
                         const adjustedPos = myPos.result.list.filter(c => c.symbol === pos.symbol) || [];
                         if (adjustedPos.length > 0) {
@@ -208,7 +201,6 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
         return { batch: batchAdjustPos, pnl };
     }
     catch (err) {
-        console.log(err);
         sendNoti(`Create adjust pos error ${err}`);
         const batchEmpty: BatchOrders = { category: "linear", request: [] };
         return { batch: batchEmpty, pnl: false }
