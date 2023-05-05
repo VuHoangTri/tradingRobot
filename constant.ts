@@ -1,7 +1,7 @@
-import { platform } from "os";
+import { AxiosProxyConfig } from "axios";
 import { Account } from "./interface";
 
-export const INTERVAL = 15000;
+export const INTERVAL = 2000;
 export const INTERVALACTION = 500;
 export const SIZEBYBIT = 100000000;
 export const LEVERAGEBYBIT = 100;
@@ -25,28 +25,30 @@ export const binanceTrader: { encryptedUid: string; tradeType: string }[] = [
 ]; // 227087068C057B808A83125C8E586BB8 "6408AAEEEBF0C76A3D5F0E39C64AAABA" "8FE17CCE0A3EA996ED7D8B538419C826" "EF6C3AABCBE82294A607E8C94633F082" 
 export const hotcoinTrader: string[] = [
     // "https://gw.hcglb.com/swap/v1/perpetual/follows/public/trader/currentLead?traderUid=7100137&platform=1&client=1&deviceId=&versionCode=3.0.1&lang=en_US"
-]
+];
 
 // export const mexcTrader: string[] = [
 //     'https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=83129161'
 // ]
 
 export const accounts: Account[] = [
-    // {
-    //     key: 'qQ94jsKBk7VJ7yvVsw',
-    //     secret: '1NYC7ffuYcfv2fuW0tv7fc2QczJsQgLrU2Em',
-    //     testnet: false,
-    //     trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/9449",//8303",
-    //     gain: 9,
-    //     platform: "Wagon"
-    // },
+    {
+        key: 'qQ94jsKBk7VJ7yvVsw',
+        secret: '1NYC7ffuYcfv2fuW0tv7fc2QczJsQgLrU2Em',
+        testnet: false,
+        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/9449",//-240",//-25", //-8 //6824-10 //8453-50
+        gain: 8,
+        platform: "Wagon",
+        botChat: "https://hooks.slack.com/services/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"
+    },
     {
         key: 'QXvZHULCw7Lzjw5eqB',
         secret: '7EZOTNFfLO64tJhNiMt3AzSC64qv2H19ftH1',
         testnet: true,
         trader: "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=12004256",//83129161",
         gain: 120,
-        platform: "Mexc"
+        platform: "Mexc",
+        botChat: "https://hooks.slack.com/services/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"
     },
     // {
     //   key: 'FUTDWUTKODGDKSWNLV',
@@ -62,3 +64,18 @@ export const accounts: Account[] = [
     //     platform: "Wagon",//"Mexc"
     // }
 ];
+
+export const proxyArr: string[] = [
+    "2.56.119.93:5074:frawsmba:54hwnd9dtyv3",
+    "185.199.229.156:7492:frawsmba:54hwnd9dtyv3",
+    "185.199.228.220:7300:frawsmba:54hwnd9dtyv3",
+    "185.199.231.45:8382:frawsmba:54hwnd9dtyv3",
+    "188.74.210.207:6286:frawsmba:54hwnd9dtyv3",
+    "188.74.183.10:8279:frawsmba:54hwnd9dtyv3",
+    "188.74.210.21:6100:frawsmba:54hwnd9dtyv3",
+    "45.155.68.129:8133:frawsmba:54hwnd9dtyv3",
+    "154.95.36.199:6893:frawsmba:54hwnd9dtyv3",
+    "45.94.47.66:8110:frawsmba:54hwnd9dtyv3"
+]
+
+export const axiosProxyArr: AxiosProxyConfig[] = []

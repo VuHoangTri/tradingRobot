@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 
-export async function sendChatToBot(icon: string, text: string, botNumber: number) {
+export async function sendChatToBot(icon: string, text: string, botChat: string) {
     // console.log(text);
     let imageUrl = '';
     if (icon === 'bull') {
@@ -30,7 +30,7 @@ export async function sendChatToBot(icon: string, text: string, botNumber: numbe
             }
         ]
     };
-    await fetch(bot[botNumber],
+    await fetch(botChat,
         {
             method: 'POST',
             body: JSON.stringify(body),

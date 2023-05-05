@@ -1,15 +1,32 @@
 import _ from 'lodash';
-import { INTERVAL, accounts, } from "./constant"
+import { INTERVAL, accounts, axiosProxyArr, proxyArr } from "./constant"
 import { BybitAPI } from "./bybit";
 import { sendError } from "./slack";
 import { adjustPosition, closedPosition, comparePosition, openedPosition } from "./action";
 import { Position } from './interface';
+import { AxiosProxyConfig } from 'axios';
 
 export let bot: { enabled: boolean } = { enabled: true };
 export const traderAPIs: BybitAPI[] = [];
 
+function generateAxiosProxy() {
+  for (const proxy of proxyArr) {
+    const proxyParam = proxy.split(":");
+    const axiosProxyObj: AxiosProxyConfig = {
+      host: proxyParam[0],
+      port: Number(proxyParam[1]),
+      auth: {
+        username: proxyParam[2],
+        password: proxyParam[3]
+      }
+    }
+    axiosProxyArr.push(axiosProxyObj);
+  }
+}
+
 function accGenAPI() {
   for (const account of accounts) {
+    account.axiosProxy = axiosProxyArr;
     traderAPIs.push(new BybitAPI(
       account
     ))
@@ -26,6 +43,7 @@ function* traderGenerator(): Generator<BybitAPI> {
 
 export async function main() {
   try {
+    generateAxiosProxy();
     accGenAPI();
     const generator = traderGenerator();
     const result = await traderAPIs[0].getExchangeInfo();
@@ -51,6 +69,7 @@ export async function main() {
 export async function mainExecution(generator: Generator<BybitAPI>) {
   const traderGen = generator.next();
   const trader: BybitAPI = traderGen.value;
+  trader.initial();
   if (bot.enabled) {
     const curPos = await trader.getCopyList();
     const diffStatus = await comparePosition({ firstGet: trader._firstGet, curPos: trader._curPos, prePos: trader._prePos });
@@ -70,6 +89,15 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
         trader.openBatchOrders(batchClose, true);
       }
       if (adjustPos.length > 0) {
+        const adjustedLeverage = adjustPos.filter(pP =>
+          trader._prePos.some(cP =>
+            cP.symbol === pP.symbol && Number(cP.leverage) !== Number(pP.leverage)
+          )
+        ) || [];
+        if (adjustedLeverage.length > 0) {
+          sendError(`Đã chỉnh đòn bẩy`);
+          await trader.adjustLeverage(adjustedLeverage);
+        }
         const result = await adjustPosition(adjustPos, trader);
         trader.openBatchOrders(result.batch, result.pnl);
       }

@@ -1,13 +1,8 @@
-// import { RequestInit } from "node-fetch";
-// import { createBatchOrders, createOrder, getClosedPNL, getMarkPrice, getMyPositions, getTradeFee, setLeverage } from "./bybit";
 import { LEVERAGEBYBIT } from "./constant";
-import { ApiObject, BatchOrders, Leverage, Order, Position } from "./interface";
-// import { data, firstGet, } from "./main";
+import { ApiObject, BatchOrders, Order, Position } from "./interface";
 import { sendChatToBot, sendError } from "./slack";
 import _ from 'lodash';
 import { BybitAPI } from "./bybit";
-// import { UnifiedMarginClient } from "bybit-api";
-// import fetch from "node-fetch";
 
 export function convertByBitFormat(position: ApiObject[]) {
     const res: Position[] = position.map(pos => {
@@ -101,32 +96,6 @@ export
         return null;
     }
 }
-
-// export async function openBatchOrders(batchOrders: BatchOrders, pnl: boolean) {
-//     try {
-//         if (batchOrders.request.length > 0) {
-//             for (let i = 0; i < batchOrders.request.length; i += 9) {
-//                 const chunkBatchOrders: BatchOrders = _.cloneDeep(batchOrders);
-//                 chunkBatchOrders.request = chunkBatchOrders.request.slice(i, i + 9);
-//                 const resCreate = await submitBatchOrders(client, chunkBatchOrders);
-//                 for (let i = 0; i < resCreate.result.list.length; i++) {
-//                     if (resCreate.retCode === 0 && resCreate.result.list[i].orderId !== '') {
-//                         const order = batchOrders.request[i];
-//                         let actualPNL = "";
-//                         if (pnl === true) {
-//                             const res = await getClosedPNL({ symbol: order.symbol, limit: 1 });
-//                             if (typeof res !== 'string')
-//                                 actualPNL = res.list[0].closedPnl;
-//                         }
-//                         convertAndSendBot(order.side, order, clientNumber, actualPNL);
-//                     }
-//                 }
-//             }
-//         }
-//     } catch (err: any) {
-//         sendError(err);
-//     }
-// }
 
 function roundQuantity(size, minOrderQty, qtyStep) {
     const decimalLen = minOrderQty.toString().split('.')[1]?.length ?? 0;
@@ -246,7 +215,7 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
     }
 }
 
-export function convertAndSendBot(action: string | undefined, order, clientNumber: number, pnl: string) {
+export function convertAndSendBot(action: string | undefined, order, botChat: string, pnl: string) {
     try {
         let dataString = '';
         let icon = '';
@@ -259,12 +228,11 @@ export function convertAndSendBot(action: string | undefined, order, clientNumbe
             + "\nEntry: " + order.price + "\nSide: " + order.side + "\nLeverage: "
             + order.leverage + "\nSize: " + order.qty + "\nPnL: " + pnl;
         //(parseInt(order.size) / SIZEBYBIT).toString();
-        sendChatToBot(icon, dataString, clientNumber);
+        sendChatToBot(icon, dataString, botChat);
     } catch (err: any) {
         sendError(err)
     }
 }
-
 // export async function getTotalPnL(nextPageCursor?: string) {
 //     let res = await getClosedPNL({ cursor: nextPageCursor });
 //     let sum = 0;

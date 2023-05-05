@@ -1,3 +1,4 @@
+import { AxiosProxyConfig } from "axios";
 
 export interface ApiObject {
     symbol: string;
@@ -66,6 +67,8 @@ export interface Account {
     trader: string | BinanceTrader;
     gain: number;
     platform: string;
+    axiosProxy?: AxiosProxyConfig[];
+    botChat: string; 
 }
 
 export interface BinanceTrader {

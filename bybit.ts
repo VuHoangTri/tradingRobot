@@ -2,7 +2,7 @@ import {
     RestClientV5,
     UnifiedMarginClient,
 } from 'bybit-api';
-import { Account, BatchOrders, BinanceTrader, Leverage, Order, Position } from './interface';
+import { Account, BatchOrders, BinanceTrader, Leverage, Position } from './interface';
 import { BINANCEURL, LEVERAGEBYBIT } from './constant';
 import { convertAndSendBot, convertBinanceFormat, convertHotCoinFormat, convertMEXCFormat, convertWagonFormat } from './action';
 import { sendError } from './slack';
@@ -18,15 +18,17 @@ export class BybitAPI {
     _prePos: Position[] = [];
     _firstGet: boolean = true;
     _exchangeInfo: any = [];
-
+    _acc: Account;
     constructor(acc: Account) {
-        this._client = new UnifiedMarginClient(
-            {
-                key: acc.key,
-                secret: acc.secret,
-                testnet: acc.testnet,
-            },
-        );
+        this._acc = acc;
+        // this._client = new UnifiedMarginClient(
+        //     {
+        //         key: acc.key,
+        //         secret: acc.secret,
+        //         testnet: acc.testnet,
+        //     },
+        // );
+        this.initial();
         this._copyTrader = acc.trader;
         this._gain = acc.gain;
         this._clientV5 = new RestClientV5({
@@ -37,6 +39,17 @@ export class BybitAPI {
         this._platform = acc.platform;
     }
 
+    initial() {
+        const randomNumber = Math.floor(Math.random() * (9 - 0) + 0);
+        this._client = new UnifiedMarginClient(
+            {
+                key: this._acc.key,
+                secret: this._acc.secret,
+                testnet: this._acc.testnet,
+            },
+            { proxy: this._acc.axiosProxy ? this._acc.axiosProxy[randomNumber] : undefined }
+        );
+    }
     async getCopyList() {
         if (this._platform === 'Binance') {
             this._curPos = await this.getBinanceCopyList();
@@ -132,7 +145,7 @@ export class BybitAPI {
                                         actualPNL = res.list[0].closedPnl;
                                 } else actualPNL = "Increase vol";
                                 order.price = await this.getMarkPrice(order.symbol);
-                                convertAndSendBot(order.side, order, 0, actualPNL);
+                                convertAndSendBot(order.side, order, this._acc.botChat, actualPNL);
                             }
                         }
                     }
@@ -196,7 +209,7 @@ export class BybitAPI {
 
     async setLeverage(leverage: Leverage) {
         try {
-            const { category, symbol, buyLeverage, sellLeverage } = leverage
+            // const { category, symbol, buyLeverage, sellLeverage } = leverage
             const result = await this._client
                 // .setLeverage(category, symbol, Number(buyLeverage), Number(sellLeverage))
                 .postPrivate('unified/v3/private/position/set-leverage', leverage)
