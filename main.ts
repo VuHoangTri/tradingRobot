@@ -51,14 +51,16 @@ export async function main() {
       const result = await trader.getExchangeInfo();
       trader._exchangeInfo = result || [];
       const curPos = await trader.getCopyList();
-      // trader._prePos = curPos;
-      const position = await trader.getMyPositions()
-      if (position) {
-        const myPos = position.result;//curPos;
-        trader._prePos = myPos.list.map((c: Position) => {
-          return { symbol: c.symbol, size: c.size, leverage: c.leverage }
-        });
-      }
+      trader._prePos = curPos;
+
+      // const position = await trader.getMyPositions()
+      // if (position) {
+      //   const myPos = position.result;//curPos;
+      //   trader._prePos = myPos.list.map((c: Position) => {
+      //     return { symbol: c.symbol, size: c.size, leverage: c.leverage }
+      //   });
+      // }
+      
       trader._firstGet = false;
       // console.log(62, trader._curPos, trader._prePos)
     }
