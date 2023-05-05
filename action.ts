@@ -233,15 +233,6 @@ export function convertAndSendBot(action: string | undefined, order, botChat: st
         sendNoti(`Send chatbot error: ${err}`)
     }
 }
-// export async function getTotalPnL(nextPageCursor?: string) {
-//     let res = await getClosedPNL({ cursor: nextPageCursor });
-//     let sum = 0;
-//     while (typeof res !== 'string' && res.nextPageCursor !== '') {
-//         sum = sum + res.list.reduce((acc, cur) => acc + Number(cur.closedPnl), 0);
-//         res = await getClosedPNL({ cursor: res.nextPageCursor })
-//     }
-//     return sum;
-// }
 
 // export async function getTotalTradeFee(nextPageCursor?: string) {
 //     let res = await getTradeFee({ cursor: nextPageCursor });

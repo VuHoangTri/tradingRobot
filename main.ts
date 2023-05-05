@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { INTERVAL, accounts, axiosProxyArr, proxyArr } from "./constant"
+import { INTERVAL, LEVERAGEBYBIT, accounts, axiosProxyArr, proxyArr, traderAPIs } from "./constant"
 import { BybitAPI } from "./bybit";
 import { sendNoti } from "./slack";
 import { adjustPosition, closedPosition, comparePosition, openedPosition } from "./action";
@@ -7,7 +7,6 @@ import { Position } from './interface';
 import { AxiosProxyConfig } from 'axios';
 
 export let bot: { enabled: boolean } = { enabled: true };
-export const traderAPIs: BybitAPI[] = [];
 
 function generateAxiosProxy() {
   for (const proxy of proxyArr) {
@@ -45,19 +44,23 @@ export async function main() {
   try {
     generateAxiosProxy();
     accGenAPI();
+    await new Promise((r) => setTimeout(r, 500));
     const generator = traderGenerator();
-    const result = await traderAPIs[0].getExchangeInfo();
     for (let i = 0; i < traderAPIs.length; i++) {
       const trader: BybitAPI = generator.next().value;
+      const result = await trader.getExchangeInfo();
       trader._exchangeInfo = result || [];
       const curPos = await trader.getCopyList();
-      trader._prePos = curPos;
-      // const myPos = (await trader.getMyPositions()).result;//curPos;
-      // trader._prePos = myPos.list.map((c: Position) => {
-      //   return { symbol: c.symbol, size: c.size, leverage: c.leverage }
-      // });
+      // trader._prePos = curPos;
+      const position = await trader.getMyPositions()
+      if (position) {
+        const myPos = position.result;//curPos;
+        trader._prePos = myPos.list.map((c: Position) => {
+          return { symbol: c.symbol, size: c.size, leverage: c.leverage }
+        });
+      }
       trader._firstGet = false;
-      // console.log(38, trader._curPos, trader._prePos)
+      // console.log(62, trader._curPos, trader._prePos)
     }
     sendNoti("Đã chạy");
     mainExecution(generator)
@@ -93,9 +96,10 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
         if (adjustPos.length > 0) {
           const adjustedLeverage = adjustPos.filter(pP =>
             trader._prePos.some(cP =>
-              cP.symbol === pP.symbol && Number(cP.leverage) !== Number(pP.leverage)
+              cP.symbol === pP.symbol && Number(cP.leverage) !== (Number(pP.leverage) / LEVERAGEBYBIT)
             )
           ) || [];
+          // console.log(adjustedLeverage);
           if (adjustedLeverage.length > 0) {
             sendNoti(`Đã chỉnh đòn bẩy ${adjustedLeverage.map(c => c.symbol)}`);
             await trader.adjustLeverage(adjustedLeverage);

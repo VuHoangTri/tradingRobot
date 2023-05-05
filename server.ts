@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 const app = express();
 const port = 3000;
 import { bot, main } from "./main";
+import { INTERVAL, traderAPIs } from "./constant";
 // import { getAccountByBit, getMyPositions, getTradeFee, getWalletBalance } from "./bybit";
 // import { getTotalPnL, getTotalTradeFee } from "./action";
 
@@ -42,14 +43,19 @@ app.post("/stop", async function (req, res) {
 //   res.send(response.result.list);
 // })
 
-// app.post("/getTotalPnl", async function (req, res) {
-//   const response = await getTotalPnL();
-//   res.send({ pnl: response });
-// })
-// app.get("/getTotalPnl", async function (req, res) {
-//   const response = await getTotalPnL();
-//   res.send({ pnl: response });
-// })
+app.post("/getTotalPnlMain", async function (req, res) {
+  const response = await traderAPIs[0].getTotalPnL({});
+  res.send({ pnl: response });
+})
+app.get("/getTotalPnlMain", async function (req, res) {
+  const time = req.query.time;
+  let response: any;
+  if (time)
+    response = await traderAPIs[0].getTotalPnL({ time: Number(time) });
+  else
+    response = await traderAPIs[0].getTotalPnL({});
+  res.send({ pnl: response });
+})
 
 // app.post("/getTradeFee", async function (req, res) {
 //   const response = await getTotalTradeFee();
@@ -108,7 +114,8 @@ app.get("/stop", async function (req, res) {
 //   res.json(response);
 // })
 
-app.listen(port, () => {
+app.listen(port, async () => {
   console.log(`[server]: Server is running at https://localhost:${port}`);
+  await new Promise((r) => setTimeout(r, INTERVAL));
+  main();
 });
-main();

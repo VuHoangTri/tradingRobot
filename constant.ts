@@ -1,5 +1,6 @@
 import { AxiosProxyConfig } from "axios";
 import { Account } from "./interface";
+import { BybitAPI } from "./bybit";
 
 export const INTERVAL = 2000;
 export const INTERVALACTION = 500;
@@ -36,7 +37,7 @@ export const accounts: Account[] = [
         key: 'qQ94jsKBk7VJ7yvVsw',
         secret: '1NYC7ffuYcfv2fuW0tv7fc2QczJsQgLrU2Em',
         testnet: false,
-        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/6824",//3841-240",//8303-15", //7952-8 //6824-10 //8453-50 // 9449-9
+        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/6824",//6824",//3841-240",//8303-15", //7952-8 //6824-10 //8453-50 // 9449-9
         gain: 10,
         platform: "Wagon",
         botChat: "https://hooks.slack.com/services/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"
@@ -55,27 +56,25 @@ export const accounts: Account[] = [
     //   secret: 'OOJVCPQYRIMCWYGQNDBHFTIIZKRGEGZZJFGQ',
     //   testnet: true,
     // },
-    // {
-    //     key: 'CRYDWOZBKFVRRTDOHN',
-    //     secret: 'MLVUFLNGJEBAOYOYXDJGMZPCDGNREQZTMMJS',
-    //     testnet: true,
-    //     trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/6260",// "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=83129161",
-    //     gain: 22, // 1500,
-    //     platform: "Wagon",//"Mexc"
-    // }
+    {
+        key: 'CRYDWOZBKFVRRTDOHN',
+        secret: 'MLVUFLNGJEBAOYOYXDJGMZPCDGNREQZTMMJS',
+        testnet: true,
+        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/7293",// "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=83129161",
+        gain: 9, // 1500,
+        platform: "Wagon",//"Mexc"
+        botChat: "https://hooks.slack.com/services/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"
+    }
 ];
 
 export const proxyArr: string[] = [
-    "2.56.119.93:5074:frawsmba:54hwnd9dtyv3",
-    "185.199.229.156:7492:frawsmba:54hwnd9dtyv3",
-    "185.199.228.220:7300:frawsmba:54hwnd9dtyv3",
-    "185.199.231.45:8382:frawsmba:54hwnd9dtyv3",
     "188.74.210.207:6286:frawsmba:54hwnd9dtyv3",
     "188.74.183.10:8279:frawsmba:54hwnd9dtyv3",
     "188.74.210.21:6100:frawsmba:54hwnd9dtyv3",
     "45.155.68.129:8133:frawsmba:54hwnd9dtyv3",
-    "154.95.36.199:6893:frawsmba:54hwnd9dtyv3",
     "45.94.47.66:8110:frawsmba:54hwnd9dtyv3"
 ]
 
-export const axiosProxyArr: AxiosProxyConfig[] = []
+export const axiosProxyArr: AxiosProxyConfig[] = [];
+
+export const traderAPIs: BybitAPI[] = [];

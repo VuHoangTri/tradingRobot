@@ -42,7 +42,8 @@ export class BybitAPI {
     }
 
     initial() {
-        const randomNumber = Math.floor(Math.random() * (9 - 0) + 0);
+        const randomNumber = Math.floor(Math.random() * (4 - 0) + 0);
+        // console.log(randomNumber);
         this._client = new UnifiedMarginClient(
             {
                 key: this._acc.key,
@@ -137,24 +138,27 @@ export class BybitAPI {
                     chunkBatchOrders.request = chunkBatchOrders.request.slice(i, i + 9);
                     const resCreate = await this.submitBatchOrders(chunkBatchOrders);
                     if (resCreate) {
-                        for (let i = 0; i < resCreate.result.list.length; i++) {
-                            if (resCreate.retCode === 0 && resCreate.result.list[i].orderId !== '') {
-                                const order = batchOrders.request[i];
-                                let actualPNL = "";
-                                if (pnl === true) {
-                                    const res = await this.getClosedPNL({ symbol: order.symbol, limit: 1 });
-                                    if (typeof res !== 'string' && typeof res !== 'undefined')
-                                        actualPNL = res.list[0].closedPnl;
-                                } else actualPNL = "Increase vol";
-                                order.price = await this.getMarkPrice(order.symbol);
-                                convertAndSendBot(order.side, order, this._acc.botChat, actualPNL);
+                        if (resCreate.result.list) {
+                            for (let i = 0; i < resCreate.result.list.length; i++) {
+                                if (resCreate.retCode === 0 && resCreate.result.list[i].orderId !== '') {
+                                    const order = batchOrders.request[i];
+                                    let actualPNL = "";
+                                    if (pnl === true) {
+                                        const res = await this.getClosedPNL({ symbol: order.symbol, limit: 1 });
+                                        if (typeof res !== 'string' && typeof res !== 'undefined')
+                                            actualPNL = res.list[0].closedPnl;
+                                    } else actualPNL = "Increase vol";
+                                    order.price = await this.getMarkPrice(order.symbol);
+                                    convertAndSendBot(order.side, order, this._acc.botChat, actualPNL);
+                                }
                             }
                         }
+                        else { sendNoti(`Submit Batch Err At Open: ${resCreate.retMsg}`); }
                     }
                 }
             }
         } catch (err: any) {
-            sendNoti(`Submit batch order error: ${err}`);
+            sendNoti(`Open batch order error: ${err}`);
         }
     }
 
@@ -175,7 +179,7 @@ export class BybitAPI {
             const res = await this._client.getSymbolTicker("linear", symbol)
                 .then(res => { return res.result.list[0] })
                 .catch(err => {
-                    sendNoti(`getAccountInfo error: ${err}`);
+                    sendNoti(`Get Mark Price error: ${err}`);
                     return undefined;
                 });
             const markPrice: any = res;
@@ -190,7 +194,7 @@ export class BybitAPI {
         const res = this._client.getBalances()
             .then(res => { return res })
             .catch(err => {
-                sendNoti(`getAccountInfo error: ${err}`);
+                sendNoti(`Get wallet Balance error: ${err}`);
                 return undefined;
             });
         return res
@@ -205,7 +209,7 @@ export class BybitAPI {
                 return res;
             })
             .catch(err => {
-                sendNoti(`getAccountInfo error: ${err}`);
+                sendNoti(`Get Position error: ${err}`);
                 return undefined;
             });
         return res;
@@ -217,7 +221,7 @@ export class BybitAPI {
                 // const result = await client.postPrivate('/unified/v3/private/order/create-batch', batchOrders)
                 .then(res => { return res })
                 .catch(err => {
-                    sendNoti(`getAccountInfo error: ${err}`);
+                    sendNoti(`Submit Batch Order error: ${err}`);
                     return undefined;
                 });
             return result;
@@ -233,7 +237,7 @@ export class BybitAPI {
             .postPrivate('unified/v3/private/position/set-leverage', leverage)
             .then(res => { return res })
             .catch(err => {
-                sendNoti(`getAccountInfo error: ${err}`);
+                sendNoti(`Set Leverage error: ${err}`);
                 return undefined;
             });
         return result;
@@ -245,7 +249,7 @@ export class BybitAPI {
             const res = await this._client.getInstrumentInfo({ category: 'linear' })
                 .then(res => { return res.result.list })
                 .catch(err => {
-                    sendNoti(`getAccountInfo error: ${err}`);
+                    sendNoti(`Get Exchange Info error: ${err}`);
                     return undefined;
                 });
             return res;
@@ -255,16 +259,20 @@ export class BybitAPI {
         }
     }
 
-    async getClosedPNL(pnlParam: { symbol?: string, limit?: number, cursor?: string }) {
+    async getClosedPNL(pnlParam: { symbol?: string, time?: number, limit?: number, cursor?: string }) {
         try {
-            const time = new Date().getTime() - 2592117632;
+            let sTime = 0;
+            if (pnlParam.time !== undefined) {
+                sTime = pnlParam.time;
+            } else
+                sTime = new Date().getTime() - 2592117632;
             const res = await this._clientV5.getClosedPnL({
                 category: "linear", symbol: pnlParam.symbol, limit: pnlParam.limit
-                , startTime: time, cursor: pnlParam.cursor
+                , startTime: sTime, cursor: pnlParam.cursor
             })
                 .then(res => { return res.result })
                 .catch(err => {
-                    sendNoti(`getAccountInfo error: ${err}`);
+                    sendNoti(`Get Closed PNL error: ${err}`);
                     return undefined;
                 });
             return res;
@@ -284,7 +292,7 @@ export class BybitAPI {
             })
                 .then(res => { return res.result })
                 .catch(err => {
-                    sendNoti(`getAccountInfo error: ${err}`);
+                    sendNoti(`Get Trade Fee error: ${err}`);
                     return undefined;
                 });
             return res;
@@ -292,6 +300,15 @@ export class BybitAPI {
         catch (error) {
             return { nextPageCursor: '', list: [] }
         }
+    }
+    async getTotalPnL(args: { nextPageCursor?: string, time?: number }) {
+        let res = await this.getClosedPNL({ cursor: args.nextPageCursor, time: args.time });
+        let sum = 0;
+        while (res !== undefined && typeof res !== 'string' && res.nextPageCursor !== '') {
+            sum = sum + res.list.reduce((acc, cur) => acc + Number(cur.closedPnl), 0);
+            res = await this.getClosedPNL({ cursor: res.nextPageCursor })
+        }
+        return sum;
     }
 }
 
