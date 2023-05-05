@@ -149,7 +149,7 @@ export class BybitAPI {
                                             actualPNL = res.list[0].closedPnl;
                                     } else actualPNL = "Increase vol";
                                     order.price = await this.getMarkPrice(order.symbol);
-                                    // convertAndSendBot(order.side, order, this._acc.botChat, actualPNL);
+                                    convertAndSendBot(order.side, order, this._acc.botChat, actualPNL);
                                 }
                             }
                         }

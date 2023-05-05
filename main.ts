@@ -66,7 +66,7 @@ export async function main() {
       trader._firstGet = false;
       // console.log(62, trader._curPos, trader._prePos)
     }
-    // sendNoti("Đã chạy");
+    sendNoti("Đã chạy");
     mainExecution(generator);
   } catch (err) {
     sendNoti(`Main error:${err}`);
