@@ -138,9 +138,9 @@ export class BybitAPI {
                     chunkBatchOrders.request = chunkBatchOrders.request.slice(i, i + 9);
                     const resCreate = await this.submitBatchOrders(chunkBatchOrders);
                     if (resCreate) {
-                        if (resCreate.result.list) {
+                        if (resCreate.retCode === 0) {
                             for (let i = 0; i < resCreate.result.list.length; i++) {
-                                if (resCreate.retCode === 0 && resCreate.result.list[i].orderId !== '') {
+                                if (resCreate.result.list[i].orderId !== '') {
                                     const order = batchOrders.request[i];
                                     let actualPNL = "";
                                     if (pnl === true) {
@@ -153,7 +153,7 @@ export class BybitAPI {
                                 }
                             }
                         }
-                        else { sendNoti(`Submit Batch Err At Open: ${resCreate.retMsg}`); }
+                        else sendNoti(`Submit Batch Err At Open: ${resCreate.retMsg}`);
                     }
                 }
             }
