@@ -173,7 +173,7 @@ export function closedPosition(position: Position[], trader: BybitAPI) {
 export async function adjustPosition(position: Position[], trader: BybitAPI) {
     try {
         const batchAdjustPos: BatchOrders = { category: "linear", request: [] };
-        console.log('Cur and Pre Position - Adjust', trader._prePos, trader._curPos);
+        console.log('Cur and Pre Position - Adjust', position, trader._curPos);
         let pnl = true;
         for await (const pos of position) {
             const prePos = trader._prePos.find(c => c.symbol === pos.symbol);

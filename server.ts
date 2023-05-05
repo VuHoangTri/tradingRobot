@@ -34,14 +34,14 @@ app.post("/stop", async function (req, res) {
   res.send("Đã dừng");
 });
 
-// app.post("/getPosMain", async function (req, res) {
-//   const response = await getMyPositions(client[0]);
-//   res.send(response.result.list);
-// })
-// app.get("/getPosMain", async function (req, res) {
-//   const response = await getMyPositions(client[0]);
-//   res.send(response.result.list);
-// })
+app.post("/getPosMain", async function (req, res) {
+  const response = await traderAPIs[0].getMyPositions();
+  res.send(response?.result.list);
+})
+app.get("/getPosMain", async function (req, res) {
+  const response = await traderAPIs[0].getMyPositions();
+  res.send(response?.result.list);
+})
 
 app.post("/getTotalPnlMain", async function (req, res) {
   const response = await traderAPIs[0].getTotalPnL({});

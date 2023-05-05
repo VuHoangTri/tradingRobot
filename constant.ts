@@ -19,11 +19,8 @@ export const BINANCEURL = "https://www.binance.com/bapi/futures/v1/public/future
 //     "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/8303"  // 8303 // 5363 //6429 //9449
 // ];
 export const binanceTrader: { encryptedUid: string; tradeType: string }[] = [
-    // {
-    //   "encryptedUid": "8FE17CCE0A3EA996ED7D8B538419C826",
-    //   "tradeType": "PERPETUAL"
-    // }
-]; // 227087068C057B808A83125C8E586BB8 "6408AAEEEBF0C76A3D5F0E39C64AAABA" "8FE17CCE0A3EA996ED7D8B538419C826" "EF6C3AABCBE82294A607E8C94633F082" 
+
+]; // 227087068C057B808A83125C8E586BB8 "6408AAEEEBF0C76A3D5F0E39C64AAABA" "8FE17CCE0A3EA996ED7D8B538419C826" "EF6C3AABCBE82294A607E8C94633F082"  "8FE17CCE0A3EA996ED7D8B538419C826",
 export const hotcoinTrader: string[] = [
     // "https://gw.hcglb.com/swap/v1/perpetual/follows/public/trader/currentLead?traderUid=7100137&platform=1&client=1&deviceId=&versionCode=3.0.1&lang=en_US"
 ];
@@ -60,9 +57,14 @@ export const accounts: Account[] = [
         key: 'CRYDWOZBKFVRRTDOHN',
         secret: 'MLVUFLNGJEBAOYOYXDJGMZPCDGNREQZTMMJS',
         testnet: true,
-        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/7293",// "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=83129161",
-        gain: 9, // 1500,
-        platform: "Wagon",//"Mexc"
+        trader:
+        {
+            "encryptedUid": "6408AAEEEBF0C76A3D5F0E39C64AAABA",
+            "tradeType": "PERPETUAL"
+        },
+        //"https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/7293",// "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=83129161",
+        gain: 26000, // 1500,
+        platform: "Binance",//"Mexc"
         botChat: "https://hooks.slack.com/services/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"
     }
 ];

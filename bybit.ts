@@ -75,7 +75,7 @@ export class BybitAPI {
         const copyPos = await fetch(BINANCEURL, requestOptions);
         const response: any = await copyPos.json();
         if (response.success === true && response.code === "000000") {
-            const curPosition = convertBinanceFormat(this._gain, response.data);
+            const curPosition = convertBinanceFormat(this._gain, response.data.otherPositionRetList);
             return curPosition;
         }
         return [];
@@ -149,7 +149,7 @@ export class BybitAPI {
                                             actualPNL = res.list[0].closedPnl;
                                     } else actualPNL = "Increase vol";
                                     order.price = await this.getMarkPrice(order.symbol);
-                                    convertAndSendBot(order.side, order, this._acc.botChat, actualPNL);
+                                    // convertAndSendBot(order.side, order, this._acc.botChat, actualPNL);
                                 }
                             }
                         }
@@ -165,6 +165,7 @@ export class BybitAPI {
     async getAccountByBit() {
         const info = await this._client.getPrivate('/unified/v3/private/account/info')
             .then(result => {
+                console.log('Check account Done');
                 return result;
             })
             .catch(err => {

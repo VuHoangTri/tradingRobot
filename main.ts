@@ -49,23 +49,25 @@ export async function main() {
     for (let i = 0; i < traderAPIs.length; i++) {
       const trader: BybitAPI = generator.next().value;
       const result = await trader.getExchangeInfo();
+      trader.getAccountByBit();
       trader._exchangeInfo = result || [];
       const curPos = await trader.getCopyList();
-//       trader._prePos = curPos;
+      trader._prePos = curPos;
 
-      const position = await trader.getMyPositions()
-      if (position) {
-        const myPos = position.result;//curPos;
-        trader._prePos = myPos.list.map((c: Position) => {
-          return { symbol: c.symbol, size: c.size, leverage: c.leverage }
-        });
-      }
-      
+      // const position = await trader.getMyPositions()
+      // // console.log(position);
+      // if (position) {
+      //   const myPos = position.result;//curPos;
+      //   trader._prePos = myPos.list.map((c: Position) => {
+      //     return { symbol: c.symbol, size: c.size, leverage: (Number(c.leverage) * LEVERAGEBYBIT).toString() }
+      //   });
+      // }
+
       trader._firstGet = false;
       // console.log(62, trader._curPos, trader._prePos)
     }
-    sendNoti("Đã chạy");
-    mainExecution(generator)
+    // sendNoti("Đã chạy");
+    mainExecution(generator);
   } catch (err) {
     sendNoti(`Main error:${err}`);
     await new Promise((r) => setTimeout(r, INTERVAL));
@@ -98,10 +100,10 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
         if (adjustPos.length > 0) {
           const adjustedLeverage = adjustPos.filter(pP =>
             trader._prePos.some(cP =>
-              cP.symbol === pP.symbol && Number(cP.leverage) !== (Number(pP.leverage) / LEVERAGEBYBIT)
+              cP.symbol === pP.symbol && Number(cP.leverage) !== (Number(pP.leverage))
             )
           ) || [];
-          // console.log(adjustedLeverage);
+          // console.log(adjustPos, trader._prePos);
           if (adjustedLeverage.length > 0) {
             sendNoti(`Đã chỉnh đòn bẩy ${adjustedLeverage.map(c => c.symbol)}`);
             await trader.adjustLeverage(adjustedLeverage);
