@@ -6,7 +6,9 @@ import { Account, BatchOrders, BinanceTrader, Leverage, Position } from './inter
 import { BINANCEURL, LEVERAGEBYBIT } from './constant';
 import { convertAndSendBot, convertBinanceFormat, convertHotCoinFormat, convertMEXCFormat, convertWagonFormat } from './action';
 import { sendError } from './slack';
-import _ from 'lodash'
+import _ from 'lodash';
+import { RequestInit } from "node-fetch";
+import fetch from "node-fetch";
 
 export class BybitAPI {
     _client: UnifiedMarginClient = new UnifiedMarginClient;
