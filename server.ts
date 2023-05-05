@@ -66,23 +66,23 @@ app.get("/getTotalPnlMain", async function (req, res) {
 //   res.send({ pnl: response });
 // })
 
-// app.post("/getPosSub1", async function (req, res) {
-//   const response = await getMyPositions(client[1]);
-//   res.send(response.result.list);
-// })
-// app.get("/getPosSub1", async function (req, res) {
-//   const response = await getMyPositions(client[1]);
-//   res.send(response.result.list);
-// })
+app.post("/getPosSub1", async function (req, res) {
+  const response = await traderAPIs[1].getMyPositions();
+  res.send(response?.result.list);
+})
+app.get("/getPosSub1", async function (req, res) {
+  const response = await traderAPIs[1].getMyPositions();
+  res.send(response?.result.list);
+})
 
-// app.post("/getPosSub2", async function (req, res) {
-//   const response = await getMyPositions(client[2]);
-//   res.send(response.result.list);
-// })
-// app.get("/getPosSub2", async function (req, res) {
-//   const response = await getMyPositions(client[2]);
-//   res.send(response.result.list);
-// })
+app.post("/getPosSub2", async function (req, res) {
+  const response = await traderAPIs[2].getMyPositions();
+  res.send(response?.result.list);
+})
+app.get("/getPosSub2", async function (req, res) {
+  const response = await traderAPIs[2].getMyPositions();
+  res.send(response?.result.list);
+})
 
 app.get("/stop", async function (req, res) {
   bot.enabled = false;
