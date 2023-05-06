@@ -87,9 +87,10 @@ app.get("/getTotalPnlAcc", async function (req, res) {
 
 app.get("/getTradeFeeAcc", async function (req, res) {
   const index = Number(req.query.acc) - 1;
-  let response: any = "Please provide index of account you want to see!";
-  if (index)
+  let response: any;
+  if (index !== undefined && index > -1)
     response = await traderAPIs[index].getTotalTradeFee();
+  else response = "Please provide index of account you want to see!";
   res.send({ fee: response });
 })
 
