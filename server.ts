@@ -61,52 +61,37 @@ app.post("/getTotalPnlMain", async function (req, res) {
   const response = await traderAPIs[0].getTotalPnL({});
   res.send({ pnl: response });
 })
-app.get("/getTotalPnlMain", async function (req, res) {
-  const time = req.query.time;
-  let response: any;
-  if (time)
-    response = await traderAPIs[0].getTotalPnL({ time: Number(time) });
-  else
-    response = await traderAPIs[0].getTotalPnL({});
-  res.send({ pnl: response });
-})
-
 app.post("/getTotalPnlAcc1", async function (req, res) {
   const response = await traderAPIs[1].getTotalPnL({});
   res.send({ pnl: response });
 })
-app.get("/getTotalPnlAcc1", async function (req, res) {
-  const time = req.query.time;
-  let response: any;
-  if (time)
-    response = await traderAPIs[1].getTotalPnL({ time: Number(time) });
-  else
-    response = await traderAPIs[1].getTotalPnL({});
-  res.send({ pnl: response });
-})
-
 app.post("/getTotalPnlAcc2", async function (req, res) {
   const response = await traderAPIs[2].getTotalPnL({});
   res.send({ pnl: response });
 })
-app.get("/getTotalPnlAcc2", async function (req, res) {
-  const time = req.query.time;
-  console.log(time);
-  let response: any;
-  if (time)
-    response = await traderAPIs[2].getTotalPnL({ time: Number(time) });
-  else
-    response = await traderAPIs[2].getTotalPnL({});
+app.post("/getTradeFeeMain", async function (req, res) {
+  const response = await traderAPIs[0].getTotalTradeFee();
   res.send({ pnl: response });
 })
-// app.post("/getTradeFee", async function (req, res) {
-//   const response = await getTotalTradeFee();
-//   res.send({ pnl: response });
-// })
-// app.get("/getTradeFee", async function (req, res) {
-//   const response = await getTotalTradeFee();
-//   res.send({ pnl: response });
-// })
+
+app.get("/getTotalPnlAcc", async function (req, res) {
+  const time = req.query.time;
+  const index = Number(req.query.acc);
+  let response: any;
+  if (time && index)
+    response = await traderAPIs[index].getTotalPnL({ time: Number(time) });
+  else
+    response = await traderAPIs[index].getTotalPnL({});
+  res.send({ pnl: response });
+})
+
+app.get("/getTradeFeeAcc", async function (req, res) {
+  const index = Number(req.query.acc);
+  let response: any = "Please provide index of account you want to see!";
+  if (index)
+    response = await traderAPIs[index].getTotalTradeFee();
+  res.send({ pnl: response });
+})
 
 app.post("/getPosSub1", async function (req, res) {
   const response = await traderAPIs[1].getMyPositions();

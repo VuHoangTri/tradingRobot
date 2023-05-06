@@ -218,15 +218,3 @@ export function convertAndSendBot(action: string | undefined, order, botChat: st
         sendNoti(`Send chatbot error: ${err}`)
     }
 }
-
-// export async function getTotalTradeFee(nextPageCursor?: string) {
-//     let res = await getTradeFee({ cursor: nextPageCursor });
-//     let sum = 0;
-//     let length = 0;
-//     while (typeof res !== 'string' && Boolean(res.nextPageCursor)) {
-//         length = length + res.list.length;
-//         sum = sum + res.list.reduce((acc, cur) => acc + Number(cur.fee), 0);
-//         res = await getTradeFee({ cursor: res.nextPageCursor })
-//     }
-//     return sum;
-// }

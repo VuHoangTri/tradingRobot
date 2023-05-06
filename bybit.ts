@@ -317,6 +317,18 @@ export class BybitAPI {
         }
         return sum;
     }
+
+    async getTotalTradeFee(nextPageCursor?: string) {
+        let res = await this.getTradeFee({ cursor: nextPageCursor });
+        let sum = 0;
+        let length = 0;
+        while (res !== undefined && typeof res !== 'string' && Boolean(res.nextPageCursor)) {
+            length = length + res.list.length;
+            sum = sum + res.list.reduce((acc, cur) => acc + Number(cur.fee), 0);
+            res = await this.getTradeFee({ cursor: res.nextPageCursor })
+        }
+        return sum;
+    }
 }
 
 // export async function createOrder(client: UnifiedMarginClient, order: Order) {
