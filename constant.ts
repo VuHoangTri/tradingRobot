@@ -37,7 +37,8 @@ export const accounts: Account[] = [
         trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/8453",//6824-10",//3841-240",//8303-15", //7952-8 //6824-10 //8453-50 // 9449-9
         gain: 50,
         platform: "Wagon",
-        botChat: "https://hooks.slack.com/services/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"
+        botChat: "https://hooks.slack.com/services/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",
+        index: 0
     },
     {
         key: 'QXvZHULCw7Lzjw5eqB',
@@ -46,7 +47,8 @@ export const accounts: Account[] = [
         trader: "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=08527742",//83129161",
         gain: 495,
         platform: "Mexc",
-        botChat: "https://hooks.slack.com/services/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"
+        botChat: "https://hooks.slack.com/services/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",
+        index: 1
     },
     // {
     //   key: 'FUTDWUTKODGDKSWNLV',
@@ -65,7 +67,8 @@ export const accounts: Account[] = [
         //"https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/7293",// "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=83129161",
         gain: 26000, // 1500,
         platform: "Binance",//"Mexc"
-        botChat: "https://hooks.slack.com/services/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"
+        botChat: "https://hooks.slack.com/services/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",
+        index: 2
     }
 ];
 

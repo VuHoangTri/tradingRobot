@@ -57,6 +57,47 @@ app.get("/getTotalPnlMain", async function (req, res) {
   res.send({ pnl: response });
 })
 
+app.post("/getTotalPnlMain", async function (req, res) {
+  const response = await traderAPIs[0].getTotalPnL({});
+  res.send({ pnl: response });
+})
+app.get("/getTotalPnlMain", async function (req, res) {
+  const time = req.query.time;
+  let response: any;
+  if (time)
+    response = await traderAPIs[0].getTotalPnL({ time: Number(time) });
+  else
+    response = await traderAPIs[0].getTotalPnL({});
+  res.send({ pnl: response });
+})
+
+app.post("/getTotalPnlAcc1", async function (req, res) {
+  const response = await traderAPIs[1].getTotalPnL({});
+  res.send({ pnl: response });
+})
+app.get("/getTotalPnlAcc1", async function (req, res) {
+  const time = req.query.time;
+  let response: any;
+  if (time)
+    response = await traderAPIs[1].getTotalPnL({ time: Number(time) });
+  else
+    response = await traderAPIs[1].getTotalPnL({});
+  res.send({ pnl: response });
+})
+
+app.post("/getTotalPnlAcc2", async function (req, res) {
+  const response = await traderAPIs[2].getTotalPnL({});
+  res.send({ pnl: response });
+})
+app.get("/getTotalPnlAcc2", async function (req, res) {
+  const time = req.query.time;
+  let response: any;
+  if (time)
+    response = await traderAPIs[2].getTotalPnL({ time: Number(time) });
+  else
+    response = await traderAPIs[2].getTotalPnL({});
+  res.send({ pnl: response });
+})
 // app.post("/getTradeFee", async function (req, res) {
 //   const response = await getTotalTradeFee();
 //   res.send({ pnl: response });

@@ -146,8 +146,7 @@ export function closedPosition(position: Position[], trader: BybitAPI, myPos: an
         console.log("Cur Position - Close", trader._curPos);
         for (const pos of position) {
             const closePos = myPos.result.list.find(c => c.symbol === pos.symbol);
-            const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
-            if (filter !== undefined) {
+            if (closePos !== undefined) {
                 pos.size = (Number(closePos.size) * -1).toString();
                 const order = convertToOrder(pos, true)
                 console.log("Action Close", order, new Date());
@@ -173,7 +172,7 @@ export async function adjustPosition(position: Position[], trader: BybitAPI, myP
             const prePos = trader._prePos.find(c => c.symbol === pos.symbol);
             if (prePos) {
                 const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
-                if (filter !== undefined && prePos !== undefined) {
+                if (filter !== undefined) {
                     const filterSize = filter.lotSizeFilter;
                     const percent = Number(pos.size) / Number(prePos.size);
                     if (myPos !== undefined) {

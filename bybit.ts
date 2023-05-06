@@ -64,41 +64,53 @@ export class BybitAPI {
     }
 
     async getBinanceCopyList() {
-        const requestOptions: RequestInit = {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            redirect: "follow",
-            body: JSON.stringify(this._copyTrader),
-        };
-        const copyPos = await fetch(BINANCEURL, requestOptions);
-        const response: any = await copyPos.json();
-        if (response.success === true && response.code === "000000") {
-            const curPosition = convertBinanceFormat(this._gain, response.data.otherPositionRetList);
-            return curPosition;
+        try {
+            const requestOptions: RequestInit = {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                redirect: "follow",
+                body: JSON.stringify(this._copyTrader),
+            };
+            const copyPos = await fetch(BINANCEURL, requestOptions);
+            const response: any = await copyPos.json();
+            if (response.success === true && response.code === "000000") {
+                const curPosition = convertBinanceFormat(this._gain, response.data.otherPositionRetList);
+                return curPosition;
+            }
+            return [];
         }
-        return [];
+        catch (err) {
+            sendNoti(`Get Binance Error Acc ${this._acc.index}: ${err}`);
+            return [];
+        }
     }
 
     async getOtherCopyList() {
-        const copyPos = await fetch(this._copyTrader);
-        const response: any = await copyPos.json();
-        if (this._platform === 'Hotcoin') {
-            if (response.msg === "success" && response.code === 200) {
-                return convertHotCoinFormat(this._exchangeInfo, this._gain, response.data);
+        try {
+            const copyPos = await fetch(this._copyTrader);
+            const response: any = await copyPos.json();
+            if (this._platform === 'Hotcoin') {
+                if (response.msg === "success" && response.code === 200) {
+                    return convertHotCoinFormat(this._exchangeInfo, this._gain, response.data);
+                }
             }
+            else if (this._platform === 'Mexc') {
+                if (response.success === true && response.code === 0) {
+                    return convertMEXCFormat(this._gain, response.data.content);
+                }
+            } else {
+                if (response.success === true && response.code === "000000") {
+                    return convertWagonFormat(this._gain, response.data);
+                }
+            }
+            return [];
         }
-        else if (this._platform === 'Mexc') {
-            if (response.success === true && response.code === 0) {
-                return convertMEXCFormat(this._gain, response.data.content);
-            }
-        } else {
-            if (response.success === true && response.code === "000000") {
-                return convertWagonFormat(this._gain, response.data);
-            }
+        catch (err) {
+            sendNoti(`Get Other Error Acc ${this._acc.index}: ${err}`);
+            return [];
         }
-        return [];
     }
 
     async adjustLeverage(positions: Position[]) {
@@ -126,7 +138,7 @@ export class BybitAPI {
                 }
             }
         } catch (err: any) {
-            sendNoti(`Adjust leverage Err: ${err}`);
+            sendNoti(`Adjust leverage Err Acc ${this._acc.index}: ${err}`);
         }
     }
 
@@ -144,9 +156,7 @@ export class BybitAPI {
                                     const order = batchOrders.request[i];
                                     let actualPNL = "";
                                     if (pnl === true) {
-                                        const res = await this.getClosedPNL({ symbol: order.symbol, limit: 1 });
-                                        if (typeof res !== 'string' && typeof res !== 'undefined')
-                                            actualPNL = res.list[0].closedPnl;
+                                        actualPNL = "Có PNL";
                                     } else actualPNL = "Increase vol";
                                     order.price = await this.getMarkPrice(order.symbol);
                                     convertAndSendBot(order.side, order, this._acc.botChat, actualPNL);
@@ -158,7 +168,7 @@ export class BybitAPI {
                 }
             }
         } catch (err: any) {
-            sendNoti(`Open batch order error: ${err}`);
+            sendNoti(`Open batch order error Acc ${this._acc.index}: ${err}`);
         }
     }
 
@@ -169,7 +179,7 @@ export class BybitAPI {
                 return result;
             })
             .catch(err => {
-                sendNoti(`getAccountInfo error: ${err}`);
+                sendNoti(`getAccountInfo error Acc ${this._acc.index}: ${err}`);
                 return undefined;
             });
         return info;
@@ -180,7 +190,7 @@ export class BybitAPI {
             const res = await this._client.getSymbolTicker("linear", symbol)
                 .then(res => { return res.result.list[0] })
                 .catch(err => {
-                    sendNoti(`Get Mark Price error: ${err}`);
+                    sendNoti(`Get Mark Price error Acc ${this._acc.index}: ${err}`);
                     return undefined;
                 });
             const markPrice: any = res;
@@ -195,7 +205,7 @@ export class BybitAPI {
         const res = this._client.getBalances()
             .then(res => { return res })
             .catch(err => {
-                sendNoti(`Get wallet Balance error: ${err}`);
+                sendNoti(`Get wallet Balance error Acc ${this._acc.index}: ${err}`);
                 return undefined;
             });
         return res
@@ -210,7 +220,7 @@ export class BybitAPI {
                 return res;
             })
             .catch(err => {
-                sendNoti(`Get Position error: ${err}`);
+                sendNoti(`Get Position error Acc ${this._acc.index}: ${err}`);
                 return undefined;
             });
         return res;
@@ -222,7 +232,7 @@ export class BybitAPI {
                 // const result = await client.postPrivate('/unified/v3/private/order/create-batch', batchOrders)
                 .then(res => { return res })
                 .catch(err => {
-                    sendNoti(`Submit Batch Order error: ${err}`);
+                    sendNoti(`Submit Batch Order error Acc ${this._acc.index}: ${err}`);
                     return undefined;
                 });
             return result;
@@ -238,7 +248,7 @@ export class BybitAPI {
             .postPrivate('unified/v3/private/position/set-leverage', leverage)
             .then(res => { return res })
             .catch(err => {
-                sendNoti(`Set Leverage error: ${err}`);
+                sendNoti(`Set Leverage error Acc ${this._acc.index}: ${err}`);
                 return undefined;
             });
         return result;
@@ -250,7 +260,7 @@ export class BybitAPI {
             const res = await this._client.getInstrumentInfo({ category: 'linear' })
                 .then(res => { return res.result.list })
                 .catch(err => {
-                    sendNoti(`Get Exchange Info error: ${err}`);
+                    sendNoti(`Get Exchange Info error Acc ${this._acc.index}: ${err}`);
                     return undefined;
                 });
             return res;
@@ -273,7 +283,7 @@ export class BybitAPI {
             })
                 .then(res => { return res.result })
                 .catch(err => {
-                    sendNoti(`Get Closed PNL error: ${err}`);
+                    sendNoti(`Get Closed PNL error Acc ${this._acc.index}: ${err}`);
                     return undefined;
                 });
             return res;
@@ -293,7 +303,7 @@ export class BybitAPI {
             })
                 .then(res => { return res.result })
                 .catch(err => {
-                    sendNoti(`Get Trade Fee error: ${err}`);
+                    sendNoti(`Get Trade Fee error Acc ${this._acc.index}: ${err}`);
                     return undefined;
                 });
             return res;
