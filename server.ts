@@ -91,6 +91,7 @@ app.post("/getTotalPnlAcc2", async function (req, res) {
 })
 app.get("/getTotalPnlAcc2", async function (req, res) {
   const time = req.query.time;
+  console.log(time);
   let response: any;
   if (time)
     response = await traderAPIs[2].getTotalPnL({ time: Number(time) });

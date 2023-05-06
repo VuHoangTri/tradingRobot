@@ -156,7 +156,7 @@ export class BybitAPI {
                                     const order = batchOrders.request[i];
                                     let actualPNL = "";
                                     if (pnl === true) {
-                                        actualPNL = "Có PNL";
+                                        actualPNL = "Make PNL";
                                     } else actualPNL = "Increase vol";
                                     order.price = await this.getMarkPrice(order.symbol);
                                     convertAndSendBot(order.side, order, this._acc.botChat, actualPNL);
@@ -317,7 +317,7 @@ export class BybitAPI {
         let sum = 0;
         while (res !== undefined && typeof res !== 'string' && res.nextPageCursor !== '') {
             sum = sum + res.list.reduce((acc, cur) => acc + Number(cur.closedPnl), 0);
-            res = await this.getClosedPNL({ cursor: res.nextPageCursor })
+            res = await this.getClosedPNL({ cursor: res.nextPageCursor, time: args.time })
         }
         return sum;
     }
