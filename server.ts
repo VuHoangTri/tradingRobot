@@ -78,7 +78,7 @@ app.get("/getTotalPnlAcc", async function (req, res) {
   const time = req.query.time;
   const index = Number(req.query.acc);
   let response: any;
-  if (time && index)
+  if (time && index > -1)
     response = await traderAPIs[index].getTotalPnL({ time: Number(time) });
   else
     response = await traderAPIs[index].getTotalPnL({});
