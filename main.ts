@@ -119,7 +119,6 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
       }
       await new Promise((r) => setTimeout(r, INTERVAL));
       trader._prePos = curPos;
-      // console.log('Next');
       await mainExecution(generator);
       // console.log(1);
     }

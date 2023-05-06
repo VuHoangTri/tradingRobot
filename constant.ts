@@ -2,7 +2,7 @@ import { AxiosProxyConfig } from "axios";
 import { Account } from "./interface";
 import { BybitAPI } from "./bybit";
 
-export const INTERVAL = 2000;
+export const INTERVAL = 1000;
 export const INTERVALACTION = 500;
 export const SIZEBYBIT = 100000000;
 export const LEVERAGEBYBIT = 100;
