@@ -86,11 +86,11 @@ app.get("/getTotalPnlAcc", async function (req, res) {
 })
 
 app.get("/getTradeFeeAcc", async function (req, res) {
-  const index = Number(req.query.acc);
+  const index = Number(req.query.acc) - 1;
   let response: any = "Please provide index of account you want to see!";
   if (index)
     response = await traderAPIs[index].getTotalTradeFee();
-  res.send({ pnl: response });
+  res.send({ fee: response });
 })
 
 app.post("/getPosSub1", async function (req, res) {
