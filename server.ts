@@ -158,6 +158,6 @@ app.get("/stop", async function (req, res) {
 
 app.listen(port, async () => {
   console.log(`[server]: Server is running at https://localhost:${port}`);
-  await new Promise((r) => setTimeout(r, INTERVAL));
+  await new Promise((r) => setTimeout(r, 4000));
   main();
 });
