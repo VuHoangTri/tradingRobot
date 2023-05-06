@@ -76,6 +76,7 @@ export async function main() {
 
 export async function mainExecution(generator: Generator<BybitAPI>) {
   try {
+    // const sT = new Date().getTime();
     const traderGen = generator.next();
     const trader: BybitAPI = traderGen.value;
     trader.initial();
@@ -86,39 +87,59 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
       // console.log(diffStatus);
       if (diffStatus) {
         const { openPos, closePos, adjustPos } = diffStatus;
+
         if (openPos.length > 0) {
           const openPosFine = _.cloneDeep(openPos.filter((c: any) => trader._exchangeInfo.some((x: any) => c.symbol === x.symbol)) || []);
+
           if (openPosFine.length > 0) {
             await trader.adjustLeverage(openPosFine);
             const batchOpen = openedPosition(openPosFine, trader);
-            trader.openBatchOrders(batchOpen, false);
-          }
-        }
-        if (adjustPos.length > 0 || closePos.length > 0) {
-          const myPos = await trader.getMyPositions();
-          if (closePos.length > 0) {
-            const batchClose = closedPosition(closePos, trader, myPos);
-            trader.openBatchOrders(batchClose, true);
+            trader.openBatchOrders(batchOpen, "Open Position");
           }
 
-          if (adjustPos.length > 0) {
-            const adjustedLeverage = adjustPos.filter(pP =>
-              trader._prePos.some(cP =>
-                cP.symbol === pP.symbol && Number(cP.leverage) !== (Number(pP.leverage))
-              )
-            ) || [];
-            // console.log(adjustPos, trader._prePos);
-            if (adjustedLeverage.length > 0) {
-              sendNoti(`Đã chỉnh đòn bẩy ${adjustedLeverage.map(c => c.symbol)}`);
-              await trader.adjustLeverage(adjustedLeverage);
-            }
-            const result = await adjustPosition(adjustPos, trader, myPos);
-            trader.openBatchOrders(result.batch, result.pnl);
-          }
         }
+
+        if (adjustPos.length > 0 || closePos.length > 0) {
+          const myPos = await trader.getMyPositions();
+
+          if (myPos) {
+            const myList = myPos?.result.list.map((c: Position) => {
+              return { symbol: c.symbol, size: c.size, leverage: (Number(c.leverage) * LEVERAGEBYBIT).toString() }
+            });
+
+            if (closePos.length > 0 && myList.length > 0) {
+              const closeMyPos = myList.filter(pP =>
+                closePos.some(cP => cP.symbol === pP.symbol)
+              ) || [];
+              const batchClose = closedPosition(closeMyPos, trader);
+              trader.openBatchOrders(batchClose, "Close Position");
+            }
+
+            if (adjustPos.length > 0) {
+              const adjustedLeverage = adjustPos.filter(pP =>
+                myList.some(cP =>
+                  cP.symbol === pP.symbol && Number(cP.leverage) !== (Number(pP.leverage))
+                )
+              ) || [];
+              if (adjustedLeverage.length > 0) {
+                sendNoti(`Đã chỉnh đòn bẩy ${adjustedLeverage.map(c => c.symbol)}`);
+                await trader.adjustLeverage(adjustedLeverage);
+              }
+              const adjustMyPost = myList.filter(pP =>
+                adjustPos.some(cP => cP.symbol === pP.symbol)
+              ) || [];
+              const result = await adjustPosition(adjustMyPost, trader);
+              trader.openBatchOrders(result.batch, result.pnl);
+            }
+
+          }
+
+        }
+
       }
       await new Promise((r) => setTimeout(r, INTERVAL));
       trader._prePos = curPos;
+      // console.log(new Date().getTime() - sT);
       await mainExecution(generator);
       // console.log(1);
     }

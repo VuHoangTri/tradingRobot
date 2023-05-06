@@ -2,7 +2,7 @@ import { AxiosProxyConfig } from "axios";
 import { Account } from "./interface";
 import { BybitAPI } from "./bybit";
 
-export const INTERVAL = 1000;
+export const INTERVAL = 800;
 export const INTERVALACTION = 500;
 export const SIZEBYBIT = 100000000;
 export const LEVERAGEBYBIT = 100;
@@ -44,8 +44,8 @@ export const accounts: Account[] = [
         key: 'QXvZHULCw7Lzjw5eqB',
         secret: '7EZOTNFfLO64tJhNiMt3AzSC64qv2H19ftH1',
         testnet: true,
-        trader: "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=08527742",//83129161",
-        gain: 680,
+        trader: "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=83129161", //08527742"
+        gain: 2020,
         platform: "Mexc",
         botChat: "https://hooks.slack.com/services/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",
         index: 1
@@ -54,7 +54,8 @@ export const accounts: Account[] = [
     //   key: 'FUTDWUTKODGDKSWNLV',
     //   secret: 'OOJVCPQYRIMCWYGQNDBHFTIIZKRGEGZZJFGQ',
     //   testnet: true,
-    // },
+    // },         //"https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/7293",// "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=83129161", // 1500, //"Mexc"
+
     {
         key: 'CRYDWOZBKFVRRTDOHN',
         secret: 'MLVUFLNGJEBAOYOYXDJGMZPCDGNREQZTMMJS',
@@ -64,9 +65,8 @@ export const accounts: Account[] = [
             "encryptedUid": "6408AAEEEBF0C76A3D5F0E39C64AAABA",
             "tradeType": "PERPETUAL"
         },
-        //"https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/7293",// "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=83129161",
-        gain: 26000, // 1500,
-        platform: "Binance",//"Mexc"
+        gain: 26000,
+        platform: "Binance",
         botChat: "https://hooks.slack.com/services/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",
         index: 2
     }

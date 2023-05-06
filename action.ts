@@ -140,19 +140,17 @@ export function openedPosition(position: Position[], trader: BybitAPI) {
     }
 }
 
-export function closedPosition(position: Position[], trader: BybitAPI, myPos: any) {
+export function closedPosition(position: Position[], trader: BybitAPI) {
     try {
         const batchClosePos: BatchOrders = { category: "linear", request: [] };
         console.log("Cur Position - Close", trader._curPos);
         for (const pos of position) {
-            const closePos = myPos.result.list.find(c => c.symbol === pos.symbol);
-            if (closePos !== undefined) {
-                pos.size = (Number(closePos.size) * -1).toString();
-                const order = convertToOrder(pos, true)
-                console.log("Action Close", order, new Date());
-                if (order !== null)
-                    batchClosePos.request.push(order);
-            }
+            pos.size = (Number(pos.size) * -1).toString();
+            const order = convertToOrder(pos, true)
+            console.log("Action Close", order, new Date());
+            if (order !== null)
+                batchClosePos.request.push(order);
+
         }
         return batchClosePos;
     }
@@ -163,36 +161,32 @@ export function closedPosition(position: Position[], trader: BybitAPI, myPos: an
     }
 }
 
-export async function adjustPosition(position: Position[], trader: BybitAPI, myPos: any) {
+export async function adjustPosition(position: Position[], trader: BybitAPI) {
     try {
         const batchAdjustPos: BatchOrders = { category: "linear", request: [] };
         console.log('Cur and Pre Position - Adjust', position, trader._curPos);
-        let pnl = true;
+        let pnl = "";
         for await (const pos of position) {
             const prePos = trader._prePos.find(c => c.symbol === pos.symbol);
-            if (prePos) {
+            const curPos = trader._curPos.find(c => c.symbol === pos.symbol);
+            if (prePos && curPos) {
                 const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
                 if (filter !== undefined) {
                     const filterSize = filter.lotSizeFilter;
-                    const percent = Number(pos.size) / Number(prePos.size);
-                    if (myPos !== undefined) {
-                        const adjustedPos = myPos.result.list.filter(c => c.symbol === pos.symbol) || [];
-                        if (adjustedPos.length > 0) {
-                            const newPos: Position = {
-                                symbol: pos.symbol,
-                                size: (Number(adjustedPos[0].size) * percent - Number(adjustedPos[0].size)).toString(),
-                                leverage: pos.leverage
-                            }
-                            if (Number(newPos.size) * Number(adjustedPos[0].size) > 0) pnl = false
-                            else pnl = true;
-                            newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
-                            const order = convertToOrder(newPos, true);
-                            console.log("Action Adjust", order, new Date())
-                            if (order !== null) {
-                                order.leverage = newPos.leverage;
-                                batchAdjustPos.request.push(order);
-                            }
-                        }
+                    const percent = Number(curPos.size) / Number(prePos.size);
+                    const newPos: Position = {
+                        symbol: pos.symbol,
+                        size: (Number(pos.size) * percent - Number(pos.size)).toString(),
+                        leverage: pos.leverage
+                    }
+                    if (Number(newPos.size) * Number(pos.size) > 0) pnl = "DCA"
+                    else pnl = "Take PNL";
+                    newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
+                    const order = convertToOrder(newPos, true);
+                    console.log("Action Adjust", order, new Date())
+                    if (order !== null) {
+                        order.leverage = newPos.leverage;
+                        batchAdjustPos.request.push(order);
                     }
                 }
             }
@@ -202,7 +196,7 @@ export async function adjustPosition(position: Position[], trader: BybitAPI, myP
     catch (err) {
         sendNoti(`Create adjust pos error ${err}`);
         const batchEmpty: BatchOrders = { category: "linear", request: [] };
-        return { batch: batchEmpty, pnl: false }
+        return { batch: batchEmpty, pnl: "" }
     }
 }
 

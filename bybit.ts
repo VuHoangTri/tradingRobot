@@ -142,7 +142,7 @@ export class BybitAPI {
         }
     }
 
-    async openBatchOrders(batchOrders: BatchOrders, pnl: boolean) {
+    async openBatchOrders(batchOrders: BatchOrders, action: string) {
         try {
             if (batchOrders.request.length > 0) {
                 for (let i = 0; i < batchOrders.request.length; i += 9) {
@@ -154,12 +154,8 @@ export class BybitAPI {
                             for (let i = 0; i < resCreate.result.list.length; i++) {
                                 if (resCreate.result.list[i].orderId !== '') {
                                     const order = batchOrders.request[i];
-                                    let actualPNL = "";
-                                    if (pnl === true) {
-                                        actualPNL = "Make PNL";
-                                    } else actualPNL = "Increase vol";
                                     order.price = await this.getMarkPrice(order.symbol);
-                                    convertAndSendBot(order.side, order, this._acc.botChat, actualPNL);
+                                    convertAndSendBot(order.side, order, this._acc.botChat, action);
                                 }
                             }
                         }
