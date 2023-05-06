@@ -289,13 +289,17 @@ export class BybitAPI {
         }
     }
 
-    async getTradeFee(pnlParam: { limit?: number, cursor?: string }) {
+    async getTradeFee(pnlParam: { limit?: number, cursor?: string, time?: number }) {
         try {
-            const time = new Date().getTime() - 2592117632;
+            let sTime = 0;
+            if (pnlParam.time !== undefined) {
+                sTime = pnlParam.time;
+            } else
+                sTime = new Date().getTime() - 2592117632;
             const res = await this._clientV5.getTransactionLog({
                 type: 'TRADE', currency: 'USDT', accountType: 'UNIFIED',
                 category: "linear", limit: pnlParam.limit
-                , startTime: time, cursor: pnlParam.cursor
+                , startTime: sTime, cursor: pnlParam.cursor
             })
                 .then(res => { return res.result })
                 .catch(err => {
@@ -308,6 +312,7 @@ export class BybitAPI {
             return { nextPageCursor: '', list: [] }
         }
     }
+
     async getTotalPnL(args: { nextPageCursor?: string, time?: number }) {
         let res = await this.getClosedPNL({ cursor: args.nextPageCursor, time: args.time });
         let sum = 0;
@@ -318,14 +323,14 @@ export class BybitAPI {
         return sum;
     }
 
-    async getTotalTradeFee(nextPageCursor?: string) {
-        let res = await this.getTradeFee({ cursor: nextPageCursor });
+    async getTotalTradeFee(args: { nextPageCursor?: string, time?: number }) {
+        let res = await this.getTradeFee({ cursor: args.nextPageCursor, time: args.time });
         let sum = 0;
         let length = 0;
         while (res !== undefined && typeof res !== 'string' && Boolean(res.nextPageCursor)) {
             length = length + res.list.length;
             sum = sum + res.list.reduce((acc, cur) => acc + Number(cur.fee), 0);
-            res = await this.getTradeFee({ cursor: res.nextPageCursor })
+            res = await this.getTradeFee({ cursor: res.nextPageCursor, time: args.time })
         }
         return sum;
     }

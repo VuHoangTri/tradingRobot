@@ -70,7 +70,7 @@ app.post("/getTotalPnlAcc2", async function (req, res) {
   res.send({ pnl: response });
 })
 app.post("/getTradeFeeMain", async function (req, res) {
-  const response = await traderAPIs[0].getTotalTradeFee();
+  const response = await traderAPIs[0].getTotalTradeFee({});
   res.send({ pnl: response });
 })
 
@@ -78,19 +78,25 @@ app.get("/getTotalPnlAcc", async function (req, res) {
   const time = req.query.time;
   const index = Number(req.query.acc);
   let response: any;
-  if (time && index > -1)
-    response = await traderAPIs[index].getTotalPnL({ time: Number(time) });
+  if (time) {
+    if (index > -1)
+      response = await traderAPIs[index].getTotalPnL({ time: Number(time) });
+    else response = "Please provide index of account you want to see!";
+  }
   else
     response = await traderAPIs[index].getTotalPnL({});
   res.send({ pnl: response });
 })
 
 app.get("/getTradeFeeAcc", async function (req, res) {
+  const time = req.query.time;
   const index = Number(req.query.acc) - 1;
   let response: any;
-  if (index !== undefined && index > -1)
-    response = await traderAPIs[index].getTotalTradeFee();
-  else response = "Please provide index of account you want to see!";
+  if (index !== undefined)
+    if (index > -1)
+      response = await traderAPIs[index].getTotalTradeFee({ time: Number(time) });
+    else response = "Please provide index of account you want to see!";
+  else response = await traderAPIs[index].getTotalTradeFee({});
   res.send({ fee: response });
 })
 
