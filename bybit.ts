@@ -9,6 +9,7 @@ import { sendNoti } from './slack';
 import _ from 'lodash';
 import { RequestInit } from "node-fetch";
 import fetch from "node-fetch";
+import { HttpsProxyAgent } from 'hpagent';
 
 export class BybitAPI {
     _client: UnifiedMarginClient = new UnifiedMarginClient;
@@ -16,7 +17,7 @@ export class BybitAPI {
     _gain: number;
     _clientV5: RestClientV5 = new RestClientV5;
     _platform: string;
-    _curPos: Position[] = [];
+    _curPos: Position[] | undefined = undefined;
     _prePos: Position[] = [];
     _firstGet: boolean = true;
     _exchangeInfo: any = [];
@@ -42,7 +43,6 @@ export class BybitAPI {
     }
 
     initial() {
-        const randomNumber = Math.floor(Math.random() * (4 - 0) + 0);
         // console.log(randomNumber);
         this._client = new UnifiedMarginClient(
             {
@@ -50,7 +50,7 @@ export class BybitAPI {
                 secret: this._acc.secret,
                 testnet: this._acc.testnet,
             },
-            { proxy: this._acc.axiosProxy ? this._acc.axiosProxy[randomNumber] : undefined }
+            // { proxy: this._acc.axiosProxy ? this._acc.axiosProxy[randomNumber] : undefined }
         );
     }
     async getCopyList() {
@@ -65,6 +65,8 @@ export class BybitAPI {
 
     async getBinanceCopyList() {
         try {
+            const randomNumber = Math.floor(Math.random() * (4 - 0) + 0);
+            const proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[randomNumber] });
             const requestOptions: RequestInit = {
                 method: 'POST',
                 headers: {
@@ -72,6 +74,7 @@ export class BybitAPI {
                 },
                 redirect: "follow",
                 body: JSON.stringify(this._copyTrader),
+                agent: proxyAgent,
             };
             const copyPos = await fetch(BINANCEURL, requestOptions);
             const response: any = await copyPos.json();
@@ -79,17 +82,19 @@ export class BybitAPI {
                 const curPosition = convertBinanceFormat(this._gain, response.data.otherPositionRetList);
                 return curPosition;
             }
-            return [];
+            return undefined;
         }
         catch (err) {
             sendNoti(`Get Binance Error Acc ${this._acc.index}: ${err}`);
-            return [];
+            return undefined;
         }
     }
 
     async getOtherCopyList() {
         try {
-            const copyPos = await fetch(this._copyTrader);
+            const randomNumber = Math.floor(Math.random() * (4 - 0) + 0);
+            const proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[randomNumber] })
+            const copyPos = await fetch(this._copyTrader, { agent: proxyAgent });
             const response: any = await copyPos.json();
             if (this._platform === 'Hotcoin') {
                 if (response.msg === "success" && response.code === 200) {
@@ -105,11 +110,11 @@ export class BybitAPI {
                     return convertWagonFormat(this._gain, response.data);
                 }
             }
-            return [];
+            return undefined;
         }
         catch (err) {
             sendNoti(`Get Other Error Acc ${this._acc.index}: ${err}`);
-            return [];
+            return undefined;
         }
     }
 

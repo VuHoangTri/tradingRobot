@@ -37,6 +37,7 @@ export const accounts: Account[] = [
         trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/8453",//6824-10",//3841-240",//8303-15", //7952-8 //6824-10 //8453-50 // 9449-9
         gain: 50,
         platform: "Wagon",
+        nodefetchProxy: [],
         botChat: "https://hooks.slack.com/services/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",
         index: 0
     },
@@ -47,6 +48,7 @@ export const accounts: Account[] = [
         trader: "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=69843970", //08527742"
         gain: 6,
         platform: "Mexc",
+        nodefetchProxy: [],
         botChat: "https://hooks.slack.com/services/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",
         index: 1
     },
@@ -67,12 +69,14 @@ export const accounts: Account[] = [
         },
         gain: 26000,
         platform: "Binance",
+        nodefetchProxy: [],
         botChat: "https://hooks.slack.com/services/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",
         index: 2
     }
 ];
 
 export const proxyArr: string[] = [
+    "185.199.229.156:7492:frawsmba:54hwnd9dtyv3",
     "188.74.210.207:6286:frawsmba:54hwnd9dtyv3",
     "188.74.183.10:8279:frawsmba:54hwnd9dtyv3",
     "188.74.210.21:6100:frawsmba:54hwnd9dtyv3",
@@ -80,6 +84,6 @@ export const proxyArr: string[] = [
     "45.94.47.66:8110:frawsmba:54hwnd9dtyv3"
 ]
 
-export const axiosProxyArr: AxiosProxyConfig[] = [];
+export const nodeFetchProxyArr: string[] = [];
 
 export const traderAPIs: BybitAPI[] = [];

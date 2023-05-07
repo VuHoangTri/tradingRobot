@@ -97,22 +97,26 @@ function roundQuantity(size, minOrderQty, qtyStep) {
     return (size < 0 ? -nearestMultiple : nearestMultiple).toFixed(decimalLen);
 }
 
-export async function comparePosition(compare: { firstGet: boolean, curPos: Position[], prePos: Position[] }) {
+export async function comparePosition(compare: { firstGet: boolean, curPos: Position[] | undefined, prePos: Position[] }) {
     try {
         const { firstGet, curPos, prePos } = compare;
-        const openPos: Position[] = _.differenceBy(curPos, prePos, 'symbol');
-        const closePos: Position[] = _.differenceBy(prePos, curPos, 'symbol');
-        let adjustPos: Position[] = [];
-        if (firstGet !== true) {
-            adjustPos = curPos.filter(pP =>
-                prePos.some(cP =>
-                    cP.symbol === pP.symbol && Number(cP.size) !== Number(pP.size)
-                )
-            ) || [];
+        if (curPos !== undefined) {
+            const openPos: Position[] = _.differenceBy(curPos, prePos, 'symbol');
+            const closePos: Position[] = _.differenceBy(prePos, curPos, 'symbol');
+            let adjustPos: Position[] = [];
+            if (firstGet !== true) {
+                adjustPos = curPos.filter(pP =>
+                    prePos.some(cP =>
+                        cP.symbol === pP.symbol && Number(cP.size) !== Number(pP.size)
+                    )
+                ) || [];
+            }
+            return { openPos: openPos, closePos: closePos, adjustPos: adjustPos }
         }
-        return { openPos: openPos, closePos: closePos, adjustPos: adjustPos }
+        return { openPos: [], closePos: [], adjustPos: [] }
     } catch (err) {
         sendNoti(`Compare error: ${err}`)
+        return { openPos: [], closePos: [], adjustPos: [] }
     }
 }
 
@@ -164,34 +168,37 @@ export function closedPosition(position: Position[], trader: BybitAPI) {
 export async function adjustPosition(position: Position[], trader: BybitAPI) {
     try {
         const batchAdjustPos: BatchOrders = { category: "linear", request: [] };
-        console.log('Cur and Pre Position - Adjust', position, trader._curPos);
-        let pnl = "";
-        for await (const pos of position) {
-            const prePos = trader._prePos.find(c => c.symbol === pos.symbol);
-            const curPos = trader._curPos.find(c => c.symbol === pos.symbol);
-            if (prePos && curPos) {
-                const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
-                if (filter !== undefined) {
-                    const filterSize = filter.lotSizeFilter;
-                    const percent = Number(curPos.size) / Number(prePos.size);
-                    const newPos: Position = {
-                        symbol: pos.symbol,
-                        size: (Number(pos.size) * percent - Number(pos.size)).toString(),
-                        leverage: pos.leverage
-                    }
-                    if (Number(newPos.size) * Number(pos.size) > 0) pnl = "DCA"
-                    else pnl = "Take PNL";
-                    newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
-                    const order = convertToOrder(newPos, true);
-                    console.log("Action Adjust", order, new Date())
-                    if (order !== null) {
-                        order.leverage = newPos.leverage;
-                        batchAdjustPos.request.push(order);
+        if (trader._curPos !== undefined) {
+            console.log('Cur and Pre Position - Adjust', position, trader._curPos);
+            let pnl = "";
+            for await (const pos of position) {
+                const prePos = trader._prePos.find(c => c.symbol === pos.symbol);
+                const curPos = trader._curPos.find(c => c.symbol === pos.symbol);
+                if (prePos && curPos) {
+                    const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
+                    if (filter !== undefined) {
+                        const filterSize = filter.lotSizeFilter;
+                        const percent = Number(curPos.size) / Number(prePos.size);
+                        const newPos: Position = {
+                            symbol: pos.symbol,
+                            size: (Number(pos.size) * percent - Number(pos.size)).toString(),
+                            leverage: pos.leverage
+                        }
+                        if (Number(newPos.size) * Number(pos.size) > 0) pnl = "DCA"
+                        else pnl = "Take PNL";
+                        newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
+                        const order = convertToOrder(newPos, true);
+                        console.log("Action Adjust", order, new Date())
+                        if (order !== null) {
+                            order.leverage = newPos.leverage;
+                            batchAdjustPos.request.push(order);
+                        }
                     }
                 }
             }
+            return { batch: batchAdjustPos, pnl };
         }
-        return { batch: batchAdjustPos, pnl };
+        return { batch: batchAdjustPos, pnl: "" }
     }
     catch (err) {
         sendNoti(`Create adjust pos error ${err}`);

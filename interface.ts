@@ -67,7 +67,7 @@ export interface Account {
     trader: string | BinanceTrader;
     gain: number;
     platform: string;
-    axiosProxy?: AxiosProxyConfig[];
+    nodefetchProxy: string[];
     botChat: string; 
     index: number;
 }
