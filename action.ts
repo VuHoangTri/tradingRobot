@@ -129,7 +129,7 @@ export function openedPosition(position: Position[], trader: BybitAPI) {
             const lotSizeFilter = filter.lotSizeFilter;
             pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
             const order = convertToOrder(pos, true);
-            console.log("Action Open", order, new Date());
+            // console.log("Action Open", order, new Date());
             if (order !== null) {
                 order.leverage = pos.leverage;
                 batchOpenPos.request.push(order);
@@ -151,7 +151,7 @@ export function closedPosition(position: Position[], trader: BybitAPI) {
         for (const pos of position) {
             pos.size = (Number(pos.size) * -1).toString();
             const order = convertToOrder(pos, true)
-            console.log("Action Close", order, new Date());
+            // console.log("Action Close", order, new Date());
             if (order !== null)
                 batchClosePos.request.push(order);
 
@@ -169,7 +169,7 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
     try {
         const batchAdjustPos: BatchOrders = { category: "linear", request: [] };
         if (trader._curPos !== undefined) {
-            console.log('Cur and Pre Position - Adjust', position, trader._curPos);
+            // console.log('Cur and Pre Position - Adjust', position, trader._curPos);
             let pnl = "";
             for await (const pos of position) {
                 const prePos = trader._prePos.find(c => c.symbol === pos.symbol);
@@ -188,7 +188,7 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
                         else pnl = "Take PNL";
                         newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
                         const order = convertToOrder(newPos, true);
-                        console.log("Action Adjust", order, new Date())
+                        // console.log("Action Adjust", order, new Date())
                         if (order !== null) {
                             order.leverage = newPos.leverage;
                             batchAdjustPos.request.push(order);

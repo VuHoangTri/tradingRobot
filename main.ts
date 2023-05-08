@@ -146,5 +146,6 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
     }
   } catch (err) {
     sendNoti(`Execution error: ${err}`);
+    await mainExecution(generator);
   }
 }
