@@ -51,7 +51,7 @@ export async function main() {
       const trader: BybitAPI = generator.next().value;
       // trader.initial();
       const result = await trader.getExchangeInfo();
-      trader.getAccountByBit();
+      await trader.getAccountByBit();
       trader._exchangeInfo = result || [];
       // const curPos = await trader.getCopyList();
       // trader._prePos = curPos;
@@ -70,7 +70,7 @@ export async function main() {
     }
     sendNoti("Đã chạy");
     // mainExecution(generator);
-    console.log(new Date().getTime() - sT);
+    console.log(73, new Date().getTime() - sT);
 
   } catch (err) {
     sendNoti(`Main error:${err}`);
