@@ -56,8 +56,8 @@ export async function main() {
       // const curPos = await trader.getCopyList();
       // trader._prePos = curPos;
 
-      // const position = await trader.getMyPositions()
-      // console.log(position);
+      const position = await trader.getMyPositions()
+      console.log(position);
       // if (position) {
       //   const myPos = position.result;//curPos;
       //   trader._prePos = myPos.list.map((c: Position) => {
