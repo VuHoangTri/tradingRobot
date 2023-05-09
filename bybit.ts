@@ -54,12 +54,14 @@ export class BybitAPI {
         );
     }
     async getCopyList() {
+        const sT = new Date().getTime();
         if (this._platform === 'Binance') {
             this._curPos = await this.getBinanceCopyList();
         }
         else {
             this._curPos = await this.getOtherCopyList();
         }
+        console.log("Bybit 63", new Date().getTime() - sT);
         return this._curPos;
     }
 

@@ -97,7 +97,7 @@ function roundQuantity(size, minOrderQty, qtyStep) {
     return (size < 0 ? -nearestMultiple : nearestMultiple).toFixed(decimalLen);
 }
 
-export async function comparePosition(compare: { firstGet: boolean, curPos: Position[] | undefined, prePos: Position[] }) {
+export function comparePosition(compare: { firstGet: boolean, curPos: Position[] | undefined, prePos: Position[] }) {
     try {
         const { firstGet, curPos, prePos } = compare;
         if (curPos !== undefined) {

@@ -80,69 +80,69 @@ export async function main() {
 
 export async function mainExecution(generator: Generator<BybitAPI>) {
   try {
-    const sT = new Date().getTime();
+    // const sT = new Date().getTime();
     const traderGen = generator.next();
     const trader: BybitAPI = traderGen.value;
     if (bot.enabled) {
       const curPos = await trader.getCopyList();
       if (curPos !== undefined) {
-        const diffStatus = await comparePosition({ firstGet: trader._firstGet, curPos: trader._curPos, prePos: trader._prePos });
+        const diffStatus = comparePosition({ firstGet: trader._firstGet, curPos: trader._curPos, prePos: trader._prePos });
         trader._firstGet = false;
         console.log(diffStatus);
-        if (diffStatus) {
-          const { openPos, closePos, adjustPos } = diffStatus;
+        // if (diffStatus) {
+        //   const { openPos, closePos, adjustPos } = diffStatus;
 
-          if (openPos.length > 0) {
-            const openPosFine = _.cloneDeep(openPos.filter((c: any) => trader._exchangeInfo.some((x: any) => c.symbol === x.symbol)) || []);
+        //   if (openPos.length > 0) {
+        //     const openPosFine = _.cloneDeep(openPos.filter((c: any) => trader._exchangeInfo.some((x: any) => c.symbol === x.symbol)) || []);
 
-            if (openPosFine.length > 0) {
-              await trader.adjustLeverage(openPosFine);
-              const batchOpen = openedPosition(openPosFine, trader);
-              trader.openBatchOrders(batchOpen, "Open Position");
-            }
+        //     if (openPosFine.length > 0) {
+        //       await trader.adjustLeverage(openPosFine);
+        //       const batchOpen = openedPosition(openPosFine, trader);
+        //       trader.openBatchOrders(batchOpen, "Open Position");
+        //     }
 
-          }
+        //   }
 
-          if (adjustPos.length > 0 || closePos.length > 0) {
-            const myPos = await trader.getMyPositions();
+        //   if (adjustPos.length > 0 || closePos.length > 0) {
+        //     const myPos = await trader.getMyPositions();
 
-            if (myPos) {
-              const myList = myPos?.result.list.map((c: Position) => {
-                return { symbol: c.symbol, size: c.size, leverage: (Number(c.leverage) * LEVERAGEBYBIT).toString() }
-              });
+        //     if (myPos) {
+        //       const myList = myPos?.result.list.map((c: Position) => {
+        //         return { symbol: c.symbol, size: c.size, leverage: (Number(c.leverage) * LEVERAGEBYBIT).toString() }
+        //       });
 
-              if (closePos.length > 0 && myList.length > 0) {
-                const closeMyPos = myList.filter(pP =>
-                  closePos.some(cP => cP.symbol === pP.symbol)
-                ) || [];
-                const batchClose = closedPosition(closeMyPos, trader);
-                trader.openBatchOrders(batchClose, "Close Position");
-              }
+        //       if (closePos.length > 0 && myList.length > 0) {
+        //         const closeMyPos = myList.filter(pP =>
+        //           closePos.some(cP => cP.symbol === pP.symbol)
+        //         ) || [];
+        //         const batchClose = closedPosition(closeMyPos, trader);
+        //         trader.openBatchOrders(batchClose, "Close Position");
+        //       }
 
-              if (adjustPos.length > 0) {
-                const adjustedLeverage = adjustPos.filter(pP =>
-                  myList.some(cP =>
-                    cP.symbol === pP.symbol && Number(cP.leverage) !== (Number(pP.leverage))
-                  )
-                ) || [];
-                if (adjustedLeverage.length > 0) {
-                  sendNoti(`Đã chỉnh đòn bẩy ${adjustedLeverage.map(c => c.symbol)}`);
-                  await trader.adjustLeverage(adjustedLeverage);
-                }
-                const adjustMyPost = myList.filter(pP =>
-                  adjustPos.some(cP => cP.symbol === pP.symbol)
-                ) || [];
-                const result = await adjustPosition(adjustMyPost, trader);
-                trader.openBatchOrders(result.batch, result.pnl);
-              }
+        //       if (adjustPos.length > 0) {
+        //         const adjustedLeverage = adjustPos.filter(pP =>
+        //           myList.some(cP =>
+        //             cP.symbol === pP.symbol && Number(cP.leverage) !== (Number(pP.leverage))
+        //           )
+        //         ) || [];
+        //         if (adjustedLeverage.length > 0) {
+        //           sendNoti(`Đã chỉnh đòn bẩy ${adjustedLeverage.map(c => c.symbol)}`);
+        //           await trader.adjustLeverage(adjustedLeverage);
+        //         }
+        //         const adjustMyPost = myList.filter(pP =>
+        //           adjustPos.some(cP => cP.symbol === pP.symbol)
+        //         ) || [];
+        //         const result = await adjustPosition(adjustMyPost, trader);
+        //         trader.openBatchOrders(result.batch, result.pnl);
+        //       }
 
-            }
+        //     }
 
-          }
-        }
+        //   }
+        // }
         trader._prePos = curPos;
       }
-      console.log(146, new Date().getTime() - sT);
+      // console.log(146, new Date().getTime() - sT);
       await new Promise((r) => setTimeout(r, INTERVAL));
       await mainExecution(generator);
       // console.log(1);
