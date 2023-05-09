@@ -2,9 +2,9 @@ import {
     RestClientV5,
     UnifiedMarginClient,
 } from 'bybit-api';
-import { Account, BatchOrders, BinanceTrader, Leverage, Position } from './interface';
-import { BINANCEURL, LEVERAGEBYBIT } from './constant';
-import { convertAndSendBot, convertBinanceFormat, convertHotCoinFormat, convertMEXCFormat, convertWagonFormat } from './action';
+import { Account, BatchOrders, BinanceTrader, Leverage, Order, Position } from './interface';
+import { BINANCEURL, LEVERAGEBYBIT, traderAPIs } from './constant';
+import { changeIndexProxy, convertAndSendBot, convertBinanceFormat, convertHotCoinFormat, convertMEXCFormat, convertWagonFormat } from './action';
 import { sendNoti } from './slack';
 import _ from 'lodash';
 import { RequestInit } from "node-fetch";
@@ -54,6 +54,7 @@ export class BybitAPI {
         );
     }
     async getCopyList() {
+        changeIndexProxy();
         // const sT = new Date().getTime();
         if (this._platform === 'Binance') {
             this._curPos = await this.getBinanceCopyList();
@@ -67,8 +68,7 @@ export class BybitAPI {
 
     async getBinanceCopyList() {
         try {
-            const randomNumber = Math.floor(Math.random() * (4 - 0) + 0);
-            const proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[randomNumber] });
+            const proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[0] });
             const requestOptions: RequestInit = {
                 method: 'POST',
                 headers: {
@@ -88,14 +88,14 @@ export class BybitAPI {
         }
         catch (err) {
             sendNoti(`Get Binance Error Acc ${this._acc.index}: ${err}`);
+            await this.getCopyList();
             return undefined;
         }
     }
 
     async getOtherCopyList() {
         try {
-            const randomNumber = Math.floor(Math.random() * (4 - 0) + 0);
-            const proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[randomNumber] })
+            const proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[0] });
             const copyPos = await fetch(this._copyTrader, { agent: proxyAgent });
             const response: any = await copyPos.json();
             if (this._platform === 'Hotcoin') {
@@ -105,7 +105,11 @@ export class BybitAPI {
             }
             else if (this._platform === 'Mexc') {
                 if (response.success === true && response.code === 0) {
-                    return convertMEXCFormat(this._gain, response.data.content);
+                    const markPrice: number[] = [];
+                    for (const item of response.data.content) {
+                        markPrice.push(Number(await this.getMarkPrice(item.symbol.split('_').join(''))))
+                    }
+                    return convertMEXCFormat(markPrice, this._gain, response.data.content);
                 }
             } else {
                 if (response.success === true && response.code === "000000") {
@@ -116,6 +120,7 @@ export class BybitAPI {
         }
         catch (err) {
             sendNoti(`Get Other Error Acc ${this._acc.index}: ${err}`);
+            await this.getCopyList();
             return undefined;
         }
     }
@@ -149,37 +154,37 @@ export class BybitAPI {
         }
     }
 
-    async openBatchOrders(batchOrders: BatchOrders, action: string) {
-        try {
-            if (batchOrders.request.length > 0) {
-                for (let i = 0; i < batchOrders.request.length; i += 9) {
-                    const chunkBatchOrders: BatchOrders = _.cloneDeep(batchOrders);
-                    chunkBatchOrders.request = chunkBatchOrders.request.slice(i, i + 9);
-                    const resCreate: any = await this.submitBatchOrders(chunkBatchOrders);
-                    // console.log(resCreate, resCreate.result.list, resCreate.retExtInfo.list);
-                    if (resCreate) {
-                        if (resCreate.retCode === 0) {
-                            for (let i = 0; i < resCreate.result.list.length; i++) {
-                                if (resCreate.result.list[i].orderId !== '') {
-                                    const order = batchOrders.request[i];
-                                    order.price = await this.getMarkPrice(order.symbol);
-                                    convertAndSendBot(order.side, order, this._acc.botChat, action);
-                                }
-                            }
-                        }
-                        else sendNoti(`Submit Batch Err At Open Acc  ${this._acc.index}: ${resCreate.retMsg}`);
-                    }
-                }
-            }
-        } catch (err: any) {
-            sendNoti(`Open batch order error Acc ${this._acc.index}: ${err}`);
-        }
-    }
+    // async openBatchOrders(batchOrders: BatchOrders, action: string) {
+    //     try {
+    //         if (batchOrders.request.length > 0) {
+    //             for (let i = 0; i < batchOrders.request.length; i += 9) {
+    //                 const chunkBatchOrders: BatchOrders = _.cloneDeep(batchOrders);
+    //                 chunkBatchOrders.request = chunkBatchOrders.request.slice(i, i + 9);
+    //                 const resCreate: any = await this.submitBatchOrders(chunkBatchOrders);
+    //                 // console.log(resCreate, resCreate.result.list, resCreate.retExtInfo.list);
+    //                 if (resCreate) {
+    //                     if (resCreate.retCode === 0) {
+    //                         for (let i = 0; i < resCreate.result.list.length; i++) {
+    //                             if (resCreate.result.list[i].orderId !== '') {
+    //                                 const order = batchOrders.request[i];
+    //                                 order.price = await this.getMarkPrice(order.symbol);
+    //                                 convertAndSendBot(order, this._acc.botChat, action);
+    //                             }
+    //                         }
+    //                     }
+    //                     else sendNoti(`Submit Batch Err At Open Acc  ${this._acc.index}: ${resCreate.retMsg}`);
+    //                 }
+    //             }
+    //         }
+    //     } catch (err: any) {
+    //         sendNoti(`Open batch order error Acc ${this._acc.index}: ${err}`);
+    //     }
+    // }
 
     async getAccountByBit() {
         const info = await this._client.getPrivate('/unified/v3/private/account/info')
             .then(result => {
-                console.log('Check account Done');
+                console.log(`Check account ${this._acc.index} Done`);
                 return result;
             })
             .catch(err => {
@@ -230,20 +235,33 @@ export class BybitAPI {
         return res;
     }
 
-    async submitBatchOrders(batchOrders: BatchOrders) {
+
+    async createOrder(order: Order) {
         try {
-            const result = this._client.batchSubmitOrders('linear', batchOrders.request)
-                // const result = await client.postPrivate('/unified/v3/private/order/create-batch', batchOrders)
-                .then(res => { return res })
-                .catch(err => {
-                    sendNoti(`Submit Batch Order error Acc ${this._acc.index}: ${err}`);
-                    return undefined;
-                });
+            const result = await this._client.submitOrder(order)
+                // client.postPrivate('/unified/v3/private/order/create', order)
+                .then(res => { return res });
+            // const result = await client.postPrivate('/unified/v3/private/order/create', newOrder);
             return result;
         } catch (error) {
             console.error(error);
         }
     }
+
+    // async submitBatchOrders(batchOrders: BatchOrders) {
+    //     try {
+    //         const result = this._client.batchSubmitOrders('linear', batchOrders.request)
+    //             // const result = await client.postPrivate('/unified/v3/private/order/create-batch', batchOrders)
+    //             .then(res => { return res })
+    //             .catch(err => {
+    //                 sendNoti(`Submit Batch Order error Acc ${this._acc.index}: ${err}`);
+    //                 return undefined;
+    //             });
+    //         return result;
+    //     } catch (error) {
+    //         console.error(error);
+    //     }
+    // }
 
     async setLeverage(leverage: Leverage) {
         // const { category, symbol, buyLeverage, sellLeverage } = leverage
@@ -344,14 +362,4 @@ export class BybitAPI {
     }
 }
 
-// export async function createOrder(client: UnifiedMarginClient, order: Order) {
-//     try {
-//         const result = await client.postPrivate('/unified/v3/private/order/create', order)
-//             .then(res => { return res });
-//         // const result = await client.postPrivate('/unified/v3/private/order/create', newOrder);
-//         return result;
-//     } catch (error) {
-//         console.error(error);
-//     }
-// }
 

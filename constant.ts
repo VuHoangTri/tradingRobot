@@ -45,7 +45,7 @@ export const accounts: Account[] = [
         key: 'QXvZHULCw7Lzjw5eqB',
         secret: '7EZOTNFfLO64tJhNiMt3AzSC64qv2H19ftH1',
         testnet: true,
-        trader: "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=69843970", //08527742"
+        trader: "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=52519196", //08527742" //59794315 //15439315 // 69843970
         gain: 6,
         platform: "Mexc",
         nodefetchProxy: [],
@@ -76,11 +76,15 @@ export const accounts: Account[] = [
 ];
 
 export const proxyArr: string[] = [
+    "2.56.119.93:5074:frawsmba:54hwnd9dtyv3",
     "185.199.229.156:7492:frawsmba:54hwnd9dtyv3",
+    "185.199.228.220:7300:frawsmba:54hwnd9dtyv3",
+    "185.199.231.45:8382:frawsmba:54hwnd9dtyv3",
     "188.74.210.207:6286:frawsmba:54hwnd9dtyv3",
     "188.74.183.10:8279:frawsmba:54hwnd9dtyv3",
     "188.74.210.21:6100:frawsmba:54hwnd9dtyv3",
     "45.155.68.129:8133:frawsmba:54hwnd9dtyv3",
+    "154.95.36.199:6893:frawsmba:54hwnd9dtyv3",
     "45.94.47.66:8110:frawsmba:54hwnd9dtyv3"
 ]
 

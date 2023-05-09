@@ -27,11 +27,12 @@ export interface Position {
     side?: 'Buy' | 'Sell';
     size: string;
     leverage: string;
+    pnl?: number;
 }
 
 export interface Order {
     symbol: string;
-    category?: 'linear' | 'option';
+    category: 'linear' | 'option';
     price?: string;
     side: 'Buy' | 'Sell';
     orderType: 'Market' | 'Limit';

@@ -1,9 +1,15 @@
-import { LEVERAGEBYBIT } from "./constant";
+import { LEVERAGEBYBIT, nodeFetchProxyArr } from "./constant";
 import { ApiObject, BatchOrders, Order, Position } from "./interface";
 import { sendChatToBot, sendNoti } from "./slack";
 import _ from 'lodash';
 import { BybitAPI } from "./bybit";
+import { APIResponseV3 } from "bybit-api";
 
+export function changeIndexProxy() {
+    const temp = nodeFetchProxyArr.splice(0, 1)[0];
+    nodeFetchProxyArr.push(temp);
+
+}
 export function convertByBitFormat(position: ApiObject[]) {
     const res: Position[] = position.map(pos => {
         return {
@@ -21,7 +27,8 @@ export function convertWagonFormat(gain: number, position: any[]) {
         return {
             symbol: pos.symbol,
             size: (Number(pos.positionAmount) / gain).toFixed(3).toString(),
-            leverage: (pos.leverage * LEVERAGEBYBIT).toString()
+            leverage: (pos.leverage * LEVERAGEBYBIT).toString(),
+            pnl: Number(pos.unrealizedProfit)
         }
     });
     return res;
@@ -32,18 +39,24 @@ export function convertBinanceFormat(gain, position: any[]) {
         return {
             symbol: pos.symbol,
             size: (Number(pos.amount) / gain).toFixed(3).toString(),
-            leverage: (pos.leverage * LEVERAGEBYBIT).toString()
+            leverage: (pos.leverage * LEVERAGEBYBIT).toString(),
+            pnl: pos.pnl,
         }
     });
     return res;
 }
 
-export function convertMEXCFormat(gain: number, position: any[]) {
-    const res: Position[] = position.map(pos => {
+export function convertMEXCFormat(markPrice: number[], gain: number, position: any[]) {
+    const res: Position[] = position.map((pos, index) => {
+        const price = markPrice[index];
+        const entry = pos.openAvgPrice;
+        const sideConverter = pos.positionType === 1 ? 1 : -1;
+        const unPNL = (price - entry) * sideConverter;
         return {
             symbol: pos.symbol.split('_').join(''),
-            size: (Number(pos.amount) / gain).toFixed(3).toString(),
-            leverage: (pos.leverage * LEVERAGEBYBIT).toString()
+            size: (sideConverter * (Number(pos.amount) / gain)).toFixed(3).toString(),
+            leverage: (pos.leverage * LEVERAGEBYBIT).toString(),
+            pnl: unPNL
         }
     });
     return res;
@@ -52,8 +65,9 @@ export function convertMEXCFormat(gain: number, position: any[]) {
 export function convertHotCoinFormat(exchangeInfo, gain: number, position: any[]) {
     const res: Position[] = position.map(pos => {
         const filter = exchangeInfo.find(exch => exch.symbol === pos.contractCodeDisplayName);
-        let sideConverter = 1;
-        if (pos.side === "short") sideConverter = -1;
+        // let sideConverter = 1;
+        // if (pos.side === "short") sideConverter = -1;
+        const sideConverter = pos.side === "short" ? -1 : 1;
         const size = (((Number(pos.openMargin) * pos.lever / Number(pos.price)) / gain) * sideConverter);
         pos.size = pos.lever > filter.leverageFilter.maxLeverage
             ? (size * (Number(pos.lever) / Number(filter.leverageFilter.maxLeverage))).toString()
@@ -72,6 +86,7 @@ export function convertToOrder(pos: Position, isBatch: boolean) {
         const newSide = Number(pos.size) < 0 ? 'Sell' : 'Buy';
         const res: Order = {
             symbol: pos.symbol,
+            category: 'linear',
             orderType: 'Market',
             qty: Math.abs(Number(pos.size)).toString(),
             side: newSide,
@@ -120,57 +135,102 @@ export function comparePosition(compare: { firstGet: boolean, curPos: Position[]
     }
 }
 
-export function openedPosition(position: Position[], trader: BybitAPI) {
+export async function actuator(diffPos: { openPos: Position[], closePos: Position[], adjustPos: Position[] }, trader: BybitAPI) {
+    const { openPos, closePos, adjustPos } = diffPos;
+
+    if (openPos.length > 0) {
+        const openPosFine = _.cloneDeep(openPos.filter((c: any) => trader._exchangeInfo.some((x: any) => c.symbol === x.symbol)) || []);
+        if (openPosFine.length > 0) {
+            await trader.adjustLeverage(openPosFine);
+            await openedPosition(openPosFine, trader);
+        }
+    }
+
+    if (adjustPos.length > 0 || closePos.length > 0) {
+        const myPos = await trader.getMyPositions();
+        if (myPos) {
+            const myList = myPos?.result.list.map((c: Position) => {
+                return { symbol: c.symbol, size: c.size, leverage: (Number(c.leverage) * LEVERAGEBYBIT).toString() }
+            });
+            if (closePos.length > 0 && myList.length > 0) {
+                const closeMyPos = myList.filter(pP =>
+                    closePos.some(cP => cP.symbol === pP.symbol)
+                ) || [];
+                if (closeMyPos.length > 0)
+                    await closedPosition(closeMyPos, trader);
+            }
+
+            if (adjustPos.length > 0) {
+                const adjustedLeverage = adjustPos.filter(pP =>
+                    myList.some(cP =>
+                        cP.symbol === pP.symbol && Number(cP.leverage) !== (Number(pP.leverage))
+                    )
+                ) || [];
+                if (adjustedLeverage.length > 0) {
+                    await trader.adjustLeverage(adjustedLeverage);
+                    sendNoti(`Đã chỉnh đòn bẩy ${adjustedLeverage.map(c => c.symbol)}`);
+                }
+                const adjustMyPost = myList.filter(pP =>
+                    adjustPos.some(cP => cP.symbol === pP.symbol)
+                ) || [];
+                if (adjustMyPost.length > 0)
+                    await adjustPosition(adjustMyPost, trader);
+            }
+        }
+    }
+}
+
+export async function openedPosition(position: Position[], trader: BybitAPI) {
     try {
-        const batchOpenPos: BatchOrders = { category: "linear", request: [] };
-        console.log("Cur and Pre Position - Open ", trader._prePos, trader._curPos, new Date());
-        for (const pos of position) {
+        // console.log("Cur and Pre Position - Open ", position, new Date());
+        for await (const pos of position) {
             const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
             const lotSizeFilter = filter.lotSizeFilter;
             pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
             const order = convertToOrder(pos, true);
-            // console.log("Action Open", order, new Date());
             if (order !== null) {
                 order.leverage = pos.leverage;
-                batchOpenPos.request.push(order);
+                let response = await trader.createOrder(order);
+                while (response?.retCode !== 0) {
+                    response = await trader.createOrder(order);
+                }
+                order.price = await trader.getMarkPrice(order.symbol);
+                convertAndSendBot(order, trader._acc.botChat, "Open");
             }
         }
-        return batchOpenPos;
     }
     catch (err) {
-        sendNoti(`Create open pos error ${err}`);
-        const batchEmpty: BatchOrders = { category: "linear", request: [] };
-        return batchEmpty
+        sendNoti(`Create open pos error ${trader._acc.index}: ${err}`);
     }
 }
 
-export function closedPosition(position: Position[], trader: BybitAPI) {
+export async function closedPosition(position: Position[], trader: BybitAPI) {
     try {
-        const batchClosePos: BatchOrders = { category: "linear", request: [] };
-        console.log("Cur Position - Close", trader._curPos, new Date());
-        for (const pos of position) {
+        // console.log("Cur Position - Close", position, new Date());
+        for await (const pos of position) {
             pos.size = (Number(pos.size) * -1).toString();
             const order = convertToOrder(pos, true)
-            // console.log("Action Close", order, new Date());
-            if (order !== null)
-                batchClosePos.request.push(order);
+            if (order !== null) {
+                let response = await trader.createOrder(order);
+                while (response?.retCode !== 0) {
+                    response = await trader.createOrder(order);
+                }
+                order.price = await trader.getMarkPrice(order.symbol);
+                convertAndSendBot(order, trader._acc.botChat, "Close");
+            }
 
         }
-        return batchClosePos;
     }
     catch (err) {
-        sendNoti(`Create close pos error ${err}`);
-        const batchEmpty: BatchOrders = { category: "linear", request: [] };
-        return batchEmpty
+        sendNoti(`Create close pos error ${trader._acc.index}: ${err}`);
     }
 }
 
 export async function adjustPosition(position: Position[], trader: BybitAPI) {
     try {
-        const batchAdjustPos: BatchOrders = { category: "linear", request: [] };
+        const orders: any = [];
         if (trader._curPos !== undefined) {
-            console.log('Cur and Pre Position - Adjust', position, new Date());
-            let pnl = "";
+            let action = "";
             for await (const pos of position) {
                 const prePos = trader._prePos.find(c => c.symbol === pos.symbol);
                 const curPos = trader._curPos.find(c => c.symbol === pos.symbol);
@@ -184,30 +244,30 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
                             size: (Number(pos.size) * percent - Number(pos.size)).toString(),
                             leverage: pos.leverage
                         }
-                        if (Number(newPos.size) * Number(pos.size) > 0) pnl = "DCA"
-                        else pnl = "Take PNL";
+                        if (Number(newPos.size) * Number(pos.size) > 0) action = "DCA"
+                        else action = "Take PNL";
                         newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
                         const order = convertToOrder(newPos, true);
-                        // console.log("Action Adjust", order, new Date())
                         if (order !== null) {
                             order.leverage = newPos.leverage;
-                            batchAdjustPos.request.push(order);
+                            let response = await trader.createOrder(order);
+                            while (response?.retCode !== 0) {
+                                response = await trader.createOrder(order);
+                            }
+                            order.price = await trader.getMarkPrice(order.symbol);
+                            convertAndSendBot(order, trader._acc.botChat, action);
                         }
                     }
                 }
             }
-            return { batch: batchAdjustPos, pnl };
         }
-        return { batch: batchAdjustPos, pnl: "" }
     }
     catch (err) {
         sendNoti(`Create adjust pos error ${err}`);
-        const batchEmpty: BatchOrders = { category: "linear", request: [] };
-        return { batch: batchEmpty, pnl: "" }
     }
 }
 
-export function convertAndSendBot(action: string | undefined, order, botChat: string, pnl: string) {
+export function convertAndSendBot(order, botChat: string, action: string) {
     try {
         let dataString = '';
         let icon = '';
@@ -218,7 +278,7 @@ export function convertAndSendBot(action: string | undefined, order, botChat: st
         }
         dataString = "Action: " + action + "\nSymbol: " + order.symbol
             + "\nEntry: " + order.price + "\nSide: " + order.side + "\nLeverage: "
-            + order.leverage + "\nSize: " + order.qty + "\nPnL: " + pnl;
+            + order.leverage + "\nSize: " + order.qty;
         //(parseInt(order.size) / SIZEBYBIT).toString();
         sendChatToBot(icon, dataString, botChat);
     } catch (err: any) {

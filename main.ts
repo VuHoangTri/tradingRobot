@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { INTERVAL, LEVERAGEBYBIT, accounts, nodeFetchProxyArr, proxyArr, traderAPIs } from "./constant"
 import { BybitAPI } from "./bybit";
 import { sendNoti } from "./slack";
-import { adjustPosition, closedPosition, comparePosition, openedPosition } from "./action";
+import { actuator, adjustPosition, closedPosition, comparePosition, openedPosition } from "./action";
 import { Position } from './interface';
 import { AxiosProxyConfig } from 'axios';
 
@@ -45,33 +45,40 @@ export async function main() {
     // const sT = new Date().getTime();
     generateNodeFetchProxy();
     accGenAPI();
-    await new Promise((r) => setTimeout(r, 500));
+    // await new Promise((r) => setTimeout(r, 500));
     const generator = traderGenerator();
+    let exchangeInfo;
     for (let i = 0; i < traderAPIs.length; i++) {
       const trader: BybitAPI = generator.next().value;
-      // trader.initial();
-      const result = await trader.getExchangeInfo();
-      await trader.getAccountByBit();
-      trader._exchangeInfo = result || [];
-      // const curPos = await trader.getCopyList();
-      // trader._prePos = curPos;
-
-      const position = await trader.getMyPositions()
-      // console.log(position);
-      if (position) {
-        const myPos = position.result;//curPos;
-        trader._prePos = myPos.list.map((c: Position) => {
-          return { symbol: c.symbol, size: c.size, leverage: (Number(c.leverage) * LEVERAGEBYBIT).toString() }
-        });
+      if (i === 0) {
+        exchangeInfo = await trader.getExchangeInfo();
       }
-
-      // trader._firstGet = false;
-      // console.log(62, trader._curPos)
+      await trader.getAccountByBit();
+      trader._exchangeInfo = exchangeInfo || [];
+      const curPos = await trader.getCopyList();
+      if (curPos !== undefined) {
+        const position = await trader.getMyPositions();
+        if (position) {
+          const myPos = position.result;
+          trader._prePos = myPos.list.map((c: Position) => {
+            return { symbol: c.symbol, size: c.size, leverage: (Number(c.leverage) * LEVERAGEBYBIT).toString() }
+          });
+        }
+        // console.log(trader._prePos);
+        const diffPos = comparePosition({ firstGet: trader._firstGet, curPos: trader._curPos, prePos: trader._prePos });
+        const firstDiff: { openPos: Position[], closePos: Position[], adjustPos: Position[] } = {
+          openPos: diffPos.openPos.filter(pos => pos.pnl ? pos.pnl < 0 : false), closePos: diffPos.closePos, adjustPos: []
+        }
+        if (firstDiff) {
+          await actuator(firstDiff, trader);
+        }
+        trader._firstGet = false;
+        trader._prePos = curPos;
+        // console.log(80, trader._prePos);
+      }
     }
     sendNoti("Đã chạy");
     mainExecution(generator);
-    // console.log(73, new Date().getTime() - sT);
-
   } catch (err) {
     sendNoti(`Main error:${err}`);
     await new Promise((r) => setTimeout(r, INTERVAL));
@@ -86,66 +93,18 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
     if (bot.enabled) {
       const curPos = await trader.getCopyList();
       if (curPos !== undefined) {
-        const diffStatus = comparePosition({ firstGet: trader._firstGet, curPos: trader._curPos, prePos: trader._prePos });
-        trader._firstGet = false;
-        // console.log(diffStatus);
-        if (diffStatus) {
-          const { openPos, closePos, adjustPos } = diffStatus;
-
-          if (openPos.length > 0) {
-            const openPosFine = _.cloneDeep(openPos.filter((c: any) => trader._exchangeInfo.some((x: any) => c.symbol === x.symbol)) || []);
-
-            if (openPosFine.length > 0) {
-              await trader.adjustLeverage(openPosFine);
-              const batchOpen = openedPosition(openPosFine, trader);
-              trader.openBatchOrders(batchOpen, "Open Position");
-            }
-
-          }
-
-          if (adjustPos.length > 0 || closePos.length > 0) {
-            const myPos = await trader.getMyPositions();
-
-            if (myPos) {
-              const myList = myPos?.result.list.map((c: Position) => {
-                return { symbol: c.symbol, size: c.size, leverage: (Number(c.leverage) * LEVERAGEBYBIT).toString() }
-              });
-
-              if (closePos.length > 0 && myList.length > 0) {
-                const closeMyPos = myList.filter(pP =>
-                  closePos.some(cP => cP.symbol === pP.symbol)
-                ) || [];
-                const batchClose = closedPosition(closeMyPos, trader);
-                trader.openBatchOrders(batchClose, "Close Position");
-              }
-
-              if (adjustPos.length > 0) {
-                const adjustedLeverage = adjustPos.filter(pP =>
-                  myList.some(cP =>
-                    cP.symbol === pP.symbol && Number(cP.leverage) !== (Number(pP.leverage))
-                  )
-                ) || [];
-                if (adjustedLeverage.length > 0) {
-                  sendNoti(`Đã chỉnh đòn bẩy ${adjustedLeverage.map(c => c.symbol)}`);
-                  await trader.adjustLeverage(adjustedLeverage);
-                }
-                const adjustMyPost = myList.filter(pP =>
-                  adjustPos.some(cP => cP.symbol === pP.symbol)
-                ) || [];
-                const result = await adjustPosition(adjustMyPost, trader);
-                trader.openBatchOrders(result.batch, result.pnl);
-              }
-            }
-          }
+        const diffPos = comparePosition({ firstGet: trader._firstGet, curPos: trader._curPos, prePos: trader._prePos });
+        if (diffPos) {
+          await actuator(diffPos, trader);
         }
+        // console.log(103, trader._acc.index, trader._prePos, curPos);
         trader._prePos = curPos;
       }
-      // console.log(146, new Date().getTime() - sT);
-      // await new Promise((r) => setTimeout(r, INTERVAL));
-      await mainExecution(generator);
-      // console.log(1);
     }
+    // console.log(105, new Date().getTime() - sT);
+    await mainExecution(generator);
   } catch (err) {
     sendNoti(`Execution error: ${err}`);
+    await mainExecution(generator);
   }
 }
