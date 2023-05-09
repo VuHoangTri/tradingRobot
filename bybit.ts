@@ -24,14 +24,14 @@ export class BybitAPI {
     _acc: Account;
     constructor(acc: Account) {
         this._acc = acc;
-        // this._client = new UnifiedMarginClient(
-        //     {
-        //         key: acc.key,
-        //         secret: acc.secret,
-        //         testnet: acc.testnet,
-        //     },
-        // );
-        this.initial();
+        this._client = new UnifiedMarginClient(
+            {
+                key: this._acc.key,
+                secret: this._acc.secret,
+                testnet: this._acc.testnet,
+            },
+        );
+        // this.initial();
         this._copyTrader = acc.trader;
         this._gain = acc.gain;
         this._clientV5 = new RestClientV5({
@@ -153,8 +153,7 @@ export class BybitAPI {
                 for (let i = 0; i < batchOrders.request.length; i += 9) {
                     const chunkBatchOrders: BatchOrders = _.cloneDeep(batchOrders);
                     chunkBatchOrders.request = chunkBatchOrders.request.slice(i, i + 9);
-                    const resCreate: any = await this.submitBatchOrders(chunkBatchOrders);
-                    console.log(resCreate, resCreate?.result.list, resCreate?.retExtInfo.list);
+                    const resCreate = await this.submitBatchOrders(chunkBatchOrders);
                     if (resCreate) {
                         if (resCreate.retCode === 0) {
                             for (let i = 0; i < resCreate.result.list.length; i++) {
