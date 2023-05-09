@@ -123,7 +123,7 @@ export async function comparePosition(compare: { firstGet: boolean, curPos: Posi
 export function openedPosition(position: Position[], trader: BybitAPI) {
     try {
         const batchOpenPos: BatchOrders = { category: "linear", request: [] };
-        console.log("Cur and Pre Position - Open ", trader._prePos, trader._curPos);
+        console.log("Cur and Pre Position - Open ", trader._prePos, trader._curPos, new Date());
         for (const pos of position) {
             const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
             const lotSizeFilter = filter.lotSizeFilter;
@@ -147,7 +147,7 @@ export function openedPosition(position: Position[], trader: BybitAPI) {
 export function closedPosition(position: Position[], trader: BybitAPI) {
     try {
         const batchClosePos: BatchOrders = { category: "linear", request: [] };
-        console.log("Cur Position - Close", trader._curPos);
+        console.log("Cur Position - Close", trader._curPos, new Date());
         for (const pos of position) {
             pos.size = (Number(pos.size) * -1).toString();
             const order = convertToOrder(pos, true)
@@ -169,7 +169,7 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
     try {
         const batchAdjustPos: BatchOrders = { category: "linear", request: [] };
         if (trader._curPos !== undefined) {
-            // console.log('Cur and Pre Position - Adjust', position, trader._curPos);
+            console.log('Cur and Pre Position - Adjust', position, new Date());
             let pnl = "";
             for await (const pos of position) {
                 const prePos = trader._prePos.find(c => c.symbol === pos.symbol);
