@@ -45,7 +45,7 @@ export async function main() {
     const sT = new Date().getTime();
     generateNodeFetchProxy();
     accGenAPI();
-    // await new Promise((r) => setTimeout(r, 500));
+    await new Promise((r) => setTimeout(r, 500));
     const generator = traderGenerator();
     for (let i = 0; i < traderAPIs.length; i++) {
       const trader: BybitAPI = generator.next().value;
