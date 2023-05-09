@@ -42,6 +42,7 @@ function* traderGenerator(): Generator<BybitAPI> {
 
 export async function main() {
   try {
+    const sT = new Date().getTime();
     generateNodeFetchProxy();
     accGenAPI();
     await new Promise((r) => setTimeout(r, 500));
@@ -52,23 +53,25 @@ export async function main() {
       const result = await trader.getExchangeInfo();
       trader.getAccountByBit();
       trader._exchangeInfo = result || [];
-      const curPos = await trader.getCopyList();
+      // const curPos = await trader.getCopyList();
       // trader._prePos = curPos;
 
-      const position = await trader.getMyPositions()
+      // const position = await trader.getMyPositions()
       // console.log(position);
-      if (position) {
-        const myPos = position.result;//curPos;
-        trader._prePos = myPos.list.map((c: Position) => {
-          return { symbol: c.symbol, size: c.size, leverage: (Number(c.leverage) * LEVERAGEBYBIT).toString() }
-        });
-      }
+      // if (position) {
+      //   const myPos = position.result;//curPos;
+      //   trader._prePos = myPos.list.map((c: Position) => {
+      //     return { symbol: c.symbol, size: c.size, leverage: (Number(c.leverage) * LEVERAGEBYBIT).toString() }
+      //   });
+      // }
 
       // trader._firstGet = false;
       // console.log(62, trader._curPos)
     }
     sendNoti("Đã chạy");
-    mainExecution(generator);
+    // mainExecution(generator);
+    console.log(new Date().getTime() - sT);
+
   } catch (err) {
     sendNoti(`Main error:${err}`);
     await new Promise((r) => setTimeout(r, INTERVAL));
