@@ -42,7 +42,7 @@ function* traderGenerator(): Generator<BybitAPI> {
 
 export async function main() {
   try {
-    const sT = new Date().getTime();
+    // const sT = new Date().getTime();
     generateNodeFetchProxy();
     accGenAPI();
     await new Promise((r) => setTimeout(r, 500));
@@ -57,20 +57,20 @@ export async function main() {
       // trader._prePos = curPos;
 
       const position = await trader.getMyPositions()
-      console.log(position);
-      // if (position) {
-      //   const myPos = position.result;//curPos;
-      //   trader._prePos = myPos.list.map((c: Position) => {
-      //     return { symbol: c.symbol, size: c.size, leverage: (Number(c.leverage) * LEVERAGEBYBIT).toString() }
-      //   });
-      // }
+      // console.log(position);
+      if (position) {
+        const myPos = position.result;//curPos;
+        trader._prePos = myPos.list.map((c: Position) => {
+          return { symbol: c.symbol, size: c.size, leverage: (Number(c.leverage) * LEVERAGEBYBIT).toString() }
+        });
+      }
 
       // trader._firstGet = false;
       // console.log(62, trader._curPos)
     }
     sendNoti("Đã chạy");
-    // mainExecution(generator);
-    console.log(73, new Date().getTime() - sT);
+    mainExecution(generator);
+    // console.log(73, new Date().getTime() - sT);
 
   } catch (err) {
     sendNoti(`Main error:${err}`);
@@ -80,7 +80,7 @@ export async function main() {
 
 export async function mainExecution(generator: Generator<BybitAPI>) {
   try {
-    // const sT = new Date().getTime();
+    const sT = new Date().getTime();
     const traderGen = generator.next();
     const trader: BybitAPI = traderGen.value;
     if (bot.enabled) {
@@ -143,7 +143,7 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
         await new Promise((r) => setTimeout(r, INTERVAL));
         trader._prePos = curPos;
       }
-      // console.log(new Date().getTime() - sT);
+      console.log(146, new Date().getTime() - sT);
       await mainExecution(generator);
       // console.log(1);
     }

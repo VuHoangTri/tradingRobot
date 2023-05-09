@@ -153,9 +153,10 @@ export class BybitAPI {
                 for (let i = 0; i < batchOrders.request.length; i += 9) {
                     const chunkBatchOrders: BatchOrders = _.cloneDeep(batchOrders);
                     chunkBatchOrders.request = chunkBatchOrders.request.slice(i, i + 9);
-                    const resCreate = await this.submitBatchOrders(chunkBatchOrders);
+                    const resCreate: any = await this.submitBatchOrders(chunkBatchOrders);
                     if (resCreate) {
                         if (resCreate.retCode === 0) {
+                            console.log(resCreate.retExtinfo.list);
                             for (let i = 0; i < resCreate.result.list.length; i++) {
                                 if (resCreate.result.list[i].orderId !== '') {
                                     const order = batchOrders.request[i];
