@@ -88,7 +88,7 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
       if (curPos !== undefined) {
         const diffStatus = await comparePosition({ firstGet: trader._firstGet, curPos: trader._curPos, prePos: trader._prePos });
         trader._firstGet = false;
-        // console.log(diffStatus);
+        console.log(diffStatus);
         if (diffStatus) {
           const { openPos, closePos, adjustPos } = diffStatus;
 
@@ -140,10 +140,10 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
 
           }
         }
-        await new Promise((r) => setTimeout(r, INTERVAL));
         trader._prePos = curPos;
       }
       console.log(146, new Date().getTime() - sT);
+      await new Promise((r) => setTimeout(r, INTERVAL));
       await mainExecution(generator);
       // console.log(1);
     }
