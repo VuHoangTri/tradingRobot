@@ -54,14 +54,14 @@ export class BybitAPI {
         );
     }
     async getCopyList() {
-        const sT = new Date().getTime();
+        // const sT = new Date().getTime();
         if (this._platform === 'Binance') {
             this._curPos = await this.getBinanceCopyList();
         }
         else {
             this._curPos = await this.getOtherCopyList();
         }
-        console.log("Bybit 63", new Date().getTime() - sT);
+        // console.log("Bybit 63", new Date().getTime() - sT);
         return this._curPos;
     }
 
@@ -156,7 +156,7 @@ export class BybitAPI {
                     const chunkBatchOrders: BatchOrders = _.cloneDeep(batchOrders);
                     chunkBatchOrders.request = chunkBatchOrders.request.slice(i, i + 9);
                     const resCreate: any = await this.submitBatchOrders(chunkBatchOrders);
-                    console.log(resCreate, resCreate.result.list, resCreate.retExtInfo.list);
+                    // console.log(resCreate, resCreate.result.list, resCreate.retExtInfo.list);
                     if (resCreate) {
                         if (resCreate.retCode === 0) {
                             for (let i = 0; i < resCreate.result.list.length; i++) {
@@ -167,7 +167,7 @@ export class BybitAPI {
                                 }
                             }
                         }
-                        else sendNoti(`Submit Batch Err At Open: ${resCreate.retMsg}`);
+                        else sendNoti(`Submit Batch Err At Open Acc  ${this._acc.index}: ${resCreate.retMsg}`);
                     }
                 }
             }
