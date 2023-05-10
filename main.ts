@@ -88,10 +88,11 @@ export async function main() {
 export async function mainExecution(generator: Generator<BybitAPI>) {
   try {
     // const sT = new Date().getTime();
-    const traderGen = generator.next();
-    const trader: BybitAPI = traderGen.value;
     if (bot.enabled) {
+      const traderGen = generator.next();
+      const trader: BybitAPI = traderGen.value;
       const curPos = await trader.getCopyList();
+      // console.log(curPos);
       if (curPos !== undefined) {
         const diffPos = comparePosition({ firstGet: trader._firstGet, curPos: trader._curPos, prePos: trader._prePos });
         if (diffPos) {
@@ -102,6 +103,7 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
       }
     }
     // console.log(105, new Date().getTime() - sT);
+    // count++;
     await mainExecution(generator);
   } catch (err) {
     sendNoti(`Execution error: ${err}`);

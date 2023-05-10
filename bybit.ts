@@ -22,6 +22,7 @@ export class BybitAPI {
     _firstGet: boolean = true;
     _exchangeInfo: any = [];
     _acc: Account;
+    _tryTimes: number;
     constructor(acc: Account) {
         this._acc = acc;
         this._client = new UnifiedMarginClient(
@@ -40,6 +41,7 @@ export class BybitAPI {
             testnet: acc.testnet
         });
         this._platform = acc.platform;
+        this._tryTimes = 1;
     }
 
     initial() {
@@ -82,12 +84,15 @@ export class BybitAPI {
             const response: any = await copyPos.json();
             if (response.success === true && response.code === "000000") {
                 const curPosition = convertBinanceFormat(this._gain, response.data.otherPositionRetList);
+                this._tryTimes = 1;
                 return curPosition;
             }
             return undefined;
         }
         catch (err) {
-            sendNoti(`Get Binance Error Acc ${this._acc.index}: ${err}`);
+            sendNoti(`Get Binance Error Acc ${this._acc.index}: ${err} - Try again: ${this._tryTimes}`);
+            await new Promise((r) => setTimeout(r, 50));
+            this._tryTimes++;
             await this.getCopyList();
             return undefined;
         }
@@ -100,6 +105,7 @@ export class BybitAPI {
             const response: any = await copyPos.json();
             if (this._platform === 'Hotcoin') {
                 if (response.msg === "success" && response.code === 200) {
+                    this._tryTimes = 0;
                     return convertHotCoinFormat(this._exchangeInfo, this._gain, response.data);
                 }
             }
@@ -109,17 +115,22 @@ export class BybitAPI {
                     for (const item of response.data.content) {
                         markPrice.push(Number(await this.getMarkPrice(item.symbol.split('_').join(''))))
                     }
+                    this._tryTimes = 1;
                     return convertMEXCFormat(markPrice, this._gain, response.data.content);
                 }
             } else {
                 if (response.success === true && response.code === "000000") {
+                    this._tryTimes = 1;
                     return convertWagonFormat(this._gain, response.data);
                 }
             }
             return undefined;
+
         }
         catch (err) {
-            sendNoti(`Get Other Error Acc ${this._acc.index}: ${err}`);
+            sendNoti(`Get Other Error Acc ${this._acc.index}: ${err} - Try again: ${this._tryTimes}`);
+            await new Promise((r) => setTimeout(r, 50));
+            this._tryTimes++;
             await this.getCopyList();
             return undefined;
         }

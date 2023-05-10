@@ -4,6 +4,7 @@ import { sendChatToBot, sendNoti } from "./slack";
 import _ from 'lodash';
 import { BybitAPI } from "./bybit";
 import { APIResponseV3 } from "bybit-api";
+import { bot } from "./main";
 
 export function changeIndexProxy() {
     const temp = nodeFetchProxyArr.splice(0, 1)[0];
@@ -191,8 +192,16 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
             if (order !== null) {
                 order.leverage = pos.leverage;
                 let response = await trader.createOrder(order);
-                while (response?.retCode !== 0) {
+                let count = 1;
+                while (response?.retCode !== 0 || count < 10) {
+                    sendNoti(`Open ${order.symbol} acc ${trader._acc.index}: ${count} times`)
+                    await new Promise((r) => setTimeout(r, 50));
                     response = await trader.createOrder(order);
+                    count++;
+                }
+                if (count > 10) {
+                    sendNoti(`Close ${order.symbol} acc ${trader._acc.index}: Error`);
+                    bot.enabled = false;
                 }
                 order.price = await trader.getMarkPrice(order.symbol);
                 convertAndSendBot(order, trader._acc.botChat, "Open");
@@ -212,8 +221,16 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
             const order = convertToOrder(pos, true)
             if (order !== null) {
                 let response = await trader.createOrder(order);
-                while (response?.retCode !== 0) {
+                let count = 1;
+                while (response?.retCode !== 0 || count < 10) {
+                    sendNoti(`Close ${order.symbol} acc ${trader._acc.index}: ${count} times`);
+                    await new Promise((r) => setTimeout(r, 50));
                     response = await trader.createOrder(order);
+                    count++;
+                }
+                if (count > 10) {
+                    sendNoti(`Close ${order.symbol} acc ${trader._acc.index}: Error`);
+                    bot.enabled = false;
                 }
                 order.price = await trader.getMarkPrice(order.symbol);
                 convertAndSendBot(order, trader._acc.botChat, "Close");
@@ -251,8 +268,16 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
                         if (order !== null) {
                             order.leverage = newPos.leverage;
                             let response = await trader.createOrder(order);
-                            while (response?.retCode !== 0) {
+                            let count = 1;
+                            while (response?.retCode !== 0 || count < 10) {
+                                sendNoti(`Adjust ${order.symbol} acc ${trader._acc.index}: ${count} times`);
+                                await new Promise((r) => setTimeout(r, 50));
                                 response = await trader.createOrder(order);
+                                count++;
+                            }
+                            if (count > 10) {
+                                sendNoti(`Close ${order.symbol} acc ${trader._acc.index}: Error`);
+                                bot.enabled = false;
                             }
                             order.price = await trader.getMarkPrice(order.symbol);
                             convertAndSendBot(order, trader._acc.botChat, action);
