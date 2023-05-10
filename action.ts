@@ -193,13 +193,13 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
                 order.leverage = pos.leverage;
                 let response = await trader.createOrder(order);
                 let count = 1;
-                while (response?.retCode !== 0 || count < 10) {
+                while (response?.retCode !== 0 && count < 10) {
                     sendNoti(`Open ${order.symbol} acc ${trader._acc.index}: ${count} times`)
                     await new Promise((r) => setTimeout(r, 50));
                     response = await trader.createOrder(order);
                     count++;
                 }
-                if (count > 10) {
+                if (count >= 10) {
                     sendNoti(`Close ${order.symbol} acc ${trader._acc.index}: Error`);
                     bot.enabled = false;
                 }
@@ -222,13 +222,13 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
             if (order !== null) {
                 let response = await trader.createOrder(order);
                 let count = 1;
-                while (response?.retCode !== 0 || count < 10) {
+                while (response?.retCode !== 0 && count < 10) {
                     sendNoti(`Close ${order.symbol} acc ${trader._acc.index}: ${count} times`);
                     await new Promise((r) => setTimeout(r, 50));
                     response = await trader.createOrder(order);
                     count++;
                 }
-                if (count > 10) {
+                if (count >= 10) {
                     sendNoti(`Close ${order.symbol} acc ${trader._acc.index}: Error`);
                     bot.enabled = false;
                 }
@@ -269,13 +269,13 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
                             order.leverage = newPos.leverage;
                             let response = await trader.createOrder(order);
                             let count = 1;
-                            while (response?.retCode !== 0 || count < 10) {
+                            while (response?.retCode !== 0 && count < 10) {
                                 sendNoti(`Adjust ${order.symbol} acc ${trader._acc.index}: ${count} times`);
                                 await new Promise((r) => setTimeout(r, 50));
                                 response = await trader.createOrder(order);
                                 count++;
                             }
-                            if (count > 10) {
+                            if (count >= 10) {
                                 sendNoti(`Close ${order.symbol} acc ${trader._acc.index}: Error`);
                                 bot.enabled = false;
                             }
