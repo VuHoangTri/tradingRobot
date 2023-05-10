@@ -2,9 +2,8 @@ import _ from 'lodash';
 import { INTERVAL, LEVERAGEBYBIT, accounts, nodeFetchProxyArr, proxyArr, traderAPIs } from "./constant"
 import { BybitAPI } from "./bybit";
 import { sendNoti } from "./slack";
-import { actuator, adjustPosition, closedPosition, comparePosition, openedPosition } from "./action";
+import { actuator, comparePosition } from "./action";
 import { Position } from './interface';
-import { AxiosProxyConfig } from 'axios';
 
 export let bot: { enabled: boolean } = { enabled: true };
 
@@ -81,6 +80,7 @@ export async function main() {
     mainExecution(generator);
   } catch (err) {
     sendNoti(`Main error:${err}`);
+    await new Promise((r) => setTimeout(r, 100));
     await new Promise((r) => setTimeout(r, INTERVAL));
   }
 }
@@ -107,6 +107,7 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
     await mainExecution(generator);
   } catch (err) {
     sendNoti(`Execution error: ${err}`);
+    await new Promise((r) => setTimeout(r, 500));
     await mainExecution(generator);
   }
 }

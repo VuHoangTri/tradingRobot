@@ -3,8 +3,8 @@ import {
     UnifiedMarginClient,
 } from 'bybit-api';
 import { Account, BatchOrders, BinanceTrader, Leverage, Order, Position } from './interface';
-import { BINANCEURL, LEVERAGEBYBIT, traderAPIs } from './constant';
-import { changeIndexProxy, convertAndSendBot, convertBinanceFormat, convertHotCoinFormat, convertMEXCFormat, convertWagonFormat } from './action';
+import { BINANCEURL, LEVERAGEBYBIT } from './constant';
+import { changeIndexProxy, convertBinanceFormat, convertHotCoinFormat, convertMEXCFormat, convertWagonFormat } from './action';
 import { sendNoti } from './slack';
 import _ from 'lodash';
 import { RequestInit } from "node-fetch";
@@ -153,6 +153,7 @@ export class BybitAPI {
                     buyLeverage: selectedLever.toString()
                 };
                 const res = await this.setLeverage(leverage);
+                console.log(res);
                 if (count === 3) {
                     await new Promise((r) => setTimeout(r, 2000));
                     count = 0;

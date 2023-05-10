@@ -1,4 +1,3 @@
-import { AxiosProxyConfig } from "axios";
 import { Account } from "./interface";
 import { BybitAPI } from "./bybit";
 
@@ -34,8 +33,8 @@ export const accounts: Account[] = [
         key: 'qQ94jsKBk7VJ7yvVsw',
         secret: '1NYC7ffuYcfv2fuW0tv7fc2QczJsQgLrU2Em',
         testnet: false,
-        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/9752",//8453-50",//6824-10",//3841-240",//8303-15", //7952-8 //6824-10 //8453-50 // 9449-9
-        gain: 25,//50,
+        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/8453",//9752-25",//6824-10",//3841-240",//8303-15", //7952-8 //6824-10 //8453-50 // 9449-9
+        gain: 50,
         platform: "Wagon",
         nodefetchProxy: [],
         botChat: "https://hooks.slack.com/services/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",
@@ -58,21 +57,23 @@ export const accounts: Account[] = [
     //   testnet: true,
     // },         //"https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/7293",// "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=83129161", // 1500, //"Mexc"
 
-    {
-        key: 'CRYDWOZBKFVRRTDOHN',
-        secret: 'MLVUFLNGJEBAOYOYXDJGMZPCDGNREQZTMMJS',
-        testnet: true,
-        trader:
-        {
-            "encryptedUid": "6408AAEEEBF0C76A3D5F0E39C64AAABA",
-            "tradeType": "PERPETUAL"
-        },
-        gain: 26000,
-        platform: "Binance",
-        nodefetchProxy: [],
-        botChat: "https://hooks.slack.com/services/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",
-        index: 2
-    }
+    // {
+    //     key: 'vF1sLJWGHRxUEz5GDE',
+    //     secret: 'qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP',
+    //     testnet: false,
+    //     trader:
+    //     {
+    //         "encryptedUid": "6408AAEEEBF0C76A3D5F0E39C64AAABA",
+    //         "tradeType": "PERPETUAL"
+    //     },
+    //     gain: 26000,
+    //     platform: "Binance",
+    //     nodefetchProxy: [],
+    //     botChat: "https://hooks.slack.com/services/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",
+    //     index: 2
+    // }
+    //vF1sLJWGHRxUEz5GDE 'CRYDWOZBKFVRRTDOHN'
+    //qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP MLVUFLNGJEBAOYOYXDJGMZPCDGNREQZTMMJS true
 ];
 
 export const proxyArr: string[] = [
