@@ -90,7 +90,7 @@ app.get("/getTotalPnlAcc", async function (req, res) {
 
 app.get("/getTradeFeeAcc", async function (req, res) {
   const time = req.query.time;
-  const index = Number(req.query.acc) - 1;
+  const index = Number(req.query.acc);
   let response: any;
   if (index !== undefined)
     if (index > -1)
