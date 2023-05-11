@@ -13,8 +13,7 @@ import { HttpsProxyAgent } from 'hpagent';
 
 export class BybitAPI {
     _client: UnifiedMarginClient = new UnifiedMarginClient;
-    _copyTrader: any;
-    _gain: number;
+    _copyTrader: [{ trader: any; gain: number }];
     _clientV5: RestClientV5 = new RestClientV5;
     _platform: string;
     _curPos: Position[] | undefined = undefined;
@@ -33,8 +32,7 @@ export class BybitAPI {
             },
         );
         // this.initial();
-        this._copyTrader = acc.trader;
-        this._gain = acc.gain;
+        this._copyTrader = acc.copyInfo;
         this._clientV5 = new RestClientV5({
             key: acc.key,
             secret: acc.secret,
@@ -77,13 +75,13 @@ export class BybitAPI {
                     "Content-Type": "application/json",
                 },
                 redirect: "follow",
-                body: JSON.stringify(this._copyTrader),
+                body: JSON.stringify(this._copyTrader[0].trader),
                 agent: proxyAgent,
             };
             const copyPos = await fetch(BINANCEURL, requestOptions);
             const response: any = await copyPos.json();
             if (response.success === true && response.code === "000000") {
-                const curPosition = convertBinanceFormat(this._gain, response.data.otherPositionRetList);
+                const curPosition = convertBinanceFormat(this._copyTrader[0].gain, response.data.otherPositionRetList);
                 this._tryTimes = 1;
                 return curPosition;
             }
@@ -93,7 +91,8 @@ export class BybitAPI {
             sendNoti(`Get Binance Error Acc ${this._acc.index}: ${err} - Try again: ${this._tryTimes}`);
             await new Promise((r) => setTimeout(r, 50));
             this._tryTimes++;
-            await this.getCopyList();
+            if (this._tryTimes < 10)
+                await this.getCopyList();
             return undefined;
         }
     }
@@ -101,27 +100,28 @@ export class BybitAPI {
     async getOtherCopyList() {
         try {
             const proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[0] });
-            const copyPos = await fetch(this._copyTrader, { agent: proxyAgent });
+            const copyPos = await fetch(this._copyTrader[0].trader, { agent: proxyAgent });
             const response: any = await copyPos.json();
             if (this._platform === 'Hotcoin') {
                 if (response.msg === "success" && response.code === 200) {
                     this._tryTimes = 0;
-                    return convertHotCoinFormat(this._exchangeInfo, this._gain, response.data);
+                    return convertHotCoinFormat(this._exchangeInfo, this._copyTrader[0].gain, response.data);
                 }
             }
             else if (this._platform === 'Mexc') {
+                await new Promise((r) => setTimeout(r, 500));
                 if (response.success === true && response.code === 0) {
                     const markPrice: number[] = [];
                     for (const item of response.data.content) {
                         markPrice.push(Number(await this.getMarkPrice(item.symbol.split('_').join(''))))
                     }
                     this._tryTimes = 1;
-                    return convertMEXCFormat(markPrice, this._gain, response.data.content);
+                    return convertMEXCFormat(markPrice, this._copyTrader[0].gain, response.data.content);
                 }
             } else {
                 if (response.success === true && response.code === "000000") {
                     this._tryTimes = 1;
-                    return convertWagonFormat(this._gain, response.data);
+                    return convertWagonFormat(this._copyTrader[0].gain, response.data);
                 }
             }
             return undefined;
@@ -129,9 +129,10 @@ export class BybitAPI {
         }
         catch (err) {
             sendNoti(`Get Other Error Acc ${this._acc.index}: ${err} - Try again: ${this._tryTimes}`);
-            await new Promise((r) => setTimeout(r, 50));
+            await new Promise((r) => setTimeout(r, 500));
             this._tryTimes++;
-            await this.getCopyList();
+            if (this._tryTimes < 10)
+                await this.getCopyList();
             return undefined;
         }
     }

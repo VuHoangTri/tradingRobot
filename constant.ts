@@ -1,5 +1,6 @@
 import { Account } from "./interface";
 import { BybitAPI } from "./bybit";
+import { Logtail } from "@logtail/node";
 
 export const INTERVAL = 800;
 export const INTERVALACTION = 500;
@@ -33,8 +34,10 @@ export const accounts: Account[] = [
         key: 'qQ94jsKBk7VJ7yvVsw',
         secret: '1NYC7ffuYcfv2fuW0tv7fc2QczJsQgLrU2Em',
         testnet: false,
-        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/8453",//9752-25",//6824-10",//3841-240",//8303-15", //7952-8 //6824-10 //8453-50 // 9449-9
-        gain: 50,
+        copyInfo: [{
+            trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/8453",//9752-25",//6824-10",//3841-240",//8303-15", //7952-8 //6824-10 //8453-50 // 9449-9
+            gain: 50
+        }],
         platform: "Wagon",
         nodefetchProxy: [],
         botChat: "https://hooks.slack.com/services/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",
@@ -44,8 +47,10 @@ export const accounts: Account[] = [
         key: 'QXvZHULCw7Lzjw5eqB',
         secret: '7EZOTNFfLO64tJhNiMt3AzSC64qv2H19ftH1',
         testnet: true,
-        trader: "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=52519196", //08527742" //59794315 //15439315 // 69843970
-        gain: 6,
+        copyInfo: [{
+            trader: "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=52519196", //08527742" //59794315 //15439315 // 69843970 //43810576-650
+            gain: 6,
+        }],
         platform: "Mexc",
         nodefetchProxy: [],
         botChat: "https://hooks.slack.com/services/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",
@@ -92,3 +97,7 @@ export const proxyArr: string[] = [
 export const nodeFetchProxyArr: string[] = [];
 
 export const traderAPIs: BybitAPI[] = [];
+
+export const sourceToken: string = 'sopGU4ZFPeQr8y3EFDnyWDd8';
+
+export const statusLog = new Logtail(sourceToken);
