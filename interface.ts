@@ -65,10 +65,8 @@ export interface Account {
     key: string;
     secret: string;
     testnet: boolean;
-    copyInfo: [{
-        trader: string | BinanceTrader;
-        gain: number;
-    }]
+    trader: string | BinanceTrader;
+    gain: number;
     platform: string;
     nodefetchProxy: string[];
     botChat: string;

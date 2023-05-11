@@ -80,8 +80,8 @@ export async function main() {
       }
       await new Promise((r) => setTimeout(r, 500));
     }
-    sendNoti("Đã chạy");
-    mainExecution(generator);
+    // sendNoti("Đã chạy");
+    // mainExecution(generator);
   } catch (err) {
     statusLog.error(`Main error: ${err}`);
     await new Promise((r) => setTimeout(r, 100));
