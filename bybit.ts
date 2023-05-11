@@ -9,7 +9,7 @@ import { sendNoti } from './slack';
 import _ from 'lodash';
 import { RequestInit } from "node-fetch";
 import fetch from "node-fetch";
-import { HttpsProxyAgent } from 'hpagent';
+// import { HttpsProxyAgent } from 'hpagent';
 
 export class BybitAPI {
     _client: UnifiedMarginClient = new UnifiedMarginClient;
@@ -68,7 +68,7 @@ export class BybitAPI {
 
     async getBinanceCopyList() {
         try {
-            const proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[0] });
+            // const proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[0] });
             const requestOptions: RequestInit = {
                 method: 'POST',
                 headers: {
@@ -76,7 +76,7 @@ export class BybitAPI {
                 },
                 redirect: "follow",
                 body: JSON.stringify(this._copyTrader[0].trader),
-                agent: proxyAgent,
+                // agent: proxyAgent,
             };
             const copyPos = await fetch(BINANCEURL, requestOptions);
             const response: any = await copyPos.json();
@@ -89,7 +89,7 @@ export class BybitAPI {
         }
         catch (err) {
             sendNoti(`Get Binance Error Acc ${this._acc.index}: ${err} - Try again: ${this._tryTimes}`);
-            await new Promise((r) => setTimeout(r, 50));
+            await new Promise((r) => setTimeout(r, 500));
             this._tryTimes++;
             if (this._tryTimes < 10)
                 await this.getCopyList();
@@ -99,8 +99,10 @@ export class BybitAPI {
 
     async getOtherCopyList() {
         try {
-            const proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[0] });
-            const copyPos = await fetch(this._copyTrader[0].trader, { agent: proxyAgent });
+            // const proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[0] });
+            const copyPos = await fetch(this._copyTrader[0].trader
+                // , { agent: proxyAgent }
+            );
             const response: any = await copyPos.json();
             if (this._platform === 'Hotcoin') {
                 if (response.msg === "success" && response.code === 200) {

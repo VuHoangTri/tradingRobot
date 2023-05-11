@@ -11,7 +11,8 @@ export let bot: { enabled: boolean } = { enabled: true };
 function generateNodeFetchProxy() {
   for (const proxy of proxyArr) {
     const proxyParam = proxy.split(":");
-    const proxyStr = `http://${proxyParam[2]}:${proxyParam[3]}@${proxyParam[0]}:${proxyParam[1]}`
+    const proxyStr = `http://${proxyParam[0]}:${proxyParam[1]}`
+    // ${proxyParam[2]}:${proxyParam[3]}@
     // const axiosProxyObj: AxiosProxyConfig = {
     //   host: proxyParam[0],
     //   port: Number(proxyParam[1]),
@@ -56,6 +57,7 @@ export async function main() {
       await trader.getAccountByBit();
       trader._exchangeInfo = exchangeInfo || [];
       const curPos = await trader.getCopyList();
+      // console.log(curPos);
       if (curPos !== undefined) {
         const position = await trader.getMyPositions();
         if (position) {
@@ -76,6 +78,7 @@ export async function main() {
         trader._prePos = curPos;
         // console.log(80, trader._prePos);
       }
+      await new Promise((r) => setTimeout(r, 500));
     }
     sendNoti("Đã chạy");
     mainExecution(generator);
@@ -104,10 +107,11 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
     }
     // console.log(105, new Date().getTime() - sT);
     // count++;
+    await new Promise((r) => setTimeout(r, INTERVAL));
     await mainExecution(generator);
   } catch (err) {
     statusLog.error(`Execution error: ${err}`);
-    await new Promise((r) => setTimeout(r, 500));
+    await new Promise((r) => setTimeout(r, INTERVAL));
     await mainExecution(generator);
   }
 }
