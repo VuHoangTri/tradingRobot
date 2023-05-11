@@ -195,7 +195,7 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
                 let count = 1;
                 while (response?.retCode !== 0 && count < 10) {
                     sendNoti(`Open ${order.symbol} acc ${trader._acc.index}: ${count} times`)
-                    await new Promise((r) => setTimeout(r, 50));
+                    await new Promise((r) => setTimeout(r, 500));
                     response = await trader.createOrder(order);
                     count++;
                 }
@@ -224,7 +224,7 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
                 let count = 1;
                 while (response?.retCode !== 0 && count < 10) {
                     sendNoti(`Close ${order.symbol} acc ${trader._acc.index}: ${count} times`);
-                    await new Promise((r) => setTimeout(r, 50));
+                    await new Promise((r) => setTimeout(r, 500));
                     response = await trader.createOrder(order);
                     count++;
                 }
@@ -271,7 +271,7 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
                             let count = 1;
                             while (response?.retCode !== 0 && count < 10) {
                                 sendNoti(`Adjust ${order.symbol} acc ${trader._acc.index}: ${count} times`);
-                                await new Promise((r) => setTimeout(r, 50));
+                                await new Promise((r) => setTimeout(r, 500));
                                 response = await trader.createOrder(order);
                                 count++;
                             }

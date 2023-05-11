@@ -44,13 +44,14 @@ export const accounts: Account[] = [
     // {
     //     key: 'QXvZHULCw7Lzjw5eqB',
     //     secret: '7EZOTNFfLO64tJhNiMt3AzSC64qv2H19ftH1',
-    //     testnet: true,
+    //     testnet: false,
     //     trader: "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=52519196", //08527742" //59794315 //15439315 // 69843970 //43810576-650
     //     gain: 6,
     //     platform: "Mexc",
     //     nodefetchProxy: [],
     //     botChat: "https://hooks.slack.com/services/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",
-    //     index: 1
+    //     index: 1,
+    //     simulation: true,
     // },
     // {
     //   key: 'FUTDWUTKODGDKSWNLV',
@@ -71,7 +72,8 @@ export const accounts: Account[] = [
         platform: "Binance",
         nodefetchProxy: [],
         botChat: "https://hooks.slack.com/services/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",
-        index: 2
+        index: 2,
+        simulation: false,
     }
     //vF1sLJWGHRxUEz5GDE 'CRYDWOZBKFVRRTDOHN'
     //qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP MLVUFLNGJEBAOYOYXDJGMZPCDGNREQZTMMJS true
