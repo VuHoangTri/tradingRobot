@@ -58,18 +58,18 @@ export const accounts: Account[] = [
     //   secret: 'OOJVCPQYRIMCWYGQNDBHFTIIZKRGEGZZJFGQ',
     //   testnet: true,
     // },         //"https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/7293",// "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=83129161", // 1500, //"Mexc"
-
+    // {
+    //     "encryptedUid": "6408AAEEEBF0C76A3D5F0E39C64AAABA",
+    //     "tradeType": "PERPETUAL"
+    // },
     {
         key: 'vF1sLJWGHRxUEz5GDE',
         secret: 'qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP',
         testnet: false,
-        trader:
-        {
-            "encryptedUid": "6408AAEEEBF0C76A3D5F0E39C64AAABA",
-            "tradeType": "PERPETUAL"
-        },
-        gain: 26000,
-        platform: "Binance",
+        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/7857",
+
+        gain: 50,
+        platform: "Wagon",
         nodefetchProxy: [],
         botChat: "https://hooks.slack.com/services/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",
         index: 2,
