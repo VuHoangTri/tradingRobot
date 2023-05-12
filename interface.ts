@@ -71,7 +71,6 @@ export interface Account {
     nodefetchProxy: string[];
     botChat: string;
     index: number;
-    simulation: boolean;
 }
 
 export interface BinanceTrader {
