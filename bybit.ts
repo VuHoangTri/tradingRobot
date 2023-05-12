@@ -9,6 +9,7 @@ import { sendNoti } from './slack';
 import _ from 'lodash';
 import { RequestInit } from "node-fetch";
 import fetch from "node-fetch";
+import { HttpsProxyAgent } from 'hpagent';
 // import { HttpsProxyAgent } from 'hpagent';
 
 export class BybitAPI {
@@ -56,7 +57,6 @@ export class BybitAPI {
         );
     }
     async getCopyList() {
-        changeIndexProxy();
         // const sT = new Date().getTime();
         if (this._platform === 'Binance') {
             this._curPos = await this.getBinanceCopyList();
@@ -64,6 +64,7 @@ export class BybitAPI {
         else {
             this._curPos = await this.getOtherCopyList();
         }
+        // changeIndexProxy();
         // console.log("Bybit 63", new Date().getTime() - sT);
         return this._curPos;
     }

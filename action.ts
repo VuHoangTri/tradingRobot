@@ -7,9 +7,10 @@ import { bot } from "./main";
 
 export function changeIndexProxy() {
     const temp = nodeFetchProxyArr.splice(0, 1)[0];
+    console.log(temp);
     nodeFetchProxyArr.push(temp);
-
 }
+
 export function convertByBitFormat(position: ApiObject[]) {
     const res: Position[] = position.map(pos => {
         return {
