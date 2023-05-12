@@ -1,9 +1,8 @@
 import { LEVERAGEBYBIT, nodeFetchProxyArr } from "./constant";
-import { ApiObject, BatchOrders, Order, Position } from "./interface";
+import { ApiObject, Order, Position } from "./interface";
 import { sendChatToBot, sendNoti } from "./slack";
 import _ from 'lodash';
 import { BybitAPI } from "./bybit";
-import { APIResponseV3 } from "bybit-api";
 import { bot } from "./main";
 
 export function changeIndexProxy() {
@@ -66,8 +65,6 @@ export function convertMEXCFormat(markPrice: number[], gain: number, position: a
 export function convertHotCoinFormat(exchangeInfo, gain: number, position: any[]) {
     const res: Position[] = position.map(pos => {
         const filter = exchangeInfo.find(exch => exch.symbol === pos.contractCodeDisplayName);
-        // let sideConverter = 1;
-        // if (pos.side === "short") sideConverter = -1;
         const sideConverter = pos.side === "short" ? -1 : 1;
         const size = (((Number(pos.openMargin) * pos.lever / Number(pos.price)) / gain) * sideConverter);
         pos.size = pos.lever > filter.leverageFilter.maxLeverage
@@ -183,7 +180,6 @@ export async function actuator(diffPos: { openPos: Position[], closePos: Positio
 
 export async function openedPosition(position: Position[], trader: BybitAPI) {
     try {
-        // console.log("Cur and Pre Position - Open ", position, new Date());
         for await (const pos of position) {
             const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
             const lotSizeFilter = filter.lotSizeFilter;
@@ -215,7 +211,6 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
 
 export async function closedPosition(position: Position[], trader: BybitAPI) {
     try {
-        // console.log("Cur Position - Close", position, new Date());
         for await (const pos of position) {
             pos.size = (Number(pos.size) * -1).toString();
             const order = convertToOrder(pos, true)
@@ -304,7 +299,6 @@ export function convertAndSendBot(order, botChat: string, action: string) {
         dataString = "Action: " + action + "\nSymbol: " + order.symbol
             + "\nEntry: " + order.price + "\nSide: " + order.side + "\nLeverage: "
             + order.leverage + "\nSize: " + order.qty;
-        //(parseInt(order.size) / SIZEBYBIT).toString();
         sendChatToBot(icon, dataString, botChat);
     } catch (err: any) {
         sendNoti(`Send chatbot error: ${err}`)
