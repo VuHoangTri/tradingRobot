@@ -161,7 +161,7 @@ export async function actuator(diffPos: { openPos: Position[], closePos: Positio
 
             if (adjustPos.length > 0) {
                 const adjustedLeverage = adjustPos.filter(pP =>
-                    myList.some(cP =>
+                    trader._prePos.some(cP =>
                         cP.symbol === pP.symbol && Number(cP.leverage) !== (Number(pP.leverage))
                     )
                 ) || [];
