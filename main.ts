@@ -11,16 +11,7 @@ export let bot: { enabled: boolean } = { enabled: true };
 function generateNodeFetchProxy() {
   for (const proxy of proxyArr) {
     const proxyParam = proxy.split(":");
-    const proxyStr = `http://${proxyParam[2]}:${proxyParam[3]}@${proxyParam[0]}:${proxyParam[1]}`
-    // 
-    // const axiosProxyObj: AxiosProxyConfig = {
-    //   host: proxyParam[0],
-    //   port: Number(proxyParam[1]),
-    //   auth: {
-    //     username: proxyParam[2],
-    //     password: proxyParam[3]
-    //   }
-    // }
+    const proxyStr = `http://${proxyParam[2]}:${proxyParam[3]}@${proxyParam[0]}:${proxyParam[1]}`;
     nodeFetchProxyArr.push(proxyStr);
   }
 }
@@ -56,7 +47,7 @@ export async function main() {
       await trader.getAccountByBit();
       trader._exchangeInfo = exchangeInfo || [];
       const curPos = await trader.getCopyList();
-      console.log(curPos);
+      // console.log(curPos);
       if (curPos !== undefined) {
         const position = await trader.getMyPositions();
         if (position) {
@@ -77,7 +68,7 @@ export async function main() {
         trader._prePos = curPos;
         // console.log(80, trader._prePos);
       }
-      await new Promise((r) => setTimeout(r, INTERVAL));
+      // await new Promise((r) => setTimeout(r, 500));
     }
     sendNoti("Đã chạy");
     mainExecution(generator);
@@ -89,11 +80,12 @@ export async function main() {
 
 export async function mainExecution(generator: Generator<BybitAPI>) {
   try {
-    // const sT = new Date().getTime();
     if (bot.enabled) {
       const traderGen = generator.next();
       const trader: BybitAPI = traderGen.value;
+      const sT = new Date().getTime();
       const curPos = await trader.getCopyList();
+      console.log(105, new Date().getTime() - sT);
       // console.log(97, curPos);
       if (curPos !== undefined) {
         const diffPos = comparePosition({ firstGet: trader._firstGet, curPos: trader._curPos, prePos: trader._prePos });
@@ -105,12 +97,11 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
       }
     }
     // count++;
-    await new Promise((r) => setTimeout(r, INTERVAL));
-    // console.log(105, new Date().getTime() - sT);
+    // await new Promise((r) => setTimeout(r, INTERVAL));
     await mainExecution(generator);
   } catch (err) {
     statusLog.error(`Execution error: ${err}`);
-    await new Promise((r) => setTimeout(r, INTERVAL));
+    await new Promise((r) => setTimeout(r, 500));
     await mainExecution(generator);
   }
 }

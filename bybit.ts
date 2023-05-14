@@ -10,7 +10,6 @@ import _ from 'lodash';
 import { RequestInit } from "node-fetch";
 import fetch from "node-fetch";
 import { HttpsProxyAgent } from 'hpagent';
-// import { HttpsProxyAgent } from 'hpagent';
 
 export class BybitAPI {
     _client: UnifiedMarginClient = new UnifiedMarginClient;
@@ -64,14 +63,14 @@ export class BybitAPI {
         else {
             this._curPos = await this.getOtherCopyList();
         }
-        // changeIndexProxy();
+        changeIndexProxy();
         // console.log("Bybit 63", new Date().getTime() - sT);
         return this._curPos;
     }
 
     async getBinanceCopyList() {
         try {
-            // const proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[0] });
+            const proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[0] });
             const requestOptions: RequestInit = {
                 method: 'POST',
                 headers: {
@@ -79,7 +78,7 @@ export class BybitAPI {
                 },
                 redirect: "follow",
                 body: JSON.stringify(this._trader),
-                // agent: proxyAgent,
+                agent: proxyAgent,
             };
             const copyPos = await fetch(BINANCEURL, requestOptions);
             const response: any = await copyPos.json();
@@ -102,9 +101,9 @@ export class BybitAPI {
 
     async getOtherCopyList() {
         try {
-            // const proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[0] });
+            const proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[0] });
             const copyPos = await fetch(this._trader
-                // , { agent: proxyAgent }
+                , { agent: proxyAgent }
             );
             const response: any = await copyPos.json();
             if (this._platform === 'Hotcoin') {

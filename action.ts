@@ -7,7 +7,7 @@ import { bot } from "./main";
 
 export function changeIndexProxy() {
     const temp = nodeFetchProxyArr.splice(0, 1)[0];
-    console.log(temp);
+    // console.log(temp);
     nodeFetchProxyArr.push(temp);
 }
 
