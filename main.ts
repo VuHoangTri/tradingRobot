@@ -83,9 +83,9 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
     if (bot.enabled) {
       const traderGen = generator.next();
       const trader: BybitAPI = traderGen.value;
-      const sT = new Date().getTime();
+      // const sT = new Date().getTime();
       const curPos = await trader.getCopyList();
-      console.log(105, new Date().getTime() - sT);
+      // console.log(105, new Date().getTime() - sT);
       // console.log(97, curPos);
       if (curPos !== undefined) {
         const diffPos = comparePosition({ firstGet: trader._firstGet, curPos: trader._curPos, prePos: trader._prePos });
