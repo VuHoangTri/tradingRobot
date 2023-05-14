@@ -14,6 +14,7 @@ function generateNodeFetchProxy() {
     const proxyStr = `http://${proxyParam[2]}:${proxyParam[3]}@${proxyParam[0]}:${proxyParam[1]}`;
     nodeFetchProxyArr.push(proxyStr);
   }
+  console.log(nodeFetchProxyArr.length);
 }
 
 function accGenAPI() {
@@ -85,7 +86,9 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
       const trader: BybitAPI = traderGen.value;
       // const sT = new Date().getTime();
       const curPos = await trader.getCopyList();
-      // console.log(105, new Date().getTime() - sT);
+      // const eT = new Date().getTime() - sT;
+      // console.log(eT, nodeFetchProxyArr[0]);
+      // if (eT > 3000) console.log(nodeFetchProxyArr[0]);
       // console.log(97, curPos);
       if (curPos !== undefined) {
         const diffPos = comparePosition({ firstGet: trader._firstGet, curPos: trader._curPos, prePos: trader._prePos });
