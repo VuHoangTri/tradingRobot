@@ -83,34 +83,34 @@ export const proxyArr: string[] = [
     // "104.239.84.205:6240:frawsmba:54hwnd9dtyv3",
     "45.131.94.3:5990:frawsmba:54hwnd9dtyv3",
     "95.164.135.162:6695:frawsmba:54hwnd9dtyv3",
-    // "154.73.250.175:6076:frawsmba:54hwnd9dtyv3",
+    "45.252.58.203:6832:frawsmba:54hwnd9dtyv3", //new from Sing
     "184.174.58.3:5565:frawsmba:54hwnd9dtyv3",
     "64.137.100.143:5198:frawsmba:54hwnd9dtyv3",
-    // "23.247.105.87:5151:frawsmba:54hwnd9dtyv3",
+    "119.42.38.4:6186:frawsmba:54hwnd9dtyv3", // new from Sing
     // "104.222.187.102:6226:frawsmba:54hwnd9dtyv3",
     "64.137.66.167:5752:frawsmba:54hwnd9dtyv3",
     "161.123.130.69:5740:frawsmba:54hwnd9dtyv3",
     "192.210.132.154:6124:frawsmba:54hwnd9dtyv3",
-    // "45.43.64.175:6433:frawsmba:54hwnd9dtyv3",
+    "45.252.57.5:6450:frawsmba:54hwnd9dtyv3", // new from Sing
     "45.131.103.77:6063:frawsmba:54hwnd9dtyv3",
     "64.137.60.48:5112:frawsmba:54hwnd9dtyv3",
     "69.58.12.147:8152:frawsmba:54hwnd9dtyv3",
-    // "38.170.161.35:9086:frawsmba:54hwnd9dtyv3",
+    "119.42.38.85:6267:frawsmba:54hwnd9dtyv3", // new from Sing
     "185.39.8.207:5864:frawsmba:54hwnd9dtyv3",
     "64.137.89.222:6295:frawsmba:54hwnd9dtyv3",
-    // "134.73.2.14:6355:frawsmba:54hwnd9dtyv3",
+    "45.252.57.96:6541:frawsmba:54hwnd9dtyv3", // new from Sing
     "216.19.217.27:6267:frawsmba:54hwnd9dtyv3",
     "45.83.143.99:6137:frawsmba:54hwnd9dtyv3",
     "38.170.161.132:9183:frawsmba:54hwnd9dtyv3",
     "45.192.157.224:6351:frawsmba:54hwnd9dtyv3",
     "64.137.65.249:6928:frawsmba:54hwnd9dtyv3",
-    // "104.233.12.38:6589:frawsmba:54hwnd9dtyv3",
-    // "38.170.172.183:5184:frawsmba:54hwnd9dtyv3",
-    // "45.12.141.73:5803:frawsmba:54hwnd9dtyv3",
+    "45.249.104.166:6461:frawsmba:54hwnd9dtyv3", // new from Sing
+    "45.252.57.20:6465:frawsmba:54hwnd9dtyv3", // new from Sing
+    "45.249.104.211:6506:frawsmba:54hwnd9dtyv3", // new from Sing
     "154.92.116.111:6423:frawsmba:54hwnd9dtyv3",
     // "64.137.93.63:6520:frawsmba:54hwnd9dtyv3",
-    // "38.153.138.198:9537:frawsmba:54hwnd9dtyv3",
-    // "45.131.230.242:6176:frawsmba:54hwnd9dtyv3",
+    "45.249.106.180:5877:frawsmba:54hwnd9dtyv3", // new from SIng
+    "119.42.36.123:6023:frawsmba:54hwnd9dtyv3", // new from Sing
     // "185.245.27.27:6800:frawsmba:54hwnd9dtyv3",
     // "45.192.156.253:6924:frawsmba:54hwnd9dtyv3",
     "216.173.122.50:5777:frawsmba:54hwnd9dtyv3",
