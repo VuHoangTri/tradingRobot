@@ -3,7 +3,7 @@ import {
     UnifiedMarginClient,
 } from 'bybit-api';
 import { Account, BatchOrders, BinanceTrader, Leverage, Order, Position } from './interface';
-import { BINANCEURL, LEVERAGEBYBIT } from './constant';
+import { BINANCEURL, LEVERAGEBYBIT, traderAPIs } from './constant';
 import { changeIndexProxy, convertBinanceFormat, convertHotCoinFormat, convertMEXCFormat, convertWagonFormat } from './action';
 import { sendNoti } from './slack';
 import _ from 'lodash';
@@ -56,16 +56,21 @@ export class BybitAPI {
         );
     }
     async getCopyList() {
-        // const sT = new Date().getTime();
-        if (this._platform === 'Binance') {
-            this._curPos = await this.getBinanceCopyList();
+        try {
+            // const sT = new Date().getTime();
+            if (this._platform === 'Binance') {
+                this._curPos = await this.getBinanceCopyList();
+            }
+            else {
+                this._curPos = await this.getOtherCopyList();
+            }
+            changeIndexProxy();
+            // console.log("Bybit 63", new Date().getTime() - sT);
+            return this._curPos;
+        } catch (err) {
+            sendNoti(`Get Copy List Error Acc: ${this._acc.index}`);
+            return this._curPos;
         }
-        else {
-            this._curPos = await this.getOtherCopyList();
-        }
-        changeIndexProxy();
-        // console.log("Bybit 63", new Date().getTime() - sT);
-        return this._curPos;
     }
 
     async getBinanceCopyList() {
@@ -101,7 +106,7 @@ export class BybitAPI {
 
     async getOtherCopyList() {
         try {
-            const proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[0] });            
+            const proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[0] });
             const copyPos = await fetch(this._trader
                 , { agent: proxyAgent }
             );
@@ -211,19 +216,15 @@ export class BybitAPI {
     }
 
     async getMarkPrice(symbol: string): Promise<string> {
-        try {
-            const res = await this._client.getSymbolTicker("linear", symbol)
-                .then(res => { return res.result.list[0] })
-                .catch(err => {
-                    sendNoti(`Get Mark Price error Acc ${this._acc.index}: ${err}`);
-                    return undefined;
-                });
-            const markPrice: any = res;
-            return markPrice.markPrice;
-        }
-        catch (err) {
-            return `Error ${err}`
-        }
+        const res = await this._client.getSymbolTicker("linear", symbol)
+            .then(res => { return res.result.list[0] })
+            .catch(err => {
+                sendNoti(`Get Mark Price error Acc ${this._acc.index}: ${err}`);
+                return undefined;
+            });
+        const markPrice: any = res;
+        return markPrice.markPrice;
+
     }
 
     async getWalletBalance() {
@@ -253,15 +254,16 @@ export class BybitAPI {
 
 
     async createOrder(order: Order) {
-        try {
-            const result = await this._client.submitOrder(order)
-                // client.postPrivate('/unified/v3/private/order/create', order)
-                .then(res => { return res });
-            // const result = await client.postPrivate('/unified/v3/private/order/create', newOrder);
-            return result;
-        } catch (error) {
-            console.error(error);
-        }
+        const result = await this._client.submitOrder(order)
+            // client.postPrivate('/unified/v3/private/order/create', order)
+            .then(res => { return res })
+            .catch(err => {
+                sendNoti(`Create Order Error Acc ${this._acc.index}: ${err}`);
+                return undefined;
+            });
+        // const result = await client.postPrivate('/unified/v3/private/order/create', newOrder);
+        return result;
+
     }
 
     // async submitBatchOrders(batchOrders: BatchOrders) {
@@ -356,25 +358,37 @@ export class BybitAPI {
     }
 
     async getTotalPnL(args: { nextPageCursor?: string, time?: number }) {
-        let res = await this.getClosedPNL({ cursor: args.nextPageCursor, time: args.time });
-        let sum = 0;
-        while (res !== undefined && typeof res !== 'string' && res.nextPageCursor !== '') {
-            sum = sum + res.list.reduce((acc, cur) => acc + Number(cur.closedPnl), 0);
-            res = await this.getClosedPNL({ cursor: res.nextPageCursor, time: args.time })
+        try {
+            let res = await this.getClosedPNL({ cursor: args.nextPageCursor, time: args.time });
+            let sum = 0;
+            while (res !== undefined && typeof res !== 'string' && res.nextPageCursor !== '') {
+                sum = sum + res.list.reduce((acc, cur) => acc + Number(cur.closedPnl), 0);
+                res = await this.getClosedPNL({ cursor: res.nextPageCursor, time: args.time })
+            }
+            return sum;
         }
-        return sum;
+        catch (err) {
+            sendNoti(`Get Total PnL Error Acc: ${this._acc.index}`);
+            return 0;
+        }
     }
 
     async getTotalTradeFee(args: { nextPageCursor?: string, time?: number }) {
-        let res = await this.getTradeFee({ cursor: args.nextPageCursor, time: args.time });
-        let sum = 0;
-        let length = 0;
-        while (res !== undefined && typeof res !== 'string' && Boolean(res.nextPageCursor)) {
-            length = length + res.list.length;
-            sum = sum + res.list.reduce((acc, cur) => acc + Number(cur.fee), 0);
-            res = await this.getTradeFee({ cursor: res.nextPageCursor, time: args.time })
+        try {
+            let res = await this.getTradeFee({ cursor: args.nextPageCursor, time: args.time });
+            let sum = 0;
+            let length = 0;
+            while (res !== undefined && typeof res !== 'string' && Boolean(res.nextPageCursor)) {
+                length = length + res.list.length;
+                sum = sum + res.list.reduce((acc, cur) => acc + Number(cur.fee), 0);
+                res = await this.getTradeFee({ cursor: res.nextPageCursor, time: args.time })
+            }
+            return sum;
         }
-        return sum;
+        catch (err) {
+            sendNoti(`Get Total Trade Fee Error Acc: ${this._acc.index}`);
+            return 0;
+        }
     }
 }
 

@@ -14,7 +14,7 @@ function generateNodeFetchProxy() {
     const proxyStr = `http://${proxyParam[2]}:${proxyParam[3]}@${proxyParam[0]}:${proxyParam[1]}`;
     nodeFetchProxyArr.push(proxyStr);
   }
-  console.log(nodeFetchProxyArr.length);
+  // console.log(nodeFetchProxyArr.length);
 }
 
 function accGenAPI() {
