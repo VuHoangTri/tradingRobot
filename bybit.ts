@@ -91,9 +91,9 @@ export class BybitAPI {
         }
         catch (err) {
             sendNoti(`Get Binance Error Acc ${this._acc.index}: ${err} - Try again: ${this._tryTimes}`);
-            await new Promise((r) => setTimeout(r, 500));
+            await new Promise((r) => setTimeout(r, 1000));
             this._tryTimes++;
-            if (this._tryTimes < 10)
+            if (this._tryTimes < 5)
                 await this.getCopyList();
             return undefined;
         }
@@ -101,14 +101,14 @@ export class BybitAPI {
 
     async getOtherCopyList() {
         try {
-            const proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[0] });
+            const proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[0] });            
             const copyPos = await fetch(this._trader
                 , { agent: proxyAgent }
             );
             const response: any = await copyPos.json();
             if (this._platform === 'Hotcoin') {
                 if (response.msg === "success" && response.code === 200) {
-                    this._tryTimes = 0;
+                    this._tryTimes = 1;
                     return convertHotCoinFormat(this._exchangeInfo, this._gain, response.data);
                 }
             }
@@ -132,9 +132,9 @@ export class BybitAPI {
         }
         catch (err) {
             sendNoti(`Get Other Error Acc ${this._acc.index}: ${err} - Try again: ${this._tryTimes}`);
-            await new Promise((r) => setTimeout(r, 500));
+            await new Promise((r) => setTimeout(r, 1000));
             this._tryTimes++;
-            if (this._tryTimes < 10)
+            if (this._tryTimes < 5)
                 await this.getCopyList();
             return undefined;
         }
