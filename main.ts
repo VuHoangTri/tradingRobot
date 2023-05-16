@@ -51,6 +51,7 @@ export async function main() {
       // console.log(curPos);
       if (curPos !== undefined) {
         const position = await trader.getMyPositions();
+        // const position = { result: { list: [] } };
         if (position) {
           const myPos = position.result;
           trader._prePos = myPos.list.map((c: Position) => {
@@ -59,17 +60,22 @@ export async function main() {
         }
         // console.log(trader._prePos);
         const diffPos = comparePosition({ firstGet: trader._firstGet, curPos: trader._curPos, prePos: trader._prePos });
+        // console.log(diffPos);
         const firstDiff: { openPos: Position[], closePos: Position[], adjustPos: Position[] } = {
-          openPos: diffPos.openPos.filter(pos => pos.pnl ? pos.pnl < 0 : false), closePos: diffPos.closePos, adjustPos: []
+          openPos: diffPos.openPos
+            // ,
+            .filter(pos => pos.pnl ? pos.pnl < 0 : false),
+          closePos: diffPos.closePos,
+          adjustPos: []
         }
         if (firstDiff) {
           await actuator(firstDiff, trader);
         }
         trader._firstGet = false;
         trader._prePos = curPos;
+
         // console.log(80, trader._prePos);
       }
-      // await new Promise((r) => setTimeout(r, 500));
     }
     sendNoti("Đã chạy");
     mainExecution(generator);

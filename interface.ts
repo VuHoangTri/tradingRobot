@@ -28,6 +28,7 @@ export interface Position {
     size: string;
     leverage: string;
     pnl?: number;
+    entry?: string;
 }
 
 export interface Order {
@@ -71,6 +72,7 @@ export interface Account {
     nodefetchProxy: string[];
     botChat: string;
     index: number;
+    limit: boolean;
 }
 
 export interface BinanceTrader {

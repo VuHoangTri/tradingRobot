@@ -41,7 +41,8 @@ export function convertWagonFormat(gain: number, position: any[]) {
                 symbol: pos.symbol,
                 size: (Number(pos.positionAmount) / gain).toFixed(3).toString(),
                 leverage: (pos.leverage * LEVERAGEBYBIT).toString(),
-                pnl: Number(pos.unrealizedProfit)
+                pnl: Number(pos.unrealizedProfit),
+                entry: pos.entryPrice
             }
         });
         return res;
@@ -116,7 +117,7 @@ export function convertHotCoinFormat(exchangeInfo, gain: number, position: any[]
     }
 }
 
-export function convertToOrder(pos: Position, isBatch: boolean) {
+export function convertToOrder(pos: Position, limit: boolean) {
     try {
         const newSide = Number(pos.size) < 0 ? 'Sell' : 'Buy';
         const res: Order = {
@@ -128,9 +129,11 @@ export function convertToOrder(pos: Position, isBatch: boolean) {
             // price: newPrice,
             timeInForce: 'GoodTillCancel',
         };
-        if (!isBatch) {
-            res.category = 'linear';
+        if (limit && pos.entry) {
+            res.orderType = 'Limit';
+            res.price = pos.entry
         }
+        // console.log(res);
         return res;
     } catch (err: any) {
         sendNoti(err);
@@ -230,7 +233,7 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
             const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
             const lotSizeFilter = filter.lotSizeFilter;
             pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
-            const order = convertToOrder(pos, true);
+            const order = convertToOrder(pos, trader._acc.limit);
             if (order !== null) {
                 order.leverage = pos.leverage;
                 let response = await trader.createOrder(order);
@@ -259,7 +262,7 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
     try {
         for await (const pos of position) {
             pos.size = (Number(pos.size) * -1).toString();
-            const order = convertToOrder(pos, true)
+            const order = convertToOrder(pos, false)
             if (order !== null) {
                 let response = await trader.createOrder(order);
                 let count = 1;
@@ -305,7 +308,7 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
                         if (Number(newPos.size) * Number(pos.size) > 0) action = "DCA"
                         else action = "Take PNL";
                         newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
-                        const order = convertToOrder(newPos, true);
+                        const order = convertToOrder(newPos, false);
                         if (order !== null) {
                             order.leverage = newPos.leverage;
                             let response = await trader.createOrder(order);
