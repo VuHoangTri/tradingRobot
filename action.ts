@@ -126,7 +126,6 @@ export function convertToOrder(pos: Position, limit: boolean) {
             orderType: 'Market',
             qty: Math.abs(Number(pos.size)).toString(),
             side: newSide,
-            // price: newPrice,
             timeInForce: 'GoodTillCancel',
         };
         if (limit && pos.entry) {
