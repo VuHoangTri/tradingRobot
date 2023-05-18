@@ -112,7 +112,7 @@ export class BybitAPI {
     }
 
     async getOtherCopyList(proxyAgent?: HttpsProxyAgent) {
-        try {
+        try {            
             const copyPos = await fetch(this._trader
                 , { agent: proxyAgent }
             );
@@ -149,7 +149,7 @@ export class BybitAPI {
                 await this.getCopyList(true);
             }
             else {
-                sendNoti(`Get Binance Error Acc ${this._acc.index}: ${err} - Try again with non-proxy`);
+                sendNoti(`Get Other Error Acc ${this._acc.index}: ${err} - Try again with non-proxy`);
                 await this.getCopyList(false);
             }
             return undefined;
