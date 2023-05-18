@@ -47,7 +47,7 @@ export async function main() {
       }
       await trader.getAccountByBit();
       trader._exchangeInfo = exchangeInfo || [];
-      const curPos = await trader.getCopyList();
+      const curPos = await trader.getCopyList(true);
       // console.log(curPos);
       if (curPos !== undefined) {
         const position = await trader.getMyPositions();
@@ -91,7 +91,7 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
       const traderGen = generator.next();
       const trader: BybitAPI = traderGen.value;
       // const sT = new Date().getTime();
-      const curPos = await trader.getCopyList();
+      const curPos = await trader.getCopyList(true);
       // const eT = new Date().getTime() - sT;
       // console.log(eT, nodeFetchProxyArr[0]);
       // if (eT > 3000) console.log(nodeFetchProxyArr[0]);

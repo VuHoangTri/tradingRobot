@@ -55,7 +55,7 @@ export class BybitAPI {
             // { proxy: this._acc.axiosProxy ? this._acc.axiosProxy[randomNumber] : undefined }
         );
     }
-    async getCopyList(proxy?: boolean) {
+    async getCopyList(proxy: boolean) {
         try {
             let proxyAgent: undefined | HttpsProxyAgent;
             // const sT = new Date().getTime();
@@ -101,7 +101,7 @@ export class BybitAPI {
             this._tryTimes++;
             if (this._tryTimes <= 3) {
                 sendNoti(`Get Binance Error Acc ${this._acc.index}: ${err} - Try again: ${this._tryTimes}`);
-                await this.getCopyList();
+                await this.getCopyList(true);
             }
             else {
                 sendNoti(`Get Binance Error Acc ${this._acc.index}: ${err} - Try again with non-proxy`);
@@ -146,7 +146,7 @@ export class BybitAPI {
             this._tryTimes++;
             if (this._tryTimes <= 3) {
                 sendNoti(`Get Other Error Acc ${this._acc.index}: ${err} - Try again: ${this._tryTimes}`);
-                await this.getCopyList();
+                await this.getCopyList(true);
             }
             else {
                 sendNoti(`Get Binance Error Acc ${this._acc.index}: ${err} - Try again with non-proxy`);
