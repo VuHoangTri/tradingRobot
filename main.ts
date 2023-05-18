@@ -1,10 +1,9 @@
 import _ from 'lodash';
-import { INTERVAL, LEVERAGEBYBIT, accounts, nodeFetchProxyArr, proxyArr, statusLog, traderAPIs } from "./constant"
+import { LEVERAGEBYBIT, accounts, nodeFetchProxyArr, proxyArr, traderAPIs } from "./constant"
 import { BybitAPI } from "./bybit";
 import { sendNoti } from "./slack";
 import { actuator, comparePosition } from "./action";
 import { Position } from './interface';
-import { send } from 'process';
 
 
 export let bot: { enabled: boolean } = { enabled: true };
@@ -79,7 +78,7 @@ export async function main() {
       }
     }
     console.log(new Date());
-    // sendNoti("Đã chạy");
+    sendNoti("Đã chạy");
     mainExecution(generator);
   } catch (err) {
     sendNoti(`Main error: ${err}`);
