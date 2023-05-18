@@ -4,6 +4,7 @@ import { BybitAPI } from "./bybit";
 import { sendNoti } from "./slack";
 import { actuator, comparePosition } from "./action";
 import { Position } from './interface';
+import { send } from 'process';
 
 
 export let bot: { enabled: boolean } = { enabled: true };
@@ -80,7 +81,7 @@ export async function main() {
     sendNoti("Đã chạy");
     mainExecution(generator);
   } catch (err) {
-    statusLog.error(`Main error: ${err}`);
+    sendNoti(`Main error: ${err}`);
     await new Promise((r) => setTimeout(r, 100));
   }
 }
@@ -104,12 +105,15 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
         // console.log(103, trader._acc.index, trader._prePos, curPos);
         trader._prePos = curPos;
       }
+      const wallet = await trader.getWalletBalance();
+      statusLog.info(`Account ${trader._acc.index}`, wallet);
     }
     // count++;
     // await new Promise((r) => setTimeout(r, INTERVAL));
+    statusLog.flush();
     await mainExecution(generator);
   } catch (err) {
-    statusLog.error(`Execution error: ${err}`);
+    sendNoti(`Execution error: ${err}`);
     await new Promise((r) => setTimeout(r, 500));
     await mainExecution(generator);
   }

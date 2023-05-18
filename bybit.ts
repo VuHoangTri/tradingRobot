@@ -239,13 +239,13 @@ export class BybitAPI {
     }
 
     async getWalletBalance() {
-        const res = this._client.getBalances()
-            .then(res => { return res })
+        const res = await this._client.getBalances()
+            .then(res => { return res.result })
             .catch(err => {
                 sendNoti(`Get wallet Balance error Acc ${this._acc.index}: ${err}`);
                 return undefined;
             });
-        return res
+        return { init: res.totalWalletBalance, unPnL: res.totalPerpUPL };
     }
 
     async getMyPositions() {
