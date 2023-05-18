@@ -58,6 +58,7 @@ export class BybitAPI {
     async getCopyList(proxy: boolean) {
         try {
             let proxyAgent: undefined | HttpsProxyAgent;
+            changeIndexProxy();
             // const sT = new Date().getTime();
             if (proxy)
                 proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[0] });
@@ -67,7 +68,6 @@ export class BybitAPI {
             else {
                 this._curPos = await this.getOtherCopyList(proxyAgent);
             }
-            changeIndexProxy();
             // console.log("Bybit 63", new Date().getTime() - sT);
             return this._curPos;
         } catch (err) {
