@@ -55,9 +55,10 @@ export class BybitAPI {
             // { proxy: this._acc.axiosProxy ? this._acc.axiosProxy[randomNumber] : undefined }
         );
     }
-    async getCopyList(proxy?: boolean) {
+    async getCopyList(proxy: boolean) {
         try {
             let proxyAgent: undefined | HttpsProxyAgent;
+            changeIndexProxy();
             // const sT = new Date().getTime();
             if (proxy)
                 proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[0] });
@@ -67,7 +68,6 @@ export class BybitAPI {
             else {
                 this._curPos = await this.getOtherCopyList(proxyAgent);
             }
-            changeIndexProxy();
             // console.log("Bybit 63", new Date().getTime() - sT);
             return this._curPos;
         } catch (err) {
@@ -101,7 +101,7 @@ export class BybitAPI {
             this._tryTimes++;
             if (this._tryTimes <= 3) {
                 sendNoti(`Get Binance Error Acc ${this._acc.index}: ${err} - Try again: ${this._tryTimes}`);
-                await this.getCopyList();
+                await this.getCopyList(true);
             }
             else {
                 sendNoti(`Get Binance Error Acc ${this._acc.index}: ${err} - Try again with non-proxy`);
@@ -112,7 +112,7 @@ export class BybitAPI {
     }
 
     async getOtherCopyList(proxyAgent?: HttpsProxyAgent) {
-        try {
+        try {            
             const copyPos = await fetch(this._trader
                 , { agent: proxyAgent }
             );
@@ -146,10 +146,10 @@ export class BybitAPI {
             this._tryTimes++;
             if (this._tryTimes <= 3) {
                 sendNoti(`Get Other Error Acc ${this._acc.index}: ${err} - Try again: ${this._tryTimes}`);
-                await this.getCopyList();
+                await this.getCopyList(true);
             }
             else {
-                sendNoti(`Get Binance Error Acc ${this._acc.index}: ${err} - Try again with non-proxy`);
+                sendNoti(`Get Other Error Acc ${this._acc.index}: ${err} - Try again with non-proxy`);
                 await this.getCopyList(false);
             }
             return undefined;
