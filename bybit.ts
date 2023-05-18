@@ -3,7 +3,7 @@ import {
     UnifiedMarginClient,
 } from 'bybit-api';
 import { Account, BatchOrders, BinanceTrader, Leverage, Order, Position } from './interface';
-import { BINANCEURL, LEVERAGEBYBIT, traderAPIs } from './constant';
+import { BINANCEURL, LEVERAGEBYBIT, nodeFetchProxyArr, traderAPIs } from './constant';
 import { changeIndexProxy, convertBinanceFormat, convertHotCoinFormat, convertMEXCFormat, convertWagonFormat } from './action';
 import { sendNoti } from './slack';
 import _ from 'lodash';
@@ -100,7 +100,7 @@ export class BybitAPI {
             await new Promise((r) => setTimeout(r, 2000));
             this._tryTimes++;
             if (this._tryTimes <= 3) {
-                sendNoti(`Get Binance Error Acc ${this._acc.index}: ${err} - Try again: ${this._tryTimes}`);
+                sendNoti(`Get Binance Error Acc ${this._acc.index}: ${err} ${nodeFetchProxyArr[0]}- Try again: ${this._tryTimes}`);
                 await this.getCopyList(true);
             }
             else {
@@ -112,7 +112,7 @@ export class BybitAPI {
     }
 
     async getOtherCopyList(proxyAgent?: HttpsProxyAgent) {
-        try {            
+        try {
             const copyPos = await fetch(this._trader
                 , { agent: proxyAgent }
             );
@@ -145,7 +145,7 @@ export class BybitAPI {
             await new Promise((r) => setTimeout(r, 2000));
             this._tryTimes++;
             if (this._tryTimes <= 3) {
-                sendNoti(`Get Other Error Acc ${this._acc.index}: ${err} - Try again: ${this._tryTimes}`);
+                sendNoti(`Get Other Error Acc ${this._acc.index}: ${err} ${nodeFetchProxyArr[0]} - Try again: ${this._tryTimes}`);
                 await this.getCopyList(true);
             }
             else {

@@ -130,7 +130,7 @@ export function convertToOrder(pos: Position, limit: boolean) {
         };
         if (limit && pos.entry) {
             res.orderType = 'Limit';
-            res.price = pos.entry
+            res.price = Number(pos.entry).toFixed(3)
         }
         // console.log(res);
         return res;
@@ -244,8 +244,9 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
                     count++;
                 }
                 if (count >= 5) {
-                    sendNoti(`Close ${order.symbol} acc ${trader._acc.index}: Error ${response?.retMsg}`);
+                    sendNoti(`Open ${order.symbol} acc ${trader._acc.index}: Error ${response?.retMsg}`);
                     bot.enabled = false;
+                    return;
                 }
                 order.price = await trader.getMarkPrice(order.symbol);
                 convertAndSendBot(order, trader._acc.botChat, "Open");
@@ -274,6 +275,7 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
                 if (count >= 5) {
                     sendNoti(`Close ${order.symbol} acc ${trader._acc.index}: Error ${response?.retMsg}`);
                     bot.enabled = false;
+                    return;
                 }
                 order.price = await trader.getMarkPrice(order.symbol);
                 convertAndSendBot(order, trader._acc.botChat, "Close");
