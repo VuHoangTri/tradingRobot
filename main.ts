@@ -78,7 +78,8 @@ export async function main() {
         // console.log(80, trader._prePos);
       }
     }
-    sendNoti("Đã chạy");
+    console.log(new Date());
+    // sendNoti("Đã chạy");
     mainExecution(generator);
   } catch (err) {
     sendNoti(`Main error: ${err}`);
@@ -106,11 +107,11 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
         trader._prePos = curPos;
       }
       const wallet = await trader.getWalletBalance();
-      statusLog.info(`Account ${trader._acc.index}`, wallet);
+      // statusLog.info(`Account ${trader._acc.index}`, wallet);
     }
     // count++;
     // await new Promise((r) => setTimeout(r, INTERVAL));
-    statusLog.flush();
+    // statusLog.flush();
     await mainExecution(generator);
   } catch (err) {
     sendNoti(`Execution error: ${err}`);

@@ -323,6 +323,7 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
                             if (count >= 3) {
                                 sendNoti(`Adjust ${order.symbol} acc ${trader._acc.index}: Error ${response?.retMsg}`);
                                 bot.enabled = false;
+                                return;
                             }
                             order.price = await trader.getMarkPrice(order.symbol);
                             convertAndSendBot(order, trader._acc.botChat, action);
