@@ -117,7 +117,7 @@ export function convertHotCoinFormat(exchangeInfo, gain: number, position: any[]
     }
 }
 
-export function convertToOrder(pos: Position, limit: boolean) {
+export function convertToOrder(pos: Position, limit: boolean, price?: string) {
     try {
         const newSide = Number(pos.size) < 0 ? 'Sell' : 'Buy';
         const res: Order = {
@@ -128,9 +128,11 @@ export function convertToOrder(pos: Position, limit: boolean) {
             side: newSide,
             timeInForce: 'GoodTillCancel',
         };
-        if (limit && pos.entry) {
+        if (limit && pos.entry && price) {
+            const priceSize = price.replace(/0+$/g, '');
+            const decimal = priceSize.toString().split('.')[1]?.length ?? 0;
             res.orderType = 'Limit';
-            res.price = Number(pos.entry).toFixed(3).toString();
+            res.price = Number(pos.entry).toFixed(decimal).toString();
         }
         // console.log(res);
         return res;
@@ -229,10 +231,11 @@ export async function actuator(diffPos: { openPos: Position[], closePos: Positio
 export async function openedPosition(position: Position[], trader: BybitAPI) {
     try {
         for await (const pos of position) {
+            const price = await trader.getMarkPrice(pos.symbol);
             const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
             const lotSizeFilter = filter.lotSizeFilter;
             pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
-            const order = convertToOrder(pos, trader._acc.limit);
+            const order = convertToOrder(pos, trader._acc.limit, price);
             if (order !== null) {
                 order.leverage = pos.leverage;
                 let response = await trader.createOrder(order);
@@ -248,7 +251,7 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
                     bot.enabled = false;
                     return;
                 }
-                order.price = await trader.getMarkPrice(order.symbol);
+                order.price = price;
                 convertAndSendBot(order, trader._acc.botChat, "Open");
             }
         }
