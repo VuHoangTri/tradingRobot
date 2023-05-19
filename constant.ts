@@ -73,6 +73,7 @@ export const accounts: Account[] = [
         botChat: "https://hooks.slack.com/services/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",
         index: 2,
         limit: true,
+        tP: true,
     }
     //vF1sLJWGHRxUEz5GDE 'CRYDWOZBKFVRRTDOHN'
     //qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP MLVUFLNGJEBAOYOYXDJGMZPCDGNREQZTMMJS true

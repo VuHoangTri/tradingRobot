@@ -40,6 +40,7 @@ export interface Order {
     qty: string;
     timeInForce: 'GoodTillCancel' | 'ImmediateOrCancel' | 'FillOrKill' | 'PostOnly';
     leverage?: string;
+    takeProfit?: number;
 }
 
 export interface BatchOrders {
@@ -73,6 +74,7 @@ export interface Account {
     botChat: string;
     index: number;
     limit: boolean;
+    tP: boolean;
 }
 
 export interface BinanceTrader {
