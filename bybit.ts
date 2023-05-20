@@ -226,6 +226,18 @@ export class BybitAPI {
         return info;
     }
 
+    async getAPIKeyInfor() {
+        const info = await this._clientV5.getQueryApiKey()
+            .then(result => {
+                return result;
+            })
+            .catch(err => {
+                sendNoti(`getAPIKeyInfor error Acc ${this._acc.index}: ${err}`);
+                return undefined;
+            });
+        return info;
+    }
+
     async getMarkPrice(symbol: string): Promise<string> {
         const res = await this._client.getSymbolTicker("linear", symbol)
             .then(res => { return res.result.list[0] })
@@ -265,7 +277,7 @@ export class BybitAPI {
 
 
     async createOrder(order: Order) {
-        const result = await this._client.submitOrder(order)
+        const result = await this._clientV5.submitOrder(order)
             // client.postPrivate('/unified/v3/private/order/create', order)
             .then(res => { return res })
             .catch(err => {

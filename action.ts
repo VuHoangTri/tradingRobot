@@ -126,7 +126,7 @@ export function convertToOrder(pos: Position, limit: boolean, tP: boolean, price
             orderType: 'Market',
             qty: Math.abs(Number(pos.size)).toString(),
             side: newSide,
-            timeInForce: 'GoodTillCancel',
+            timeInForce: 'GTC',//GoodTillCancel',
         };
         if (limit && pos.entry && price) {
             const priceSize = price.replace(/0+$/g, '');
@@ -134,7 +134,7 @@ export function convertToOrder(pos: Position, limit: boolean, tP: boolean, price
             res.orderType = 'Limit';
             res.price = Number(pos.entry).toFixed(decimal).toString();
             if (tP)
-                res.takeProfit = Number((Number(pos.entry) * 1.185).toFixed(decimal));
+                res.takeProfit = (Number(pos.entry) * 1.185).toFixed(decimal);
         }
         // console.log(res);
         return res;
@@ -352,7 +352,7 @@ export function convertAndSendBot(order, botChat: string, action: string) {
         } else {
             icon = 'bear';
         }
-        dataString = "Action: " + action + "\nSymbol: " + order.symbol
+        dataString = "Act: " + action + "\nSym: " + order.symbol
             + "\nEntry: " + order.price + "\nSide: " + order.side + "\nLeverage: "
             + order.leverage + "\nSize: " + order.qty;
         sendChatToBot(icon, dataString, botChat);

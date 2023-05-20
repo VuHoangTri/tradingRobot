@@ -38,9 +38,10 @@ export interface Order {
     side: 'Buy' | 'Sell';
     orderType: 'Market' | 'Limit';
     qty: string;
-    timeInForce: 'GoodTillCancel' | 'ImmediateOrCancel' | 'FillOrKill' | 'PostOnly';
+    timeInForce: 'GTC' | 'IOC' | 'FOK' | 'PostOnly';//'GoodTillCancel' | 'ImmediateOrCancel' | 'FillOrKill' | 'PostOnly';
     leverage?: string;
-    takeProfit?: number;
+    takeProfit?: string;
+    stopLoss?: string;
 }
 
 export interface BatchOrders {

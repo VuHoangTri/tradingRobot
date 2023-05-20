@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { LEVERAGEBYBIT, accounts, nodeFetchProxyArr, proxyArr, traderAPIs } from "./constant"
+import { LEVERAGEBYBIT, accounts, nodeFetchProxyArr, proxyArr, statusLog, testLev, testOrder, traderAPIs } from "./constant"
 import { BybitAPI } from "./bybit";
 import { sendNoti } from "./slack";
 import { actuator, comparePosition } from "./action";
@@ -47,6 +47,25 @@ export async function main() {
       }
       await trader.getAccountByBit();
       trader._exchangeInfo = exchangeInfo || [];
+
+      //################### test unified account
+      // if (trader._acc.index === 2) {
+      //   // console.log(account);
+      //   const apiKeyInfor = await trader.getAPIKeyInfor();
+      //   console.log(apiKeyInfor);
+      //   await trader.adjustLeverage(testLev);
+      //   const price = await trader.getMarkPrice('BTCUSDT');
+      //   const priceSize = price.replace(/0+$/g, '');
+      //   const decimal = priceSize.toString().split('.')[1]?.length ?? 0;
+      //   testOrder.price = price;
+      //   testOrder.takeProfit = (Number(price) * 1.0002).toFixed(decimal).toString();
+      //   testOrder.stopLoss = (Number(price) * 0.9998).toFixed(decimal).toString();
+      //   const response = await trader.createOrder(testOrder);
+      //   console.log(response);
+      //   break;
+      // }
+      //#########################################
+
       const curPos = await trader.getCopyList(true);
       // console.log(curPos);
       if (curPos !== undefined) {
@@ -73,9 +92,8 @@ export async function main() {
         }
         trader._firstGet = false;
         trader._prePos = curPos;
-
-        // console.log(80, trader._prePos);
       }
+      // console.log(80, trader._prePos);
     }
     console.log(new Date());
     sendNoti("Đã chạy");
@@ -106,7 +124,7 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
         trader._prePos = curPos;
       }
       const wallet = await trader.getWalletBalance();
-      // statusLog.info(`Account ${trader._acc.index}`, wallet);
+      statusLog.info(`Account ${trader._acc.index}`, wallet);
     }
     // count++;
     // await new Promise((r) => setTimeout(r, INTERVAL));
