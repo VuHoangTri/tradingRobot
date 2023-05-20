@@ -67,7 +67,7 @@ export const accounts: Account[] = [
         key: 'CWRVJSQQCDGCWRJHHB', //Q85XCeNGI61cKZ0Dwi
         secret: 'QGNSGMUPXQBSAWACQFXLVZDIOQPUMVQJMUCY', //2Ncni8kCkjEaaAdB5m4Bn5zhyXrmvb5hQdrW
         testnet: false,
-        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/1195", //7857
+        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/1195",
         gain: 1225,
         platform: "Wagon",
         nodefetchProxy: [],
@@ -80,7 +80,7 @@ export const accounts: Account[] = [
         key: 'vF1sLJWGHRxUEz5GDE',
         secret: 'qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP',
         testnet: false,
-        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/8453", //7857
+        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/8453",
         gain: 45,
         platform: "Wagon",
         nodefetchProxy: [],

@@ -123,8 +123,8 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
         // console.log(103, trader._acc.index, trader._prePos, curPos);
         trader._prePos = curPos;
       }
-      const wallet = await trader.getWalletBalance();
-      statusLog.info(`Account ${trader._acc.index}`, wallet);
+      // const wallet = await trader.getWalletBalance();
+      // statusLog.info(`Account ${trader._acc.index}`, wallet);
     }
     // count++;
     // await new Promise((r) => setTimeout(r, INTERVAL));
