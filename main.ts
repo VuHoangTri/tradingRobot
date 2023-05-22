@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { LEVERAGEBYBIT, accounts, nodeFetchProxyArr, proxyArr, statusLog, testLev, testOrder, traderAPIs } from "./constant"
+import { INTERVAL, LEVERAGEBYBIT, accounts, nodeFetchProxyArr, proxyArr, statusLog, testLev, testOrder, traderAPIs } from "./constant"
 import { BybitAPI } from "./bybit";
 import { sendNoti } from "./slack";
 import { actuator, comparePosition } from "./action";
@@ -40,6 +40,11 @@ export async function main() {
     accGenAPI();
     const generator = traderGenerator();
     let exchangeInfo;
+
+    // const trader: BybitAPI = generator.next().value;
+    // const wallet = await trader.getWalletBalance();
+    // console.log(wallet);
+
     for (let i = 0; i < traderAPIs.length; i++) {
       const trader: BybitAPI = generator.next().value;
       if (i === 0) {
@@ -123,12 +128,15 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
         // console.log(103, trader._acc.index, trader._prePos, curPos);
         trader._prePos = curPos;
       }
-      // const wallet = await trader.getWalletBalance();
-      // statusLog.info(`Account ${trader._acc.index}`, wallet);
+      const wallet = await trader.getWalletBalance();
+      statusLog.info(`Account ${trader._acc.index}`, wallet);
+      if (trader._platform === 'Wagon') { await new Promise((r) => setTimeout(r, 2000)); }
     }
     // count++;
-    // await new Promise((r) => setTimeout(r, INTERVAL));
-    // statusLog.flush();
+    if (!bot.enabled) {
+      await new Promise((r) => setTimeout(r, INTERVAL));
+    }
+    statusLog.flush();
     await mainExecution(generator);
   } catch (err) {
     sendNoti(`Execution error: ${err}`);
