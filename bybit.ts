@@ -65,7 +65,7 @@ export class BybitAPI {
             // const sT = new Date().getTime();
             if (isProxy)
                 proxy = axiosProxyArr[0];
-                // proxy = { host: 'p.webshare.io', port: 80, auth: { password: '54hwnd9dtyv3', username: 'frawsmba-rotate' }, protocol: 'http' };
+            // proxy = { host: 'p.webshare.io', port: 80, auth: { password: '54hwnd9dtyv3', username: 'frawsmba-rotate' }, protocol: 'http' };
             // console.log(proxy);
             if (this._platform === 'Binance') {
                 this._curPos = await this.getBinanceCopyList(proxy);
@@ -98,8 +98,8 @@ export class BybitAPI {
                 proxy: proxy,
                 headers: { "Content-Type": "application/json" },
                 data: JSON.stringify(this._trader)
-            })
-            const response: any = copyPos;
+            }).then(res => { return res });
+            const response: any = copyPos.data;
             if (response.success === true && response.code === "000000") {
                 const curPosition = convertBinanceFormat(this._gain, response.data.otherPositionRetList);
                 this._tryTimes = 1;
