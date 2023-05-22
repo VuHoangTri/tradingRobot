@@ -3,13 +3,15 @@ import {
     UnifiedMarginClient,
 } from 'bybit-api';
 import { Account, BatchOrders, BinanceTrader, Leverage, Order, Position } from './interface';
-import { BINANCEURL, LEVERAGEBYBIT, nodeFetchProxyArr, traderAPIs } from './constant';
+import { BINANCEURL, LEVERAGEBYBIT, axiosProxyArr, nodeFetchProxyArr, traderAPIs } from './constant';
 import { changeIndexProxy, convertBinanceFormat, convertHotCoinFormat, convertMEXCFormat, convertWagonFormat } from './action';
 import { sendNoti } from './slack';
 import _ from 'lodash';
-import { RequestInit } from "node-fetch";
-import fetch from "node-fetch";
+// import { RequestInit } from "node-fetch";
+// import fetch from "node-fetch";
 import { HttpsProxyAgent } from 'hpagent';
+import axios, { AxiosProxyConfig } from 'axios';
+import bodyParser from 'body-parser';
 
 export class BybitAPI {
     _client: UnifiedMarginClient = new UnifiedMarginClient;
@@ -55,18 +57,21 @@ export class BybitAPI {
             // { proxy: this._acc.axiosProxy ? this._acc.axiosProxy[randomNumber] : undefined }
         );
     }
-    async getCopyList(proxy: boolean) {
+    async getCopyList(isProxy: boolean) {
         try {
-            let proxyAgent: undefined | HttpsProxyAgent;
+            let proxy: undefined | AxiosProxyConfig;
             changeIndexProxy();
+
             // const sT = new Date().getTime();
-            if (proxy)
-                proxyAgent = new HttpsProxyAgent({ proxy: this._acc.nodefetchProxy[0] });
+            if (isProxy)
+                proxy = axiosProxyArr[0];
+                // proxy = { host: 'p.webshare.io', port: 80, auth: { password: '54hwnd9dtyv3', username: 'frawsmba-rotate' }, protocol: 'http' };
+            // console.log(proxy);
             if (this._platform === 'Binance') {
-                this._curPos = await this.getBinanceCopyList(proxyAgent);
+                this._curPos = await this.getBinanceCopyList(proxy);
             }
             else {
-                this._curPos = await this.getOtherCopyList(proxyAgent);
+                this._curPos = await this.getOtherCopyList(proxy);
             }
             // console.log("Bybit 63", new Date().getTime() - sT);
             return this._curPos;
@@ -76,19 +81,25 @@ export class BybitAPI {
         }
     }
 
-    async getBinanceCopyList(proxyAgent?: HttpsProxyAgent) {
+    async getBinanceCopyList(proxy?: AxiosProxyConfig) {
         try {
-            const requestOptions: RequestInit = {
-                method: 'POST',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                redirect: "follow",
-                body: JSON.stringify(this._trader),
-                agent: proxyAgent,
-            };
-            const copyPos = await fetch(BINANCEURL, requestOptions);
-            const response: any = await copyPos.json();
+            // const requestOptions: RequestInit = {
+            //     method: 'POST',
+            //     headers: {
+            //         "Content-Type": "application/json",
+            //     },
+            //     redirect: "follow",
+            //     body: JSON.stringify(this._trader),
+            //     agent: proxy,
+            // };
+            const copyPos = await axios({
+                method: 'post',
+                url: BINANCEURL,
+                proxy: proxy,
+                headers: { "Content-Type": "application/json" },
+                data: JSON.stringify(this._trader)
+            })
+            const response: any = copyPos;
             if (response.success === true && response.code === "000000") {
                 const curPosition = convertBinanceFormat(this._gain, response.data.otherPositionRetList);
                 this._tryTimes = 1;
@@ -100,7 +111,7 @@ export class BybitAPI {
             await new Promise((r) => setTimeout(r, 2000));
             this._tryTimes++;
             if (this._tryTimes <= 3) {
-                sendNoti(`Get Binance Error Acc ${this._acc.index}: ${err} ${nodeFetchProxyArr[0]}- Try again: ${this._tryTimes}`);
+                sendNoti(`Get Binance Error Acc ${this._acc.index}: ${err} ${axiosProxyArr[0]}- Try again: ${this._tryTimes}`);
                 await this.getCopyList(true);
             }
             else {
@@ -111,12 +122,14 @@ export class BybitAPI {
         }
     }
 
-    async getOtherCopyList(proxyAgent?: HttpsProxyAgent) {
+    async getOtherCopyList(proxy?: AxiosProxyConfig) {
         try {
-            const copyPos = await fetch(this._trader
-                , { agent: proxyAgent }
-            );
-            const response: any = await copyPos.json();
+            const copyPos = await axios.get(this._trader, { proxy }).then(res => { return res });
+            // console.log(copyPos);
+            // const copyPos = await fetch(this._trader
+            //     , { agent: proxyAgent }
+            // );
+            const response: any = copyPos.data;
             if (this._platform === 'Hotcoin') {
                 if (response.msg === "success" && response.code === 200) {
                     this._tryTimes = 1;
@@ -145,7 +158,7 @@ export class BybitAPI {
             await new Promise((r) => setTimeout(r, 2000));
             this._tryTimes++;
             if (this._tryTimes <= 3) {
-                sendNoti(`Get Other Error Acc ${this._acc.index}: ${err} ${nodeFetchProxyArr[0]} - Try again: ${this._tryTimes}`);
+                sendNoti(`Get Other Error Acc ${this._acc.index}: ${err} ${axiosProxyArr[0]} - Try again: ${this._tryTimes}`);
                 await this.getCopyList(true);
             }
             else {

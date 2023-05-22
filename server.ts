@@ -19,103 +19,154 @@ app.use(
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 app.get("/", (req: Request, res: Response) => {
-  if (bot.enabled)
-    res.send({ status: 'running' })
-  else res.send({ status: 'stoping' })
+  try {
+    if (bot.enabled)
+      res.send({ status: 'running' })
+    else res.send({ status: 'stoping' })
+  }
+  catch (err: any) { res.send({ error: `Check lại đi ${err}` }) }
 });
 
 app.post("/run", async function (req, res) {
-  bot.enabled = true;
-  res.send("Đã chạy");
+  try {
+    bot.enabled = true;
+    res.send("Đã chạy");
+  }
+  catch (err: any) { res.send({ error: `Check lại đi ${err}` }) }
 });
 
 app.post("/stop", async function (req, res) {
-  bot.enabled = false;
-  res.send("Đã dừng");
+  try {
+    bot.enabled = false;
+    res.send("Đã dừng");
+  }
+  catch (err: any) { res.send({ error: `Check lại đi ${err}` }) }
 });
 
 app.post("/getPosMain", async function (req, res) {
-  const response = await traderAPIs[0].getMyPositions();
-  res.send(response?.result.list);
+  try {
+    const response = await traderAPIs[0].getMyPositions();
+    res.send(response?.result.list);
+  }
+  catch (err: any) { res.send({ error: `Check lại đi ${err}` }) }
 })
 app.get("/getPosMain", async function (req, res) {
-  const response = await traderAPIs[0].getMyPositions();
-  res.send(response?.result.list);
+  try {
+    const response = await traderAPIs[0].getMyPositions();
+    res.send(response?.result.list);
+  }
+  catch (err: any) { res.send({ error: `Check lại đi ${err}` }) }
 })
 
 app.post("/getTotalPnlMain", async function (req, res) {
-  const response = await traderAPIs[0].getTotalPnL({});
-  res.send({ pnl: response });
+  try {
+    const response = await traderAPIs[0].getTotalPnL({});
+    res.send({ pnl: response });
+  }
+  catch (err: any) { res.send({ error: `Check lại đi ${err}` }) }
 })
 app.get("/getTotalPnlMain", async function (req, res) {
-  const time = req.query.time;
-  let response: any;
-  if (time)
-    response = await traderAPIs[0].getTotalPnL({ time: Number(time) });
-  else
-    response = await traderAPIs[0].getTotalPnL({});
-  res.send({ pnl: response });
+  try {
+    const time = req.query.time;
+    let response: any;
+    if (time)
+      response = await traderAPIs[0].getTotalPnL({ time: Number(time) });
+    else
+      response = await traderAPIs[0].getTotalPnL({});
+    res.send({ pnl: response });
+  }
+  catch (err: any) { res.send({ error: `Check lại đi ${err}` }) }
 })
 
 app.post("/getTotalPnlMain", async function (req, res) {
-  const response = await traderAPIs[0].getTotalPnL({});
-  res.send({ pnl: response });
+  try {
+    const response = await traderAPIs[0].getTotalPnL({});
+    res.send({ pnl: response });
+  }
+  catch (err: any) { res.send({ error: `Check lại đi ${err}` }) }
 })
 app.post("/getTotalPnlAcc1", async function (req, res) {
-  const response = await traderAPIs[1].getTotalPnL({});
-  res.send({ pnl: response });
+  try {
+    const response = await traderAPIs[1].getTotalPnL({});
+    res.send({ pnl: response });
+  }
+  catch (err: any) { res.send({ error: `Check lại đi ${err}` }) }
 })
 app.post("/getTotalPnlAcc2", async function (req, res) {
-  const response = await traderAPIs[2].getTotalPnL({});
-  res.send({ pnl: response });
+  try {
+    const response = await traderAPIs[2].getTotalPnL({});
+    res.send({ pnl: response });
+  }
+  catch (err: any) { res.send({ error: `Check lại đi ${err}` }) }
 })
 app.post("/getTradeFeeMain", async function (req, res) {
-  const response = await traderAPIs[0].getTotalTradeFee({});
-  res.send({ pnl: response });
+  try {
+    const response = await traderAPIs[0].getTotalTradeFee({});
+    res.send({ pnl: response });
+  }
+  catch (err: any) { res.send({ error: `Check lại đi ${err}` }) }
 })
 
 app.get("/getTotalPnlAcc", async function (req, res) {
-  const time = req.query.time;
-  const index = Number(req.query.acc);
-  let response: any;
-  if (time) {
-    if (index > -1)
-      response = await traderAPIs[index].getTotalPnL({ time: Number(time) });
-    else response = "Please provide index of account you want to see!";
+  try {
+    const time = req.query.time;
+    const index = Number(req.query.acc);
+    let response: any;
+    if (time) {
+      if (index > -1)
+        response = await traderAPIs[index].getTotalPnL({ time: Number(time) });
+      else response = "Please provide index of account you want to see!";
+    }
+    else
+      response = await traderAPIs[index].getTotalPnL({});
+    res.send({ pnl: response });
   }
-  else
-    response = await traderAPIs[index].getTotalPnL({});
-  res.send({ pnl: response });
+  catch (err: any) { res.send({ error: `Check lại đi ${err}` }) }
 })
 
 app.get("/getTradeFeeAcc", async function (req, res) {
-  const time = req.query.time;
-  const index = Number(req.query.acc);
-  let response: any;
-  if (index !== undefined)
-    if (index > -1)
-      response = await traderAPIs[index].getTotalTradeFee({ time: Number(time) });
-    else response = "Please provide index of account you want to see!";
-  else response = await traderAPIs[index].getTotalTradeFee({});
-  res.send({ fee: response });
+  try {
+    const time = req.query.time;
+    const index = Number(req.query.acc);
+    let response: any;
+    if (index !== undefined)
+      if (index > -1)
+        response = await traderAPIs[index].getTotalTradeFee({ time: Number(time) });
+      else response = "Please provide index of account you want to see!";
+    else response = await traderAPIs[index].getTotalTradeFee({});
+    res.send({ fee: response });
+  }
+  catch (err: any) { res.send({ error: `Check lại đi ${err}` }) }
 })
 
 app.post("/getPosSub1", async function (req, res) {
-  const response = await traderAPIs[1].getMyPositions();
-  res.send(response?.result.list);
+  try {
+    const response = await traderAPIs[1].getMyPositions();
+    res.send(response?.result.list);
+  }
+  catch (err: any) { res.send({ error: `Check lại đi ${err}` }) }
 })
 app.get("/getPosSub1", async function (req, res) {
-  const response = await traderAPIs[1].getMyPositions();
-  res.send(response?.result.list);
+  try {
+    const response = await traderAPIs[1].getMyPositions();
+    res.send(response?.result.list);
+  }
+  catch (err: any) { res.send({ error: `Check lại đi ${err}` }) }
 })
 
 app.post("/getPosSub2", async function (req, res) {
-  const response = await traderAPIs[2].getMyPositions();
-  res.send(response?.result.list);
+  try {
+    const response = await traderAPIs[2].getMyPositions();
+    res.send(response?.result.list);
+  }
+  catch (err: any) { res.send({ error: `Check lại đi ${err}` }) }
 })
 app.get("/getPosSub2", async function (req, res) {
-  const response = await traderAPIs[2].getMyPositions();
-  res.send(response?.result.list);
+  try {
+    const response = await traderAPIs[2].getMyPositions();
+    res.send(response?.result.list);
+  }
+  catch (err: any) { res.send({ error: `Check lại đi ${err}` }) }
 })
 
 app.get("/stop", async function (req, res) {

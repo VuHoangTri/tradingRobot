@@ -1,6 +1,7 @@
 import { Account, Order, Position } from "./interface";
 import { BybitAPI } from "./bybit";
 import { Logtail } from "@logtail/node";
+import { Axios, AxiosProxyConfig } from "axios";
 
 export const INTERVAL = 5000;
 export const INTERVALACTION = 500;
@@ -98,7 +99,7 @@ export const proxyArr: string[] = [
     "64.137.75.68:5988:frawsmba:54hwnd9dtyv3",
     "104.239.84.205:6240:frawsmba:54hwnd9dtyv3",
     "45.131.94.3:5990:frawsmba:54hwnd9dtyv3",
-    "95.164.135.162:6695:frawsmba:54hwnd9dtyv3",
+    // "95.164.135.162:6695:frawsmba:54hwnd9dtyv3",
     "45.252.58.203:6832:frawsmba:54hwnd9dtyv3", //new from Sing
     "184.174.58.3:5565:frawsmba:54hwnd9dtyv3",
     "64.137.100.143:5198:frawsmba:54hwnd9dtyv3",
@@ -106,7 +107,7 @@ export const proxyArr: string[] = [
     "104.222.187.102:6226:frawsmba:54hwnd9dtyv3",
     "64.137.66.167:5752:frawsmba:54hwnd9dtyv3",
     "161.123.130.69:5740:frawsmba:54hwnd9dtyv3",
-    // "192.210.132.154:6124:frawsmba:54hwnd9dtyv3",
+    "192.210.132.154:6124:frawsmba:54hwnd9dtyv3",
     "45.252.57.5:6450:frawsmba:54hwnd9dtyv3", // new from Sing
     "45.131.103.77:6063:frawsmba:54hwnd9dtyv3",
     "64.137.60.48:5112:frawsmba:54hwnd9dtyv3",
@@ -155,12 +156,12 @@ export const proxyArr: string[] = [
     "198.46.137.193:6397:frawsmba:54hwnd9dtyv3",
     "45.61.118.186:5883:frawsmba:54hwnd9dtyv3",
     "172.245.158.49:6002:frawsmba:54hwnd9dtyv3",
-    // "45.192.150.125:6308:frawsmba:54hwnd9dtyv3",
+    "45.192.150.125:6308:frawsmba:54hwnd9dtyv3",
     "206.41.168.33:6698:frawsmba:54hwnd9dtyv3",
-    // "103.53.216.159:5243:frawsmba:54hwnd9dtyv3",
+    "103.53.216.159:5243:frawsmba:54hwnd9dtyv3",
     "104.238.14.171:6556:frawsmba:54hwnd9dtyv3",
     "140.99.51.89:8395:frawsmba:54hwnd9dtyv3",
-    // "157.52.174.33:6242:frawsmba:54hwnd9dtyv3",
+    "157.52.174.33:6242:frawsmba:54hwnd9dtyv3",
     "154.85.101.48:5479:frawsmba:54hwnd9dtyv3",
     "154.85.126.18:5025:frawsmba:54hwnd9dtyv3",
     "198.23.214.149:6416:frawsmba:54hwnd9dtyv3",
@@ -168,7 +169,7 @@ export const proxyArr: string[] = [
     "45.131.102.216:5868:frawsmba:54hwnd9dtyv3",
     "192.186.185.41:6600:frawsmba:54hwnd9dtyv3",
     "191.102.158.17:8081:frawsmba:54hwnd9dtyv3",
-    // "184.174.30.184:5853:frawsmba:54hwnd9dtyv3",
+    "184.174.30.184:5853:frawsmba:54hwnd9dtyv3",
     "216.10.27.220:6898:frawsmba:54hwnd9dtyv3",
     "104.143.244.67:6015:frawsmba:54hwnd9dtyv3",
     "161.0.70.25:5614:frawsmba:54hwnd9dtyv3",
@@ -176,7 +177,7 @@ export const proxyArr: string[] = [
     "104.238.49.164:5818:frawsmba:54hwnd9dtyv3",
     "154.92.123.184:5522:frawsmba:54hwnd9dtyv3",
     "161.123.154.152:6682:frawsmba:54hwnd9dtyv3",
-    // "64.137.121.208:6463:frawsmba:54hwnd9dtyv3",
+    "64.137.121.208:6463:frawsmba:54hwnd9dtyv3",
     "104.250.205.40:5787:frawsmba:54hwnd9dtyv3",
     "45.43.189.94:5765:frawsmba:54hwnd9dtyv3",
     "45.61.124.195:6524:frawsmba:54hwnd9dtyv3",
@@ -197,6 +198,8 @@ export const proxyArr: string[] = [
 ]
 
 export const nodeFetchProxyArr: string[] = [];
+
+export const axiosProxyArr: AxiosProxyConfig[] = [];
 
 export const traderAPIs: BybitAPI[] = [];
 

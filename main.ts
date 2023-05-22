@@ -1,9 +1,10 @@
 import _ from 'lodash';
-import { INTERVAL, LEVERAGEBYBIT, accounts, nodeFetchProxyArr, proxyArr, statusLog, testLev, testOrder, traderAPIs } from "./constant"
+import { INTERVAL, LEVERAGEBYBIT, accounts, axiosProxyArr, nodeFetchProxyArr, proxyArr, statusLog, testLev, testOrder, traderAPIs } from "./constant"
 import { BybitAPI } from "./bybit";
 import { sendNoti } from "./slack";
 import { actuator, comparePosition } from "./action";
 import { Position } from './interface';
+import { Axios, AxiosProxyConfig } from 'axios';
 
 
 export let bot: { enabled: boolean } = { enabled: true };
@@ -13,6 +14,12 @@ function generateNodeFetchProxy() {
     const proxyParam = proxy.split(":");
     const proxyStr = `http://${proxyParam[2]}:${proxyParam[3]}@${proxyParam[0]}:${proxyParam[1]}`;
     nodeFetchProxyArr.push(proxyStr);
+    const axiosProxyObject: AxiosProxyConfig = {
+      host: proxyParam[0],
+      port: Number(proxyParam[1]),
+      auth: { username: proxyParam[2], password: proxyParam[3] }, protocol: 'http'
+    }
+    axiosProxyArr.push(axiosProxyObject);
   }
   // console.log(nodeFetchProxyArr.length);
 }
@@ -33,6 +40,14 @@ function* traderGenerator(): Generator<BybitAPI> {
   }
 }
 
+async function walletReport() {
+  for (const trader of traderAPIs) {
+    const wallet = await trader.getWalletBalance();
+    statusLog.info(`Account ${trader._acc.index}`, wallet);
+  }
+  statusLog.flush();
+}
+
 export async function main() {
   try {
     // const sT = new Date().getTime();
@@ -40,7 +55,7 @@ export async function main() {
     accGenAPI();
     const generator = traderGenerator();
     let exchangeInfo;
-
+    setInterval(walletReport, 9000)
     // const trader: BybitAPI = generator.next().value;
     // const wallet = await trader.getWalletBalance();
     // console.log(wallet);
@@ -116,8 +131,7 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
       const trader: BybitAPI = traderGen.value;
       // const sT = new Date().getTime();
       const curPos = await trader.getCopyList(true);
-      // const eT = new Date().getTime() - sT;
-      // console.log(eT, nodeFetchProxyArr[0]);
+
       // if (eT > 3000) console.log(nodeFetchProxyArr[0]);
       // console.log(97, curPos);
       if (curPos !== undefined) {
@@ -128,15 +142,15 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
         // console.log(103, trader._acc.index, trader._prePos, curPos);
         trader._prePos = curPos;
       }
-      const wallet = await trader.getWalletBalance();
-      statusLog.info(`Account ${trader._acc.index}`, wallet);
-      if (trader._platform === 'Wagon') { await new Promise((r) => setTimeout(r, 2000)); }
+
+      // if (trader._platform === 'Wagon') { await new Promise((r) => setTimeout(r, 2000)); }
+      // const eT = new Date().getTime() - sT;
+      // console.log(eT);
     }
     // count++;
     if (!bot.enabled) {
       await new Promise((r) => setTimeout(r, INTERVAL));
     }
-    statusLog.flush();
     await mainExecution(generator);
   } catch (err) {
     sendNoti(`Execution error: ${err}`);

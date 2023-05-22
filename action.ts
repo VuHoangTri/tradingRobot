@@ -1,4 +1,4 @@
-import { LEVERAGEBYBIT, nodeFetchProxyArr } from "./constant";
+import { LEVERAGEBYBIT, axiosProxyArr, nodeFetchProxyArr } from "./constant";
 import { ApiObject, Order, Position } from "./interface";
 import { sendChatToBot, sendNoti } from "./slack";
 import _ from 'lodash';
@@ -7,9 +7,10 @@ import { bot } from "./main";
 
 export function changeIndexProxy() {
     try {
-        const temp = nodeFetchProxyArr.splice(0, 1)[0];
-        // console.log(temp);
-        nodeFetchProxyArr.push(temp);
+        // const temp = nodeFetchProxyArr.splice(0, 1)[0];
+        // nodeFetchProxyArr.push(temp);
+        const temp = axiosProxyArr.splice(0, 1)[0];
+        axiosProxyArr.push(temp);
     }
     catch (err) {
         sendNoti('Change Index Proxy Fail');
