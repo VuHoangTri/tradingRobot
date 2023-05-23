@@ -158,7 +158,7 @@ export class BybitAPI {
             await new Promise((r) => setTimeout(r, 2000));
             this._tryTimes++;
             if (this._tryTimes <= 3) {
-                sendNoti(`Get Other Error Acc ${this._acc.index}: ${err} ${axiosProxyArr[0]} - Try again: ${this._tryTimes}`);
+                sendNoti(`Get Other Error Acc ${this._acc.index}: ${err} ${axiosProxyArr[0].host} - Try again: ${this._tryTimes}`);
                 await this.getCopyList(true);
             }
             else {
