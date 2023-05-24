@@ -14,7 +14,7 @@ export const BINANCEURL = "https://www.binance.com/bapi/futures/v1/public/future
 //     "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=saPU8WuUYBXXebYMgbRDRw%3D%3D",
 //     // "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=O5k95MOucrVPCGiLNW3Xaw%3D%3D",
 //     "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=ezDycLoNFTp3Exq0IQhD1g%3D%3D" 
-//ClmRW9sKnHtPqe2iIuoy3w%3D%3D
+//ClmRW9sKnHtPqe2iIuoy3w%3D%3D 95
 // ]; YSEaUk1iu9%2BrK6f0dMRUzg%3D%3D
 // export const wagonList: string[] = [
 //     // "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/5363",
@@ -51,7 +51,7 @@ export const accounts: Account[] = [
         secret: 'qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP',
         testnet: false,
         trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/8453",
-        gain: 45,
+        gain: 20,
         platform: "Wagon",
         nodefetchProxy: [],
         botChat: "https://hooks.slack.com/services/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",
