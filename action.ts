@@ -135,7 +135,10 @@ export function convertToOrder(pos: Position, limit: boolean, tP: boolean, price
             res.orderType = 'Limit';
             res.price = Number(pos.entry).toFixed(decimal).toString();
             if (tP)
-                res.takeProfit = (Number(pos.entry) * 1.185).toFixed(decimal);
+                if (newSide === 'Buy')
+                    res.takeProfit = (Number(pos.entry) * 1.19).toFixed(decimal);
+                else
+                    res.takeProfit = (Number(pos.entry) * 0.81).toFixed(decimal);
         }
         // console.log(res);
         return res;
