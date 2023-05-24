@@ -68,7 +68,7 @@ export const accounts: Account[] = [
         platform: "Wagon",
         nodefetchProxy: [],
         botChat: "https://hooks.slack.com/services/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",
-        index: 2,
+        index: 3,
         limit: false,
         tP: false,
     },
