@@ -13,8 +13,9 @@ export const BINANCEURL = "https://www.binance.com/bapi/futures/v1/public/future
 //     // "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=4pjjfgTlpIeWNdTARJUWsQ%3D%3D",
 //     "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=saPU8WuUYBXXebYMgbRDRw%3D%3D",
 //     // "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=O5k95MOucrVPCGiLNW3Xaw%3D%3D",
-//     "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=ezDycLoNFTp3Exq0IQhD1g%3D%3D"
-// ];
+//     "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=ezDycLoNFTp3Exq0IQhD1g%3D%3D" 
+//ClmRW9sKnHtPqe2iIuoy3w%3D%3D
+// ]; YSEaUk1iu9%2BrK6f0dMRUzg%3D%3D
 // export const wagonList: string[] = [
 //     // "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/5363",
 //     "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/8303"  // 8303 // 5363 //6429 //9449
@@ -32,38 +33,6 @@ export const hotcoinTrader: string[] = [
 // ]
 
 export const accounts: Account[] = [
-    // {
-    //     key: 'qQ94jsKBk7VJ7yvVsw',
-    //     secret: '1NYC7ffuYcfv2fuW0tv7fc2QczJsQgLrU2Em',
-    //     testnet: false,
-    //     trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/8453",//9752-25",//6824-10",//3841-240",//8303-15", //7952-8 //6824-10 //8453-50 // 9449-9 //8698-1250
-    //     gain: 50,
-    //     platform: "Wagon",
-    //     nodefetchProxy: [],
-    //     botChat: "https://hooks.slack.com/services/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",
-    //     index: 0
-    // },
-    // {
-    //     key: 'QXvZHULCw7Lzjw5eqB',
-    //     secret: '7EZOTNFfLO64tJhNiMt3AzSC64qv2H19ftH1',
-    //     testnet: false,
-    //     trader: "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=52519196", //08527742" //59794315 //15439315 // 69843970 //43810576-650
-    //     gain: 6,
-    //     platform: "Mexc",
-    //     nodefetchProxy: [],
-    //     botChat: "https://hooks.slack.com/services/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",
-    //     index: 1,
-    //     simulation: true,
-    // },
-    // {
-    //   key: 'FUTDWUTKODGDKSWNLV',
-    //   secret: 'OOJVCPQYRIMCWYGQNDBHFTIIZKRGEGZZJFGQ',
-    //   testnet: true,
-    // },         //"https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/7293",// "https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=83129161", // 1500, //"Mexc"
-    // {
-    //     "encryptedUid": "6408AAEEEBF0C76A3D5F0E39C64AAABA",
-    //     "tradeType": "PERPETUAL"
-    // },
     {
         key: 'CWRVJSQQCDGCWRJHHB', //Q85XCeNGI61cKZ0Dwi
         secret: 'QGNSGMUPXQBSAWACQFXLVZDIOQPUMVQJMUCY', //2Ncni8kCkjEaaAdB5m4Bn5zhyXrmvb5hQdrW
@@ -72,7 +41,7 @@ export const accounts: Account[] = [
         gain: 1225,
         platform: "Wagon",
         nodefetchProxy: [],
-        botChat: "https://hooks.slack.com/services/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",
+        botChat: "https://hooks.slack.com/services/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",  
         index: 2,
         limit: false,
         tP: false,
@@ -89,8 +58,21 @@ export const accounts: Account[] = [
         index: 1,
         limit: true,
         tP: true,
-    }
-    //vF1sLJWGHRxUEz5GDE 'CRYDWOZBKFVRRTDOHN'
+    },
+    {
+        key: 'YWRZNGDBAZIUUPONJQ',
+        secret: 'VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO',
+        testnet: false,
+        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/6429",
+        gain: 1500,
+        platform: "Wagon",
+        nodefetchProxy: [],
+        botChat: "https://hooks.slack.com/services/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",
+        index: 2,
+        limit: false,
+        tP: false,
+    },
+    //vF1sLJWGHRxUEz5GDE 'CRYDWOZBKFVRRTDOHN' YWRZNGDBAZIUUPONJQ VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO
     //qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP MLVUFLNGJEBAOYOYXDJGMZPCDGNREQZTMMJS true
 ];
 
