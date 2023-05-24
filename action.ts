@@ -238,7 +238,7 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
             const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
             const lotSizeFilter = filter.lotSizeFilter;
             pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
-            const order = convertToOrder(pos, trader._acc.limit, trader._acc.tP, price);
+            const order = convertToOrder(pos, trader._acc.limit, false, price);
             if (order !== null) {
                 order.leverage = pos.leverage;
                 let response = await trader.createOrder(order);
