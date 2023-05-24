@@ -134,16 +134,15 @@ export function convertToOrder(pos: Position, limit: boolean, tP: boolean, price
             const decimal = priceSize.toString().split('.')[1]?.length ?? 0;
             res.orderType = 'Limit';
             res.price = Number(pos.entry).toFixed(decimal).toString();
-            if (tP)
-                if (newSide === 'Buy')
-                    res.takeProfit = (Number(pos.entry) * 1.19).toFixed(decimal);
-                else
-                    res.takeProfit = (Number(pos.entry) * 0.81).toFixed(decimal);
+            if (tP) {
+                const profitPercent = (newSide === 'Buy' ? 1 : -1) * 0.19;
+                res.takeProfit = (Number(pos.entry) * (1 + profitPercent)).toFixed(decimal);
+            }
         }
         // console.log(res);
         return res;
     } catch (err: any) {
-        sendNoti(err);
+        sendNoti(`Convert to order error ${err}`);
         return null;
     }
 }
@@ -253,7 +252,7 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
                     count++;
                 }
                 if (count >= 3) {
-                    sendNoti(`Open ${order.symbol} acc ${trader._acc.index}: Error ${response?.retMsg}`);
+                    sendNoti(`Open ${order.symbol} acc ${trader._acc.index}: Error ${response?.retMsg} \n Stop bot trading: please check and restart!`);
                     bot.enabled = false;
                     return;
                 }
