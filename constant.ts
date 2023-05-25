@@ -34,19 +34,6 @@ export const hotcoinTrader: string[] = [
 
 export const accounts: Account[] = [
     {
-        key: 'CWRVJSQQCDGCWRJHHB', //Q85XCeNGI61cKZ0Dwi
-        secret: 'QGNSGMUPXQBSAWACQFXLVZDIOQPUMVQJMUCY', //2Ncni8kCkjEaaAdB5m4Bn5zhyXrmvb5hQdrW
-        testnet: false,
-        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/1195",
-        gain: 1225,
-        platform: "Wagon",
-        nodefetchProxy: [],
-        botChat: "https://hooks.slack.com/services/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",  
-        index: 2,
-        limit: false,
-        tP: false,
-    },
-    {
         key: 'vF1sLJWGHRxUEz5GDE',
         secret: 'qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP',
         testnet: false,
@@ -58,6 +45,21 @@ export const accounts: Account[] = [
         index: 1,
         limit: true,
         tP: true,
+        fixAmount: false,
+    },
+    {
+        key: 'CWRVJSQQCDGCWRJHHB', //Q85XCeNGI61cKZ0Dwi
+        secret: 'QGNSGMUPXQBSAWACQFXLVZDIOQPUMVQJMUCY', //2Ncni8kCkjEaaAdB5m4Bn5zhyXrmvb5hQdrW
+        testnet: false,
+        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/1195",
+        gain: 1225,
+        platform: "Wagon",
+        nodefetchProxy: [],
+        botChat: "https://hooks.slack.com/services/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",  
+        index: 2,
+        limit: false,
+        tP: false,
+        fixAmount: false,
     },
     {
         key: 'YWRZNGDBAZIUUPONJQ',
@@ -71,6 +73,7 @@ export const accounts: Account[] = [
         index: 3,
         limit: false,
         tP: false,
+        fixAmount: false,
     },
     //vF1sLJWGHRxUEz5GDE 'CRYDWOZBKFVRRTDOHN' YWRZNGDBAZIUUPONJQ VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO
     //qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP MLVUFLNGJEBAOYOYXDJGMZPCDGNREQZTMMJS true

@@ -319,9 +319,11 @@ export class BybitAPI {
 
     async setLeverage(leverage: Leverage) {
         // const { category, symbol, buyLeverage, sellLeverage } = leverage
-        const result = await this._client
+        const result = await this._clientV5
+            .setLeverage(leverage)
             // .setLeverage(category, symbol, Number(buyLeverage), Number(sellLeverage))
-            .postPrivate('unified/v3/private/position/set-leverage', leverage)
+
+            // .postPrivate('unified/v3/private/position/set-leverage', leverage)
             .then(res => { return res })
             .catch(err => {
                 sendNoti(`Set Leverage error Acc ${this._acc.index}: ${err}`);

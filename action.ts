@@ -243,6 +243,8 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
             const order = convertToOrder(pos, trader._acc.limit, false, price);
             if (order !== null) {
                 order.leverage = pos.leverage;
+                if (trader._acc.fixAmount)
+                    order.qty = (Number(order.leverage) * 1).toFixed(0).toString();
                 let response = await trader.createOrder(order);
                 let count = 1;
                 while (response?.retCode !== 0 && count < 3) {
@@ -308,7 +310,9 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
                     const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
                     if (filter !== undefined) {
                         const filterSize = filter.lotSizeFilter;
-                        const percent = Number(curPos.size) / Number(prePos.size);
+                        let percent = Number(curPos.size) / Number(prePos.size);
+                        if (trader._acc.fixAmount)
+                            percent = percent > 1.2 ? 1.2 : percent;
                         const newPos: Position = {
                             symbol: pos.symbol,
                             size: (Number(pos.size) * percent - Number(pos.size)).toString(),
