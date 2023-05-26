@@ -240,7 +240,7 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
             const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
             const lotSizeFilter = filter.lotSizeFilter;
             if (trader._acc.fixAmount)
-                pos.size = (Number(pos.leverage) / Number(price)).toString();
+                pos.size = (Number(pos.leverage) / Number(pos.entry)).toString();
             pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
             const order = convertToOrder(pos, trader._acc.limit, false, price);
             if (order !== null) {
@@ -258,7 +258,7 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
                     bot.enabled = false;
                     return;
                 }
-                order.price = price;
+                order.price = pos.entry;
                 convertAndSendBot(order, trader._acc.botChat, "Open");
             }
         }
@@ -300,10 +300,10 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
 
 export async function adjustPosition(position: Position[], trader: BybitAPI) {
     try {
-        const orders: any = [];
         if (trader._curPos !== undefined) {
             let action = "";
             for await (const pos of position) {
+                const price = await trader.getMarkPrice(pos.symbol);
                 const prePos = trader._prePos.find(c => c.symbol === pos.symbol);
                 const curPos = trader._curPos.find(c => c.symbol === pos.symbol);
                 if (prePos && curPos) {
@@ -311,8 +311,8 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
                     if (filter !== undefined) {
                         const filterSize = filter.lotSizeFilter;
                         let percent = Number(curPos.size) / Number(prePos.size);
-                        if (trader._acc.fixAmount)
-                            percent = percent > 1.2 ? 1.2 : percent;
+                        if (trader._acc.limitPercent)
+                            percent = percent > 1.5 ? 1.5 : percent;
                         const newPos: Position = {
                             symbol: pos.symbol,
                             size: (Number(pos.size) * percent - Number(pos.size)).toString(),
@@ -321,7 +321,7 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
                         if (Number(newPos.size) * Number(pos.size) > 0) action = "DCA"
                         else action = "Take PNL";
                         newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
-                        const order = convertToOrder(newPos, trader._acc.limit, false);
+                        const order = convertToOrder(newPos, trader._acc.limit, false, price);
                         if (order !== null) {
                             order.leverage = newPos.leverage;
                             let response = await trader.createOrder(order);
@@ -337,7 +337,7 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
                                 bot.enabled = false;
                                 return;
                             }
-                            order.price = await trader.getMarkPrice(order.symbol);
+                            order.price = price;
                             convertAndSendBot(order, trader._acc.botChat, action);
                         }
                     }

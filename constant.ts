@@ -45,7 +45,8 @@ export const accounts: Account[] = [
         index: 1,
         limit: true,
         tP: true,
-        fixAmount: false,
+        fixAmount: true,
+        limitPercent: false,
     },
     {
         key: 'CWRVJSQQCDGCWRJHHB', //Q85XCeNGI61cKZ0Dwi
@@ -60,6 +61,7 @@ export const accounts: Account[] = [
         limit: false,
         tP: false,
         fixAmount: false,
+        limitPercent: false,
     },
     {
         key: 'YWRZNGDBAZIUUPONJQ',
@@ -74,6 +76,7 @@ export const accounts: Account[] = [
         limit: false,
         tP: false,
         fixAmount: false,
+        limitPercent: false,
     },
     //vF1sLJWGHRxUEz5GDE 'CRYDWOZBKFVRRTDOHN' YWRZNGDBAZIUUPONJQ VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO
     //qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP MLVUFLNGJEBAOYOYXDJGMZPCDGNREQZTMMJS true

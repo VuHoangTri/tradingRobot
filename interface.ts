@@ -77,6 +77,7 @@ export interface Account {
     limit: boolean;
     tP: boolean;
     fixAmount: boolean;
+    limitPercent: boolean;
 }
 
 export interface BinanceTrader {
