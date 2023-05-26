@@ -239,12 +239,12 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
             const price = await trader.getMarkPrice(pos.symbol);
             const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
             const lotSizeFilter = filter.lotSizeFilter;
+            if (trader._acc.fixAmount)
+                pos.size = (Number(pos.leverage) / Number(price)).toString();
             pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
             const order = convertToOrder(pos, trader._acc.limit, false, price);
             if (order !== null) {
                 order.leverage = pos.leverage;
-                if (trader._acc.fixAmount)
-                    order.qty = (Number(order.leverage) * 1).toFixed(0).toString();
                 let response = await trader.createOrder(order);
                 let count = 1;
                 while (response?.retCode !== 0 && count < 3) {
@@ -321,7 +321,7 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
                         if (Number(newPos.size) * Number(pos.size) > 0) action = "DCA"
                         else action = "Take PNL";
                         newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
-                        const order = convertToOrder(newPos, false, false);
+                        const order = convertToOrder(newPos, trader._acc.limit, false);
                         if (order !== null) {
                             order.leverage = newPos.leverage;
                             let response = await trader.createOrder(order);
