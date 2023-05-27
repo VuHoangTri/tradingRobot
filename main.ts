@@ -103,8 +103,8 @@ export async function main() {
         // console.log(diffPos);
         const firstDiff: { openPos: Position[], closePos: Position[], adjustPos: Position[] } = {
           openPos: diffPos.openPos
-            ,
-            // .filter(pos => pos.pnl ? pos.pnl < 0 : false),
+            //,
+            .filter(pos => pos.pnl ? pos.pnl < 0 : false),
           closePos: diffPos.closePos,
           adjustPos: []
         }

@@ -129,7 +129,7 @@ export function convertToOrder(pos: Position, limit: boolean, tP: boolean, price
             side: newSide,
             timeInForce: 'GTC',//GoodTillCancel',
         };
-        if (limit && pos.entry && price) {
+        if (limit && price) {
             const priceSize = price.replace(/0+$/g, '');
             const decimal = priceSize.toString().split('.')[1]?.length ?? 0;
             res.orderType = 'Limit';
@@ -319,7 +319,6 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
         if (trader._curPos !== undefined) {
             let action = "";
             for await (const pos of position) {
-                const price = await trader.getMarkPrice(pos.symbol);
                 const prePos = trader._prePos.find(c => c.symbol === pos.symbol);
                 const curPos = trader._curPos.find(c => c.symbol === pos.symbol);
                 if (prePos && curPos) {
@@ -334,10 +333,17 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
                             size: (Number(pos.size) * percent - Number(pos.size)).toString(),
                             leverage: pos.leverage
                         }
-                        if (Number(newPos.size) * Number(pos.size) > 0) action = "DCA"
+                        if (Number(newPos.size) * Number(pos.size) > 0) {
+                            const diff_qty = Number(curPos.size) - Number(prePos.size);
+                            const curValue = Number(curPos.size) * Number(curPos.entry);
+                            const preValue = Number(prePos.size) * Number(prePos.entry);
+                            const diff_entry = (Math.abs(curValue - preValue) / diff_qty).toString();
+                            newPos.entry = diff_entry;
+                            action = "DCA";
+                        }
                         else action = "Take PNL";
                         newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
-                        const order = convertToOrder(newPos, trader._acc.limit, false, price);
+                        const order = convertToOrder(newPos, trader._acc.limit, false, newPos.entry);
                         if (order !== null) {
                             order.leverage = newPos.leverage;
                             let response = await trader.createOrder(order);
@@ -353,7 +359,7 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
                                 bot.enabled = false;
                                 return;
                             }
-                            order.price = price;
+                            order.price = newPos.entry;
                             convertAndSendBot(order, trader._acc.botChat, action);
                         }
                     }
