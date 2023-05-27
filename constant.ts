@@ -37,7 +37,7 @@ export const accounts: Account[] = [
         key: 'vF1sLJWGHRxUEz5GDE',
         secret: 'qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP',
         testnet: false,
-        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/8453",
+        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/8766",
         gain: 20,
         platform: "Wagon",
         nodefetchProxy: [],
