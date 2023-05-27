@@ -59,7 +59,7 @@ export async function main() {
     // const trader: BybitAPI = generator.next().value;
     // const wallet = await trader.getWalletBalance();
     // console.log(wallet);
-
+    // console.log()
     for (let i = 0; i < traderAPIs.length; i++) {
       const trader: BybitAPI = generator.next().value;
       if (i === 0) {
@@ -90,6 +90,7 @@ export async function main() {
       // console.log(curPos);
       if (curPos !== undefined) {
         const position = await trader.getMyPositions();
+        // console.log(position);
         // const position = { result: { list: [] } };
         if (position) {
           const myPos = position.result;
@@ -102,8 +103,8 @@ export async function main() {
         // console.log(diffPos);
         const firstDiff: { openPos: Position[], closePos: Position[], adjustPos: Position[] } = {
           openPos: diffPos.openPos
-            // ,
-            .filter(pos => pos.pnl ? pos.pnl < 0 : false),
+            ,
+            // .filter(pos => pos.pnl ? pos.pnl < 0 : false),
           closePos: diffPos.closePos,
           adjustPos: []
         }
