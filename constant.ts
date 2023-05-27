@@ -24,7 +24,7 @@ export const binanceTrader: { encryptedUid: string; tradeType: string }[] = [
 
 ]; // 227087068C057B808A83125C8E586BB8 "6408AAEEEBF0C76A3D5F0E39C64AAABA" "8FE17CCE0A3EA996ED7D8B538419C826" "EF6C3AABCBE82294A607E8C94633F082"  "8FE17CCE0A3EA996ED7D8B538419C826",
 export const hotcoinTrader: string[] = [
-    // "https://gw.hcglb.com/swap/v1/perpetual/follows/public/trader/currentLead?traderUid=7100137&platform=1&client=1&deviceId=&versionCode=3.0.1&lang=en_US"
+    // "https:///wg.flentr.com/swap/v1/perpetual/follows/public/trader/currentLead?traderUid=7100137&platform=1&client=1&deviceId=&versionCode=3.0.1&lang=en_US"
 ];
 
 // export const mexcTrader: string[] = [
@@ -75,7 +75,7 @@ export const accounts: Account[] = [
         index: 3,
         limit: false,
         tP: false,
-        fixAmount: false,
+        fixAmount: true,
         limitPercent: false,
     },
     //vF1sLJWGHRxUEz5GDE 'CRYDWOZBKFVRRTDOHN' YWRZNGDBAZIUUPONJQ VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO

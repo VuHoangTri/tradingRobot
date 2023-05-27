@@ -270,7 +270,9 @@ export class BybitAPI {
                 sendNoti(`Get wallet Balance error Acc ${this._acc.index}: ${err}`);
                 return undefined;
             });
-        return { init: res.totalWalletBalance, unPnL: res.totalPerpUPL };
+        if (res)
+            return { init: res.totalWalletBalance, unPnL: res.totalPerpUPL };
+        return undefined
     }
 
     async getMyPositions() {
