@@ -49,14 +49,14 @@ export const accounts: Account[] = [
         limitPercent: false,
     },
     {
-        key: 'CWRVJSQQCDGCWRJHHB', //Q85XCeNGI61cKZ0Dwi
-        secret: 'QGNSGMUPXQBSAWACQFXLVZDIOQPUMVQJMUCY', //2Ncni8kCkjEaaAdB5m4Bn5zhyXrmvb5hQdrW
+        key: 'CWRVJSQQCDGCWRJHHB',
+        secret: 'QGNSGMUPXQBSAWACQFXLVZDIOQPUMVQJMUCY', //
         testnet: false,
         trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/1195",
         gain: 1225,
         platform: "Wagon",
         nodefetchProxy: [],
-        botChat: "https://hooks.slack.com/services/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",  
+        botChat: "https://hooks.slack.com/services/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",
         index: 2,
         limit: false,
         tP: false,
@@ -64,8 +64,8 @@ export const accounts: Account[] = [
         limitPercent: false,
     },
     {
-        key: 'YWRZNGDBAZIUUPONJQ',
-        secret: 'VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO',
+        key: 'Q85XCeNGI61cKZ0Dwi',//'YWRZNGDBAZIUUPONJQ',
+        secret: '2Ncni8kCkjEaaAdB5m4Bn5zhyXrmvb5hQdrW',//'VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO',
         testnet: false,
         trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/6429",
         gain: 2000,
@@ -198,7 +198,7 @@ export const statusLog = new Logtail(sourceToken);
 export const testLev: Position[] = [
     {
         symbol: 'ETHUSDT',
-        leverage: '500',
+        leverage: '300',
         size: '0',
     }
 ]

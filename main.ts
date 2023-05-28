@@ -69,7 +69,7 @@ export async function main() {
       trader._exchangeInfo = exchangeInfo || [];
 
       //################### test unified account
-      // if (trader._acc.index === 2) {
+      // if (trader._acc.index === 3) {
       //   // console.log(account);
       //   const apiKeyInfor = await trader.getAPIKeyInfor();
       //   console.log(apiKeyInfor);
@@ -114,7 +114,7 @@ export async function main() {
         trader._firstGet = false;
         trader._prePos = curPos;
       }
-      // console.log(80, trader._prePos);
+      console.log(80, trader._prePos);
     }
     console.log(new Date());
     sendNoti("Đã chạy");
