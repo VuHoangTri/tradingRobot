@@ -73,7 +73,7 @@ export const accounts: Account[] = [
         nodefetchProxy: [],
         botChat: "https://hooks.slack.com/services/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",
         index: 3,
-        limit: false,
+        limit: true,
         tP: false,
         fixAmount: false,
         limitPercent: false,
