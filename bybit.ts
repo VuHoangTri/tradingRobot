@@ -25,6 +25,7 @@ export class BybitAPI {
     _exchangeInfo: any = [];
     _acc: Account;
     _tryTimes: number;
+    _isRun: boolean;
     constructor(acc: Account) {
         this._acc = acc;
         this._client = new UnifiedMarginClient(
@@ -44,6 +45,7 @@ export class BybitAPI {
         });
         this._platform = acc.platform;
         this._tryTimes = 1;
+        this._isRun = true;
     }
 
     initial() {

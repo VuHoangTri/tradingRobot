@@ -130,30 +130,32 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
     if (bot.enabled) {
       const traderGen = generator.next();
       const trader: BybitAPI = traderGen.value;
-      // const sT = new Date().getTime();
-      const curPos = await trader.getCopyList(true);
+      if (trader._isRun) {
+        // const sT = new Date().getTime();
+        const curPos = await trader.getCopyList(true);
 
-      // if (eT > 3000) console.log(nodeFetchProxyArr[0]);
-      // console.log(97, curPos);
-      if (curPos !== undefined) {
-        const diffPos = comparePosition({ firstGet: trader._firstGet, curPos: trader._curPos, prePos: trader._prePos });
-        if (diffPos) {
-          await actuator(diffPos, trader);
+        // if (eT > 3000) console.log(nodeFetchProxyArr[0]);
+        // console.log(97, curPos);
+        if (curPos !== undefined) {
+          const diffPos = comparePosition({ firstGet: trader._firstGet, curPos: trader._curPos, prePos: trader._prePos });
+          if (diffPos) {
+            await actuator(diffPos, trader);
+          }
+          // console.log(103, trader._acc.index, trader._prePos, curPos);
+          trader._prePos = curPos;
         }
-        // console.log(103, trader._acc.index, trader._prePos, curPos);
-        trader._prePos = curPos;
+        if (trader._acc.index === 1 && trader._prePos.length === 0) {
+          const index = traderAPIs.findIndex(c => c._acc.index === trader._acc.index);
+          traderAPIs.splice(index, 1);
+        }
+        // if (trader._platform === 'Wagon') { await new Promise((r) => setTimeout(r, 2000)); }
+        // const eT = new Date().getTime() - sT;
+        // console.log(eT);
       }
-      if (trader._acc.index === 1 && trader._prePos.length === 0) {
-        const index = traderAPIs.findIndex(c => c._acc.index === trader._acc.index);
-        traderAPIs.splice(index, 1);
+      // count++;
+      if (!bot.enabled) {
+        await new Promise((r) => setTimeout(r, INTERVAL));
       }
-      // if (trader._platform === 'Wagon') { await new Promise((r) => setTimeout(r, 2000)); }
-      // const eT = new Date().getTime() - sT;
-      // console.log(eT);
-    }
-    // count++;
-    if (!bot.enabled) {
-      await new Promise((r) => setTimeout(r, INTERVAL));
     }
     await mainExecution(generator);
   } catch (err) {
