@@ -114,14 +114,15 @@ export async function main() {
         trader._firstGet = false;
         trader._prePos = curPos;
       }
-      console.log(80, trader._prePos);
+      // console.log(80, trader._prePos);
     }
     console.log(new Date());
     sendNoti("Đã chạy");
-    mainExecution(generator);
+    await mainExecution(generator);
   } catch (err) {
     sendNoti(`Main error: ${err}`);
-    await new Promise((r) => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, INTERVAL));
+    await main();
   }
 }
 
