@@ -145,10 +145,10 @@ export async function mainExecution(generator: Generator<BybitAPI>) {
           // console.log(103, trader._acc.index, trader._prePos, curPos);
           trader._prePos = curPos;
         }
-        if (trader._acc.index === 1 && trader._prePos.length === 0) {
-          const index = traderAPIs.findIndex(c => c._acc.index === trader._acc.index);
-          traderAPIs.splice(index, 1);
-        }
+        // if (trader._acc.index === 1 && trader._prePos.length === 0) {
+        //   const index = traderAPIs.findIndex(c => c._acc.index === trader._acc.index);
+        //   traderAPIs.splice(index, 1);
+        // }
         // if (trader._platform === 'Wagon') { await new Promise((r) => setTimeout(r, 2000)); }
         // const eT = new Date().getTime() - sT;
         // console.log(eT);
