@@ -134,6 +134,7 @@ export function convertToOrder(pos: Position, limit: boolean, tP: boolean, price
             const decimal = priceSize.toString().split('.')[1]?.length ?? 0;
             res.orderType = 'Limit';
             res.price = Number(pos.entry).toFixed(decimal).toString();
+            sendNoti(`${pos.symbol}, ${res.price}, ${price}`);
             if (tP) {
                 const profitPercent = (newSide === 'Buy' ? 1 : -1) * 0.19;
                 res.takeProfit = (Number(pos.entry) * (1 + profitPercent)).toFixed(decimal);
