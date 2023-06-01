@@ -41,7 +41,7 @@ export const accounts: Account[] = [
         gain: 20,
         platform: "Wagon",
         nodefetchProxy: [],
-        botChat: "https://hooks.slack.com/services/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",
+        botChat: "https://hooks.slack.com/services/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", //main
         index: 1,
         limit: true,
         tP: false,
@@ -56,7 +56,7 @@ export const accounts: Account[] = [
         gain: 3090,
         platform: "Wagon",
         nodefetchProxy: [],
-        botChat: "https://hooks.slack.com/services/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",
+        botChat: "https://hooks.slack.com/services/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", //sub1
         index: 2,
         limit: true,
         tP: false,
@@ -68,10 +68,10 @@ export const accounts: Account[] = [
         secret: '2Ncni8kCkjEaaAdB5m4Bn5zhyXrmvb5hQdrW',//'VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO',
         testnet: false,
         trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/6429",
-        gain: 4300,
+        gain: 3980,
         platform: "Wagon",
         nodefetchProxy: [],
-        botChat: "https://hooks.slack.com/services/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",
+        botChat: "https://hooks.slack.com/services/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", //sub2
         index: 3,
         limit: true,
         tP: false,
