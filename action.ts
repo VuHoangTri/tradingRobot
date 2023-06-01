@@ -225,7 +225,7 @@ export async function actuator(diffPos: { openPos: Position[], closePos: Positio
                         adjustPos.some(cP => cP.symbol === pP.symbol)
                     ) || [];
                     if (adjustMyPost.length > 0)
-                        await adjustPosition(adjustMyPost, trader);
+                        await adjustedPosition(adjustMyPost, trader);
                 }
             }
         }
@@ -315,7 +315,7 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
     }
 }
 
-export async function adjustPosition(position: Position[], trader: BybitAPI) {
+export async function adjustedPosition(position: Position[], trader: BybitAPI) {
     try {
         if (trader._curPos !== undefined) {
             let action = "";
@@ -334,6 +334,7 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
                             size: (Number(pos.size) * percent - Number(pos.size)).toString(),
                             leverage: pos.leverage
                         }
+                        const price = await trader.getMarkPrice(newPos.symbol);
                         if (Number(newPos.size) * Number(pos.size) > 0) {
                             const diff_qty = Number(curPos.size) - Number(prePos.size);
                             const curValue = Number(curPos.size) * Number(curPos.entry);
@@ -344,7 +345,7 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
                         }
                         else action = "Take PNL";
                         newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
-                        const order = convertToOrder(newPos, trader._acc.limit, false, newPos.entry);
+                        const order = convertToOrder(newPos, trader._acc.limit, false, price);
                         if (order !== null) {
                             order.leverage = newPos.leverage;
                             let response = await trader.createOrder(order);
