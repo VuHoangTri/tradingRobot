@@ -334,10 +334,10 @@ export async function adjustPosition(position: Position[], trader: BybitAPI) {
                             leverage: pos.leverage
                         }
                         if (Number(newPos.size) * Number(pos.size) > 0) {
-                            const diff_qty = Math.abs(Number(curPos.size) - Number(prePos.size));
+                            const diff_qty = Number(curPos.size) - Number(prePos.size);
                             const curValue = Number(curPos.size) * Number(curPos.entry);
                             const preValue = Number(prePos.size) * Number(prePos.entry);
-                            const diff_entry = (Math.abs(curValue - preValue) / diff_qty).toString();
+                            const diff_entry = Math.abs((curValue - preValue) / diff_qty).toString();
                             newPos.entry = diff_entry;
                             action = "DCA";
                         }
