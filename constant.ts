@@ -47,7 +47,6 @@ export const accounts: Account[] = [
         trader: "8766",
         gain: 20,
         platform: "Wagon",
-        // botChat: "https://hooks.slack.com/services/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", //main
         index: 1,
         limit: true,
         tP: false,
@@ -62,7 +61,6 @@ export const accounts: Account[] = [
         trader: "?limit=10&orderListType=CONTRACT&uid=69843970",
         gain: 210,
         platform: "Mexc",
-        // botChat: "https://hooks.slack.com/services/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", //sub2
         index: 2,
         limit: true,
         tP: false,
@@ -77,7 +75,6 @@ export const accounts: Account[] = [
         trader: "1195",
         gain: 4078,
         platform: "Wagon",
-        // botChat: "https://hooks.slack.com/services/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", //sub1
         index: 3,
         limit: true,
         tP: false,
@@ -92,7 +89,6 @@ export const accounts: Account[] = [
         trader: "6429",
         gain: 3980,
         platform: "Wagon",
-        // botChat: "https://hooks.slack.com/services/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", //sub2
         index: 4,
         limit: true,
         tP: false,
