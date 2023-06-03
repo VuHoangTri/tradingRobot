@@ -124,11 +124,11 @@ export const accounts: Account[] = [
 ];
 
 export const proxyArr: string[] = [
-    // "94.131.58.65:6321:frawsmba:54hwnd9dtyv3",
+    "94.131.58.65:6321:frawsmba:54hwnd9dtyv3",
     "64.137.75.68:5988:frawsmba:54hwnd9dtyv3",
     "104.239.84.205:6240:frawsmba:54hwnd9dtyv3",
     "45.131.94.3:5990:frawsmba:54hwnd9dtyv3",
-    // "95.164.135.162:6695:frawsmba:54hwnd9dtyv3",
+    "95.164.135.162:6695:frawsmba:54hwnd9dtyv3",
     "45.252.58.203:6832:frawsmba:54hwnd9dtyv3", //new from Sing
     "184.174.58.3:5565:frawsmba:54hwnd9dtyv3",
     "64.137.100.143:5198:frawsmba:54hwnd9dtyv3",
@@ -204,7 +204,7 @@ export const proxyArr: string[] = [
     "161.0.70.25:5614:frawsmba:54hwnd9dtyv3",
     "64.137.49.158:6699:frawsmba:54hwnd9dtyv3",
     "104.238.49.164:5818:frawsmba:54hwnd9dtyv3",
-    "154.92.123.184:5522:frawsmba:54hwnd9dtyv3",
+    // "154.92.123.184:5522:frawsmba:54hwnd9dtyv3",
     "161.123.154.152:6682:frawsmba:54hwnd9dtyv3",
     "64.137.121.208:6463:frawsmba:54hwnd9dtyv3",
     "104.250.205.40:5787:frawsmba:54hwnd9dtyv3",
@@ -219,7 +219,7 @@ export const proxyArr: string[] = [
     "64.137.77.128:5563:frawsmba:54hwnd9dtyv3",
     "107.172.156.165:5813:frawsmba:54hwnd9dtyv3",
     "216.173.108.21:6636:frawsmba:54hwnd9dtyv3",
-    "45.61.124.159:6488:frawsmba:54hwnd9dtyv3",
+    // "45.61.124.159:6488:frawsmba:54hwnd9dtyv3",
     "37.35.41.164:8510:frawsmba:54hwnd9dtyv3",
     "104.239.106.6:5651:frawsmba:54hwnd9dtyv3",
     "23.236.216.232:6262:frawsmba:54hwnd9dtyv3",
