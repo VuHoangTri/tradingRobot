@@ -116,9 +116,9 @@ export async function main() {
       }
       // console.log(80, trader._prePos);
     }
-    // console.log(new Date());
-    // sendNoti("Đã chạy");
-    // await mainExecution(generator);
+    console.log(new Date());
+    sendNoti("Đã chạy");
+    await mainExecution(generator);
   } catch (err) {
     sendNoti(`Main error: ${err}`);
     await new Promise((r) => setTimeout(r, INTERVAL));
