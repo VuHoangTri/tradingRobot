@@ -71,13 +71,13 @@ export interface Account {
     trader: string | BinanceTrader;
     gain: number;
     platform: string;
-    nodefetchProxy: string[];
-    botChat: string;
+    // botChat: string;
     index: number;
     limit: boolean;
     tP: boolean;
     fixAmount: boolean;
     limitPercent: boolean;
+    url: string;
 }
 
 export interface BinanceTrader {

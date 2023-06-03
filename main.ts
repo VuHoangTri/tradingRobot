@@ -26,7 +26,7 @@ function generateNodeFetchProxy() {
 
 function accGenAPI() {
   for (const account of accounts) {
-    account.nodefetchProxy = nodeFetchProxyArr;
+    // account.nodefetchProxy = nodeFetchProxyArr;
     const initAccount = new BybitAPI(account);
     traderAPIs.push(initAccount);
   }

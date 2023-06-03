@@ -2,16 +2,14 @@ import {
     RestClientV5,
     UnifiedMarginClient,
 } from 'bybit-api';
-import { Account, BatchOrders, BinanceTrader, Leverage, Order, Position } from './interface';
-import { BINANCEURL, LEVERAGEBYBIT, axiosProxyArr, nodeFetchProxyArr, traderAPIs } from './constant';
+import { Account, Leverage, Order, Position } from './interface';
+import { INTERVAL, LEVERAGEBYBIT, axiosProxyArr } from './constant';
 import { changeIndexProxy, convertBinanceFormat, convertHotCoinFormat, convertMEXCFormat, convertWagonFormat } from './action';
 import { sendNoti } from './slack';
 import _ from 'lodash';
 // import { RequestInit } from "node-fetch";
 // import fetch from "node-fetch";
-import { HttpsProxyAgent } from 'hpagent';
 import axios, { AxiosProxyConfig } from 'axios';
-import bodyParser from 'body-parser';
 
 export class BybitAPI {
     _client: UnifiedMarginClient = new UnifiedMarginClient;
@@ -67,13 +65,11 @@ export class BybitAPI {
             // const sT = new Date().getTime();
             if (isProxy)
                 proxy = axiosProxyArr[0];
-            // proxy = { host: 'p.webshare.io', port: 80, auth: { password: '54hwnd9dtyv3', username: 'frawsmba-rotate' }, protocol: 'http' };
-            // console.log(proxy);
             if (this._platform === 'Binance') {
-                this._curPos = await this.getBinanceCopyList(proxy);
+                this._curPos = await this.fetchCopy('post', proxy);
             }
             else {
-                this._curPos = await this.getOtherCopyList(proxy);
+                this._curPos = await this.fetchCopy('get', proxy);
             }
             // console.log("Bybit 63", new Date().getTime() - sT);
             return this._curPos;
@@ -83,88 +79,77 @@ export class BybitAPI {
         }
     }
 
-    async getBinanceCopyList(proxy?: AxiosProxyConfig) {
+    async fetchCopy(action: string, proxy?: AxiosProxyConfig) {
         try {
-            // const requestOptions: RequestInit = {
-            //     method: 'POST',
-            //     headers: {
-            //         "Content-Type": "application/json",
-            //     },
-            //     redirect: "follow",
-            //     body: JSON.stringify(this._trader),
-            //     agent: proxy,
-            // };
-            const copyPos = await axios({
-                method: 'post',
-                url: BINANCEURL,
-                proxy: proxy,
-                headers: { "Content-Type": "application/json" },
-                data: JSON.stringify(this._trader)
-            }).then(res => { return res });
+            let copyPos: any;
+            if (action === 'get')
+                copyPos = await axios.get(
+                    `${this._acc.url}${this._acc.trader}`, { proxy })
+                    .then(res => { return res })
+            // .catch(res => { console.log(res) });
+            else
+                copyPos = await axios({
+                    method: 'post',
+                    url: this._acc.url,
+                    proxy: proxy,
+                    headers: { "Content-Type": "application/json" },
+                    data: JSON.stringify(this._acc.trader)
+                }).then(res => { return res })
             const response: any = copyPos.data;
-            if (response.success === true && response.code === "000000") {
-                const curPosition = convertBinanceFormat(this._gain, response.data.otherPositionRetList);
-                this._tryTimes = 1;
-                return curPosition;
-            }
-            return undefined;
-        }
-        catch (err) {
-            await new Promise((r) => setTimeout(r, 2000));
-            this._tryTimes++;
-            if (this._tryTimes <= 3) {
-                sendNoti(`Get Binance Error Acc ${this._acc.index}: ${err} ${axiosProxyArr[0]}- Try again: ${this._tryTimes}`);
-                await this.getCopyList(true);
-            }
-            else {
-                sendNoti(`Get Binance Error Acc ${this._acc.index}: ${err} - Try again with non-proxy`);
-                await this.getCopyList(false);
-            }
-            return undefined;
-        }
-    }
-
-    async getOtherCopyList(proxy?: AxiosProxyConfig) {
-        try {
-            const copyPos = await axios.get(this._trader, { proxy }).then(res => { return res });
-            // console.log(copyPos);
-            // const copyPos = await fetch(this._trader
-            //     , { agent: proxyAgent }
-            // );
-            const response: any = copyPos.data;
-            if (this._platform === 'Hotcoin') {
-                if (response.msg === "success" && response.code === 200) {
-                    this._tryTimes = 1;
-                    return convertHotCoinFormat(this._exchangeInfo, this._gain, response.data);
-                }
-            }
-            else if (this._platform === 'Mexc') {
-                await new Promise((r) => setTimeout(r, 500));
-                if (response.success === true && response.code === 0) {
-                    const markPrice: number[] = [];
-                    for (const item of response.data.content) {
-                        markPrice.push(Number(await this.getMarkPrice(item.symbol.split('_').join(''))))
+            // console.log(98, this._acc.index, this._acc.platform, response);
+            switch (this._acc.platform) {
+                case 'Hotcoin':
+                    if (response.msg === "success" && response.code === 200) {
+                        this._tryTimes = 1;
+                        return convertHotCoinFormat(this._exchangeInfo, this._gain, response.data);
                     }
-                    this._tryTimes = 1;
-                    return convertMEXCFormat(markPrice, this._gain, response.data.content);
+                    break;
+                case 'Mexc':
+                    if (response.success === true && response.code === 0) {
+                        const markPrice: number[] = [];
+                        for (const item of response.data.content) {
+                            const mexcSym = item.symbol.split('_').join('');
+                            const symbol = this._exchangeInfo.find(c => c.symbol.includes(mexcSym)).symbol;
+                            item.symbol = symbol;
+                            // console.log(mexcSym,symbol);
+                            markPrice.push(Number(await this.getMarkPrice(symbol)));
+                        }
+                        this._tryTimes = 1;
+                        return convertMEXCFormat(markPrice, response.data.content);
+                    }
+                    break;
+                case 'Wagon':
+                    if (response.success === true && response.code === "000000") {
+                        this._tryTimes = 1;
+                        return convertWagonFormat(this._gain, response.data);
+                    }
+                    break;
+                case 'Binance': {
+                    if (response.success === true && response.code === "000000") {
+                        const position = response.data.otherPositionRetList;
+                        for (const pos of position) {
+                            pos.price = await this.getMarkPrice(pos.symbol);
+                        }
+                        // console.log(position);
+                        const curPosition = convertBinanceFormat(position);
+                        this._tryTimes = 1;
+                        return curPosition;
+                    }
+                    break;
                 }
-            } else {
-                if (response.success === true && response.code === "000000") {
-                    this._tryTimes = 1;
-                    return convertWagonFormat(this._gain, response.data);
-                }
+                default: return undefined
             }
             return undefined;
         }
         catch (err) {
-            await new Promise((r) => setTimeout(r, 2000));
+            await new Promise((r) => setTimeout(r, INTERVAL));
             this._tryTimes++;
             if (this._tryTimes <= 3) {
-                sendNoti(`Get Other Error Acc ${this._acc.index}: ${err} ${axiosProxyArr[0].host} - Try again: ${this._tryTimes}`);
+                sendNoti(`Get Copy Error Acc ${this._acc.index}: ${err} ${axiosProxyArr[0].host} - Try again: ${this._tryTimes}`);
                 await this.getCopyList(true);
             }
             else {
-                sendNoti(`Get Other Error Acc ${this._acc.index}: ${err} - Try again with non-proxy`);
+                sendNoti(`Get Copy Error Acc ${this._acc.index}: ${err} - Try again with non-proxy`);
                 await this.getCopyList(false);
             }
             return undefined;
@@ -200,33 +185,6 @@ export class BybitAPI {
             sendNoti(`Adjust leverage Err Acc ${this._acc.index}: ${err}`);
         }
     }
-
-    // async openBatchOrders(batchOrders: BatchOrders, action: string) {
-    //     try {
-    //         if (batchOrders.request.length > 0) {
-    //             for (let i = 0; i < batchOrders.request.length; i += 9) {
-    //                 const chunkBatchOrders: BatchOrders = _.cloneDeep(batchOrders);
-    //                 chunkBatchOrders.request = chunkBatchOrders.request.slice(i, i + 9);
-    //                 const resCreate: any = await this.submitBatchOrders(chunkBatchOrders);
-    //                 // console.log(resCreate, resCreate.result.list, resCreate.retExtInfo.list);
-    //                 if (resCreate) {
-    //                     if (resCreate.retCode === 0) {
-    //                         for (let i = 0; i < resCreate.result.list.length; i++) {
-    //                             if (resCreate.result.list[i].orderId !== '') {
-    //                                 const order = batchOrders.request[i];
-    //                                 order.price = await this.getMarkPrice(order.symbol);
-    //                                 convertAndSendBot(order, this._acc.botChat, action);
-    //                             }
-    //                         }
-    //                     }
-    //                     else sendNoti(`Submit Batch Err At Open Acc  ${this._acc.index}: ${resCreate.retMsg}`);
-    //                 }
-    //             }
-    //         }
-    //     } catch (err: any) {
-    //         sendNoti(`Open batch order error Acc ${this._acc.index}: ${err}`);
-    //     }
-    // }
 
     async getAccountByBit() {
         const info = await this._client.getPrivate('/unified/v3/private/account/info')
@@ -301,33 +259,14 @@ export class BybitAPI {
                 sendNoti(`Create Order Error Acc ${this._acc.index}: ${err}`);
                 return undefined;
             });
-        // const result = await client.postPrivate('/unified/v3/private/order/create', newOrder);
         return result;
 
     }
-
-    // async submitBatchOrders(batchOrders: BatchOrders) {
-    //     try {
-    //         const result = this._client.batchSubmitOrders('linear', batchOrders.request)
-    //             // const result = await client.postPrivate('/unified/v3/private/order/create-batch', batchOrders)
-    //             .then(res => { return res })
-    //             .catch(err => {
-    //                 sendNoti(`Submit Batch Order error Acc ${this._acc.index}: ${err}`);
-    //                 return undefined;
-    //             });
-    //         return result;
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // }
 
     async setLeverage(leverage: Leverage) {
         // const { category, symbol, buyLeverage, sellLeverage } = leverage
         const result = await this._clientV5
             .setLeverage(leverage)
-            // .setLeverage(category, symbol, Number(buyLeverage), Number(sellLeverage))
-
-            // .postPrivate('unified/v3/private/position/set-leverage', leverage)
             .then(res => { return res })
             .catch(err => {
                 sendNoti(`Set Leverage error Acc ${this._acc.index}: ${err}`);

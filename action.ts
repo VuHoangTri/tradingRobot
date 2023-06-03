@@ -1,9 +1,8 @@
-import { LEVERAGEBYBIT, axiosProxyArr, nodeFetchProxyArr } from "./constant";
+import { LEVERAGEBYBIT, axiosProxyArr } from "./constant";
 import { ApiObject, Order, Position } from "./interface";
 import { sendChatToBot, sendNoti } from "./slack";
 import _ from 'lodash';
 import { BybitAPI } from "./bybit";
-import { bot } from "./main";
 
 export function changeIndexProxy() {
     try {
@@ -55,14 +54,15 @@ export function convertWagonFormat(gain: number, position: any[]) {
 }
 
 
-export function convertBinanceFormat(gain, position: any[]) {
+export function convertBinanceFormat(position: any[]) {
     try {
         const res: Position[] = position.map(pos => {
             return {
                 symbol: pos.symbol,
-                size: (Number(pos.amount) / gain).toFixed(3).toString(),
+                size: (Number(pos.amount)).toFixed(3).toString(),
                 leverage: (pos.leverage * LEVERAGEBYBIT).toString(),
                 pnl: pos.pnl,
+                entry: pos.price
             }
         });
         return res;
@@ -73,7 +73,7 @@ export function convertBinanceFormat(gain, position: any[]) {
     }
 }
 
-export function convertMEXCFormat(markPrice: number[], gain: number, position: any[]) {
+export function convertMEXCFormat(markPrice: number[], position: any[]) {
     try {
         const res: Position[] = position.map((pos, index) => {
             const price = markPrice[index];
@@ -82,9 +82,10 @@ export function convertMEXCFormat(markPrice: number[], gain: number, position: a
             const unPNL = (price - entry) * sideConverter;
             return {
                 symbol: pos.symbol.split('_').join(''),
-                size: (sideConverter * (Number(pos.amount) / gain)).toFixed(3).toString(),
+                size: (sideConverter * (Number(pos.amount))).toFixed(3).toString(),
                 leverage: (pos.leverage * LEVERAGEBYBIT).toString(),
-                pnl: unPNL
+                pnl: unPNL,
+                entry: price.toString(),
             }
         });
         return res;
@@ -253,11 +254,6 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
                         break;
                 }
             }
-            // console.log(pos.symbol)
-            // if (pos.symbol === 'BTCUSDT')
-            //     pos.size = '0.001';
-            // else
-            //     pos.size = (((Number(pos.size) < 0 ? -1 : 1) * (Number(pos.leverage)) / Number(pos.entry))).toString();
             pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
             const order = convertToOrder(pos, trader._acc.limit, trader._acc.tP, price);
             if (order !== null) {
@@ -271,12 +267,12 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
                     count++;
                 }
                 if (count >= 3) {
-                    sendNoti(`Open ${order.symbol} acc ${trader._acc.index}: Error ${response?.retMsg} \n Stop bot trading: please check and restart!`);
+                    sendNoti(`Open ${order.symbol} acc ${trader._acc.index}: Error ${response?.retMsg} \n Stop trader: please check and restart!`);
                     trader._isRun = false;
                     return;
                 }
                 order.price = pos.entry;
-                convertAndSendBot(order, trader._acc.botChat, "Open");
+                convertAndSendBot(trader._acc.index, order, "Open");
             }
         }
     }
@@ -300,12 +296,12 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
                     count++;
                 }
                 if (count >= 3) {
-                    sendNoti(`Close ${order.symbol} acc ${trader._acc.index}: Error ${response?.retMsg}`);
+                    sendNoti(`Close ${order.symbol} acc ${trader._acc.index}: Error ${response?.retMsg} \n Stop trader: please check and restart!`);
                     trader._isRun = false;
                     return;
                 }
-                order.price = await trader.getMarkPrice(order.symbol);
-                convertAndSendBot(order, trader._acc.botChat, "Close");
+                const price = await trader.getMarkPrice(order.symbol);
+                convertAndSendBot(trader._acc.index, order, "Close", price);
             }
 
         }
@@ -328,7 +324,7 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
                         const filterSize = filter.lotSizeFilter;
                         let percent = Number(curPos.size) / Number(prePos.size);
                         if (trader._acc.limitPercent)
-                            percent = percent > 1.5 ? 1.5 : percent;
+                            percent = percent > 1.3 ? 1.3 : percent;
                         const newPos: Position = {
                             symbol: pos.symbol,
                             size: (Number(pos.size) * percent - Number(pos.size)).toString(),
@@ -357,12 +353,12 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
                                 count++;
                             }
                             if (count >= 3) {
-                                sendNoti(`Adjust ${order.symbol} acc ${trader._acc.index}: Error ${response?.retMsg}`);
+                                sendNoti(`Adjust ${order.symbol} acc ${trader._acc.index}: Error ${response?.retMsg} \n Stop trader: please check and restart!`);
                                 trader._isRun = false;
                                 return;
                             }
                             order.price = newPos.entry;
-                            convertAndSendBot(order, trader._acc.botChat, action);
+                            convertAndSendBot(trader._acc.index, order, action, price);
                         }
                     }
                 }
@@ -374,19 +370,15 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
     }
 }
 
-export function convertAndSendBot(order, botChat: string, action: string) {
+export function convertAndSendBot(index, order, action: string, markPrice?: string) {
     try {
         let dataString = '';
-        let icon = '';
-        if (order.side === 'Buy') {
-            icon = 'bull';
-        } else {
-            icon = 'bear';
+        dataString = "Account" + index + "," + action + "," + order.symbol + "," + order.price + "," + order.side + "," + (Number(order.leverage) / LEVERAGEBYBIT) + "," + order.qty;
+        if (markPrice && (action === "Close" || action === "Take PNL")) {
+            const pnl = (order.side === "Sell" ? 1 : -1) * (Number(markPrice) - Number(order.price)) * order.size;
+            dataString += "," + pnl;
         }
-        dataString = "Act: " + action + "\nSym: " + order.symbol
-            + "\nEntry: " + order.price + "\nSide: " + order.side + "\nLeverage: "
-            + order.leverage + "\nSize: " + order.qty;
-        sendChatToBot(icon, dataString, botChat);
+        sendChatToBot(dataString);
     } catch (err: any) {
         sendNoti(`Send chatbot error: ${err}`)
     }

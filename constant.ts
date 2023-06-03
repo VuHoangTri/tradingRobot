@@ -7,7 +7,17 @@ export const INTERVAL = 5000;
 export const INTERVALACTION = 500;
 export const SIZEBYBIT = 100000000;
 export const LEVERAGEBYBIT = 100;
-export const BINANCEURL = "https://www.binance.com/bapi/futures/v1/public/future/leaderboard/getOtherPosition";
+const BINANCEURL = "https://www.binance.com/bapi/futures/v1/public/future/leaderboard/getOtherPosition";
+const BTCEXURL = "https://api.btcex.com/api/v1/public/copy/currentPositionsList";
+const OKXURL = "https://www.okx.com/priapi/v5/ecotrade/public/position-summary";
+const GATEURL = "https://www.gate.io/api/copytrade/copy_trading/trader/position";
+const HOTCOINURL = "https://wg.flentr.com/swap/v1/perpetual/follows/public/trader/currentLead";
+const MEXCURL = "https://futures.mexc.com/copyFutures/api/v1/trader/orders";
+const BYBITURL = "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list";
+const XTURL = "https://www.xt.com/fapi/trade/v1/public/copy-trade/leader-order-page";
+const HOUBIURL = "https://www.huobi.com/futures/api/-/x/hbg/v1/copytrading/trader/open-unmatch-orders";
+const WAGONURL = "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/";
+
 // export const bybitTrader: string[] = [
 //     "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=dzzffk%2B%2FqGvNboYCRvY38Q%3D%3D", // remove
 //     // "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=4pjjfgTlpIeWNdTARJUWsQ%3D%3D",
@@ -20,12 +30,9 @@ export const BINANCEURL = "https://www.binance.com/bapi/futures/v1/public/future
 //     // "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/5363",
 //     "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/8303"  // 8303 // 5363 //6429 //9449
 // ];
-export const binanceTrader: { encryptedUid: string; tradeType: string }[] = [
 
-]; // 227087068C057B808A83125C8E586BB8 "6408AAEEEBF0C76A3D5F0E39C64AAABA" "8FE17CCE0A3EA996ED7D8B538419C826" "EF6C3AABCBE82294A607E8C94633F082"  "8FE17CCE0A3EA996ED7D8B538419C826",
-export const hotcoinTrader: string[] = [
-    // "https:///wg.flentr.com/swap/v1/perpetual/follows/public/trader/currentLead?traderUid=7100137&platform=1&client=1&deviceId=&versionCode=3.0.1&lang=en_US"
-];
+// 227087068C057B808A83125C8E586BB8 "6408AAEEEBF0C76A3D5F0E39C64AAABA" "8FE17CCE0A3EA996ED7D8B538419C826" "EF6C3AABCBE82294A607E8C94633F082"  "8FE17CCE0A3EA996ED7D8B538419C826",
+// "https:///wg.flentr.com/swap/v1/perpetual/follows/public/trader/currentLead?traderUid=7100137&platform=1&client=1&deviceId=&versionCode=3.0.1&lang=en_US"
 
 // export const mexcTrader: string[] = [
 //     'https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=83129161'
@@ -37,48 +44,64 @@ export const accounts: Account[] = [
         key: 'vF1sLJWGHRxUEz5GDE',
         secret: 'qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP',
         testnet: false,
-        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/8766",
+        trader: "8766",
         gain: 20,
         platform: "Wagon",
-        nodefetchProxy: [],
-        botChat: "https://hooks.slack.com/services/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", //main
+        // botChat: "https://hooks.slack.com/services/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", //main
         index: 1,
         limit: true,
         tP: false,
         fixAmount: false,
         limitPercent: false,
+        url: WAGONURL
     },
     {
-        key: 'CWRVJSQQCDGCWRJHHB',
-        secret: 'QGNSGMUPXQBSAWACQFXLVZDIOQPUMVQJMUCY', //
+        key: 'WKPVGIPENYCOFPKGUY', //GreyAcc2
+        secret: 'VVPEMIKQUWLDUCHXGFBYVQTFEEVTLJDYSBXZ',
         testnet: false,
-        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/1195",
-        gain: 3090,
-        platform: "Wagon",
-        nodefetchProxy: [],
-        botChat: "https://hooks.slack.com/services/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", //sub1
+        trader: "?limit=10&orderListType=CONTRACT&uid=69843970",
+        gain: 210,
+        platform: "Mexc",
+        // botChat: "https://hooks.slack.com/services/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", //sub2
         index: 2,
         limit: true,
         tP: false,
-        fixAmount: false,
-        limitPercent: false,
+        fixAmount: true,
+        limitPercent: true,
+        url: MEXCURL
     },
     {
-        key: 'Q85XCeNGI61cKZ0Dwi',//'YWRZNGDBAZIUUPONJQ',
-        secret: '2Ncni8kCkjEaaAdB5m4Bn5zhyXrmvb5hQdrW',//'VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO',
+        key: 'CWRVJSQQCDGCWRJHHB',  //GreyNguyen1
+        secret: 'QGNSGMUPXQBSAWACQFXLVZDIOQPUMVQJMUCY', //
         testnet: false,
-        trader: "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/6429",
-        gain: 3980,
+        trader: "1195",
+        gain: 4078,
         platform: "Wagon",
-        nodefetchProxy: [],
-        botChat: "https://hooks.slack.com/services/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", //sub2
+        // botChat: "https://hooks.slack.com/services/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", //sub1
         index: 3,
         limit: true,
         tP: false,
         fixAmount: false,
         limitPercent: false,
+        url: WAGONURL
     },
-    //vF1sLJWGHRxUEz5GDE 'CRYDWOZBKFVRRTDOHN' YWRZNGDBAZIUUPONJQ VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO
+    {
+        key: 'Q85XCeNGI61cKZ0Dwi',//'YWRZNGDBAZIUUPONJQ',
+        secret: '2Ncni8kCkjEaaAdB5m4Bn5zhyXrmvb5hQdrW',//'VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO',
+        testnet: false,
+        trader: "6429",
+        gain: 3980,
+        platform: "Wagon",
+        // botChat: "https://hooks.slack.com/services/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", //sub2
+        index: 4,
+        limit: true,
+        tP: false,
+        fixAmount: false,
+        limitPercent: false,
+        url: WAGONURL
+    },
+
+    //vF1sLJWGHRxUEz5GDE 'CRYDWOZBKFVRRTDOHN' YWRZNGDBAZIUUPONJQ VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO //WKPVGIPENYCOFPKGUY VVPEMIKQUWLDUCHXGFBYVQTFEEVTLJDYSBXZ
     //qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP MLVUFLNGJEBAOYOYXDJGMZPCDGNREQZTMMJS true
 ];
 
