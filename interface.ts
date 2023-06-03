@@ -67,11 +67,9 @@ export interface Leverage {
 export interface Account {
     key: string;
     secret: string;
-    testnet: boolean;
     trader: string | BinanceTrader;
     gain: number;
     platform: string;
-    // botChat: string;
     index: number;
     limit: boolean;
     tP: boolean;

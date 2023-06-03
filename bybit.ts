@@ -4,7 +4,7 @@ import {
 } from 'bybit-api';
 import { Account, Leverage, Order, Position } from './interface';
 import { INTERVAL, LEVERAGEBYBIT, axiosProxyArr } from './constant';
-import { changeIndexProxy, convertBinanceFormat, convertHotCoinFormat, convertMEXCFormat, convertWagonFormat } from './action';
+import { changeIndexProxy, convertBinanceFormat, convertByBitFormat, convertHotCoinFormat, convertMEXCFormat, convertWagonFormat } from './action';
 import { sendNoti } from './slack';
 import _ from 'lodash';
 // import { RequestInit } from "node-fetch";
@@ -30,7 +30,7 @@ export class BybitAPI {
             {
                 key: this._acc.key,
                 secret: this._acc.secret,
-                testnet: this._acc.testnet,
+                testnet: false,
             },
         );
         // this.initial();
@@ -39,7 +39,7 @@ export class BybitAPI {
         this._clientV5 = new RestClientV5({
             key: acc.key,
             secret: acc.secret,
-            testnet: acc.testnet
+            testnet: false
         });
         this._platform = acc.platform;
         this._tryTimes = 1;
@@ -52,7 +52,7 @@ export class BybitAPI {
             {
                 key: this._acc.key,
                 secret: this._acc.secret,
-                testnet: this._acc.testnet,
+                testnet: false,
             },
             // { proxy: this._acc.axiosProxy ? this._acc.axiosProxy[randomNumber] : undefined }
         );
@@ -101,7 +101,7 @@ export class BybitAPI {
                 case 'Hotcoin':
                     if (response.msg === "success" && response.code === 200) {
                         this._tryTimes = 1;
-                        return convertHotCoinFormat(this._exchangeInfo, this._gain, response.data);
+                        return convertHotCoinFormat(this._exchangeInfo, response.data);
                     }
                     break;
                 case 'Mexc':
@@ -122,6 +122,17 @@ export class BybitAPI {
                     if (response.success === true && response.code === "000000") {
                         this._tryTimes = 1;
                         return convertWagonFormat(this._gain, response.data);
+                    }
+                    break;
+                case 'Bybit':
+                    // console.log(response);
+                    if (response.retMsg === "success" && response.retCode === 0) {
+                        const markPrice: number[] = [];
+                        for (const item of response.result.data) {
+                            markPrice.push(Number(await this.getMarkPrice(item.symbol)));
+                        }
+                        this._tryTimes = 1;
+                        return convertByBitFormat(markPrice, response.result.data);
                     }
                     break;
                 case 'Binance': {

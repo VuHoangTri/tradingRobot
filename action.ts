@@ -1,4 +1,4 @@
-import { LEVERAGEBYBIT, axiosProxyArr } from "./constant";
+import { LEVERAGEBYBIT, SIZEBYBIT, axiosProxyArr } from "./constant";
 import { ApiObject, Order, Position } from "./interface";
 import { sendChatToBot, sendNoti } from "./slack";
 import _ from 'lodash';
@@ -16,14 +16,18 @@ export function changeIndexProxy() {
     }
 }
 
-export function convertByBitFormat(position: ApiObject[]) {
+export function convertByBitFormat(markPrice: number[], position: ApiObject[]) {
     try {
-        const res: Position[] = position.map(pos => {
+        const res: Position[] = position.map((pos, index) => {
+            const sideConverter = pos.side === "Sell" ? -1 : 1;
+            const unPNL = (markPrice[index] - Number(pos.entryPrice)) * sideConverter;
             return {
                 symbol: pos.symbol,
                 side: pos.side,
-                size: pos.sizeX,
-                leverage: pos.leverageE2
+                size: (Number(pos.sizeX) * sideConverter / SIZEBYBIT).toString(),
+                leverage: pos.leverageE2,
+                entry: pos.entryPrice,
+                pnl: unPNL
             }
         });
         return res;
@@ -61,7 +65,7 @@ export function convertBinanceFormat(position: any[]) {
                 symbol: pos.symbol,
                 size: (Number(pos.amount)).toFixed(3).toString(),
                 leverage: (pos.leverage * LEVERAGEBYBIT).toString(),
-                pnl: pos.pnl,
+                pnl: Number(pos.pnl),
                 entry: pos.price
             }
         });
@@ -96,19 +100,21 @@ export function convertMEXCFormat(markPrice: number[], position: any[]) {
     }
 }
 
-export function convertHotCoinFormat(exchangeInfo, gain: number, position: any[]) {
+export function convertHotCoinFormat(exchangeInfo, position: any[]) {
     try {
         const res: Position[] = position.map(pos => {
             const filter = exchangeInfo.find(exch => exch.symbol === pos.contractCodeDisplayName);
             const sideConverter = pos.side === "short" ? -1 : 1;
-            const size = (((Number(pos.openMargin) * pos.lever / Number(pos.price)) / gain) * sideConverter);
+            const size = (((Number(pos.amount) * Number(pos.unitAmount))) * sideConverter);
             pos.size = pos.lever > filter.leverageFilter.maxLeverage
                 ? (size * (Number(pos.lever) / Number(filter.leverageFilter.maxLeverage))).toString()
                 : size
             return {
                 symbol: pos.contractCodeDisplayName,
                 size: Number(pos.size).toFixed(3).toString(),
-                leverage: (pos.lever * LEVERAGEBYBIT).toString()
+                leverage: (pos.lever * LEVERAGEBYBIT).toString(),
+                entry: pos.price,
+                pnl: Number(pos.unRealizedSurplus),
             }
         });
         return res;
@@ -135,7 +141,7 @@ export function convertToOrder(pos: Position, limit: boolean, tP: boolean, price
             const decimal = priceSize.toString().split('.')[1]?.length ?? 0;
             res.orderType = 'Limit';
             res.price = Number(pos.entry).toFixed(decimal).toString();
-            sendNoti(`${pos.symbol}, ${res.price}, ${price}`);
+            // console.log(`${pos.symbol}, ${res.price}, ${price}`);
             if (tP) {
                 const profitPercent = (newSide === 'Buy' ? 1 : -1) * 0.19;
                 res.takeProfit = (Number(pos.entry) * (1 + profitPercent)).toFixed(decimal);
@@ -244,7 +250,8 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
             if (trader._acc.fixAmount) {
                 switch (pos.symbol) {
                     case 'BTCUSDT':
-                        pos.size = '0.001';
+                        const size = (((Number(pos.size) < 0 ? -1 : 1) * (Number(pos.leverage) / LEVERAGEBYBIT) / Number(pos.entry)));
+                        pos.size = size > 0.001 ? size.toString() : '0.001';
                         break;
                     case 'ETHUSDT':
                         pos.size = '0.01'
@@ -256,6 +263,7 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
             }
             pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
             const order = convertToOrder(pos, trader._acc.limit, trader._acc.tP, price);
+            // console.log(pos, order)
             if (order !== null) {
                 order.leverage = pos.leverage;
                 let response = await trader.createOrder(order);

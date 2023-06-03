@@ -87,7 +87,7 @@ export async function main() {
       //#########################################
 
       const curPos = await trader.getCopyList(true);
-      // console.log(curPos);
+      // console.log(trader._acc.index, curPos);
       if (curPos !== undefined) {
         const position = await trader.getMyPositions();
         // console.log(position);
@@ -100,7 +100,7 @@ export async function main() {
         }
         // console.log(trader._prePos);
         const diffPos = comparePosition({ firstGet: trader._firstGet, curPos: trader._curPos, prePos: trader._prePos });
-        // console.log(diffPos);
+        // console.log(trader._acc.index, diffPos);
         const firstDiff: { openPos: Position[], closePos: Position[], adjustPos: Position[] } = {
           openPos: diffPos.openPos
             //,
@@ -116,9 +116,9 @@ export async function main() {
       }
       // console.log(80, trader._prePos);
     }
-    console.log(new Date());
-    sendNoti("Đã chạy");
-    await mainExecution(generator);
+    // console.log(new Date());
+    // sendNoti("Đã chạy");
+    // await mainExecution(generator);
   } catch (err) {
     sendNoti(`Main error: ${err}`);
     await new Promise((r) => setTimeout(r, INTERVAL));

@@ -43,7 +43,6 @@ export const accounts: Account[] = [
     {
         key: 'vF1sLJWGHRxUEz5GDE',
         secret: 'qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP',
-        testnet: false,
         trader: "8766",
         gain: 20,
         platform: "Wagon",
@@ -57,7 +56,6 @@ export const accounts: Account[] = [
     {
         key: 'WKPVGIPENYCOFPKGUY', //GreyAcc2
         secret: 'VVPEMIKQUWLDUCHXGFBYVQTFEEVTLJDYSBXZ',
-        testnet: false,
         trader: "?limit=10&orderListType=CONTRACT&uid=69843970",
         gain: 210,
         platform: "Mexc",
@@ -71,7 +69,6 @@ export const accounts: Account[] = [
     {
         key: 'CWRVJSQQCDGCWRJHHB',  //GreyNguyen1
         secret: 'QGNSGMUPXQBSAWACQFXLVZDIOQPUMVQJMUCY', //
-        testnet: false,
         trader: "1195",
         gain: 4078,
         platform: "Wagon",
@@ -83,9 +80,21 @@ export const accounts: Account[] = [
         url: WAGONURL
     },
     {
+        key: 'VINQISCRJYBDKPXVKP', 
+        secret: 'APFTAMFNCNRIEQBNWBYZAERHKKVAFABZLMUW',
+        trader: "?leaderMark=ClmRW9sKnHtPqe2iIuoy3w%3D%3D",
+        gain: 255,
+        platform: "Bybit",
+        index: 5,
+        fixAmount: true,
+        limit: true,
+        tP: false,
+        limitPercent: true,
+        url: BYBITURL
+    },
+    {
         key: 'Q85XCeNGI61cKZ0Dwi',//'YWRZNGDBAZIUUPONJQ',
         secret: '2Ncni8kCkjEaaAdB5m4Bn5zhyXrmvb5hQdrW',//'VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO',
-        testnet: false,
         trader: "6429",
         gain: 3980,
         platform: "Wagon",
@@ -96,6 +105,19 @@ export const accounts: Account[] = [
         limitPercent: false,
         url: WAGONURL
     },
+    {
+        key: 'LRXZVMDFHDVIRMMXZD',  // BHOPRJSBFGKHYPLYEY
+        secret: 'RCUJBNJSGELXUKLLVWANIKELKMSUCHGHUGAQ',  //YNNBOXGRGHBPBKLTLJNIARVHJPFGWXAVBRMN 
+        trader: "?traderUid=7001020&platform=1&client=1&deviceId=&versionCode=3.0.1&lang=en_US",
+        gain: 100,
+        platform: "Hotcoin",
+        index: 6,
+        fixAmount: true,
+        limit: true,
+        tP: false,
+        limitPercent: true,
+        url: HOTCOINURL
+    }
 
     //vF1sLJWGHRxUEz5GDE 'CRYDWOZBKFVRRTDOHN' YWRZNGDBAZIUUPONJQ VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO //WKPVGIPENYCOFPKGUY VVPEMIKQUWLDUCHXGFBYVQTFEEVTLJDYSBXZ
     //qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP MLVUFLNGJEBAOYOYXDJGMZPCDGNREQZTMMJS true
