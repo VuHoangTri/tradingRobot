@@ -349,7 +349,7 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
                         }
                         else action = "Take PNL";
                         newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
-                        const order = convertToOrder(newPos, trader._acc.limit, false, price);
+                        const order = convertToOrder(newPos, false, false, price);
                         if (order !== null) {
                             order.leverage = newPos.leverage;
                             let response = await trader.createOrder(order);
