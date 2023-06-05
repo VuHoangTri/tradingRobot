@@ -104,11 +104,12 @@ export function convertHotCoinFormat(exchangeInfo, position: any[]) {
     try {
         const res: Position[] = position.map(pos => {
             const filter = exchangeInfo.find(exch => exch.symbol === pos.contractCodeDisplayName);
-            const sideConverter = pos.side === "short" ? -1 : 1;
+            const sideConverter = pos.side === "long" ? 1 : -1;
             const size = (((Number(pos.amount) * Number(pos.unitAmount))) * sideConverter);
             pos.size = pos.lever > filter.leverageFilter.maxLeverage
                 ? (size * (Number(pos.lever) / Number(filter.leverageFilter.maxLeverage))).toString()
-                : size
+                : size.toString()
+            // console.log(pos);
             return {
                 symbol: pos.contractCodeDisplayName,
                 size: Number(pos.size).toFixed(3).toString(),
