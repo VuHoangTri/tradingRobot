@@ -277,8 +277,9 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
                 }
                 if (count >= 3) {
                     sendNoti(`Open ${order.symbol} acc ${trader._acc.index}: Error ${response?.retMsg} \n Stop trader: please check and restart!`);
-                    trader._isRun = false;
-                    return;
+                    // trader._isRun = false;
+                    continue;
+                    // return;
                 }
                 order.price = pos.entry;
                 convertAndSendBot(trader._acc.index, order, "Open");
@@ -306,8 +307,8 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
                 }
                 if (count >= 3) {
                     sendNoti(`Close ${order.symbol} acc ${trader._acc.index}: Error ${response?.retMsg} \n Stop trader: please check and restart!`);
-                    trader._isRun = false;
-                    return;
+                    // trader._isRun = false; // tạm thời không dừng
+                    continue;
                 }
                 const price = await trader.getMarkPrice(order.symbol);
                 order.price = pos.entry;
@@ -366,8 +367,8 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
                             }
                             if (count >= 3) {
                                 sendNoti(`Adjust ${order.symbol} acc ${trader._acc.index}: Error ${response?.retMsg} \n Stop trader: please check and restart!`);
-                                trader._isRun = false;
-                                return;
+                                // trader._isRun = false;
+                                continue;
                             }
                             order.price = newPos.entry;
                             convertAndSendBot(trader._acc.index, order, action, price);
