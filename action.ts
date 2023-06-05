@@ -208,8 +208,8 @@ export async function actuator(diffPos: { openPos: Position[], closePos: Positio
         if (adjustPos.length > 0 || closePos.length > 0) {
             const myPos = await trader.getMyPositions();
             if (myPos) {
-                const myList = myPos?.result.list.map((c: Position) => {
-                    return { symbol: c.symbol, size: c.size, leverage: (Number(c.leverage) * LEVERAGEBYBIT).toString() }
+                const myList = myPos?.result.list.map((c: any) => {
+                    return { symbol: c.symbol, size: c.size, leverage: (Number(c.leverage) * LEVERAGEBYBIT).toString(), entry: c.entryPrice }
                 });
                 if (closePos.length > 0 && myList.length > 0) {
                     const closeMyPos = myList.filter(pP =>
