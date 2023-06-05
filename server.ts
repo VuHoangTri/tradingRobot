@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 
+const version = 1;
 const app = express();
 const port = 3000;
 import { bot, main } from "./main";
@@ -200,7 +201,7 @@ app.get("/stop", async function (req, res) {
 // })
 
 app.listen(port, async () => {
-  console.log(`[server]: Server is running at https://localhost:${port}`);
+  console.log(`[server]: Server is running at https://localhost:${port}, version : ${version}`);
   await new Promise((r) => setTimeout(r, 4000));
   main();
 });
