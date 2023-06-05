@@ -142,7 +142,7 @@ export function convertToOrder(pos: Position, limit: boolean, tP: boolean, price
             const decimal = priceSize.toString().split('.')[1]?.length ?? 0;
             res.orderType = 'Limit';
             res.price = Number(pos.entry).toFixed(decimal).toString();
-            sendNoti(`${pos.symbol}, ${res.price}, ${price}`);
+            sendNoti(`${pos.symbol}, ${res.price}, ${price}, ${decimal}`);
             if (tP) {
                 const profitPercent = (newSide === 'Buy' ? 1 : -1) * 0.19;
                 res.takeProfit = (Number(pos.entry) * (1 + profitPercent)).toFixed(decimal);
@@ -350,7 +350,7 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
                         }
                         else action = "Take PNL";
                         newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
-                        const order = convertToOrder(newPos, false, false, price);
+                        const order = convertToOrder(newPos, trader._acc.limit, false, price);
                         if (order !== null) {
                             order.leverage = newPos.leverage;
                             let response = await trader.createOrder(order);
