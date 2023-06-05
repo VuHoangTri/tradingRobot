@@ -109,7 +109,7 @@ export function convertHotCoinFormat(exchangeInfo, position: any[]) {
             pos.size = pos.lever > filter.leverageFilter.maxLeverage
                 ? (size * (Number(pos.lever) / Number(filter.leverageFilter.maxLeverage))).toString()
                 : size.toString()
-            // console.log(pos);
+            sendNoti(`Side ${pos.side} and Size ${pos.size} `);
             return {
                 symbol: pos.contractCodeDisplayName,
                 size: Number(pos.size).toFixed(3).toString(),
@@ -142,7 +142,7 @@ export function convertToOrder(pos: Position, limit: boolean, tP: boolean, price
             const decimal = priceSize.toString().split('.')[1]?.length ?? 0;
             res.orderType = 'Limit';
             res.price = Number(pos.entry).toFixed(decimal).toString();
-            // console.log(`${pos.symbol}, ${res.price}, ${price}`);
+            sendNoti(`${pos.symbol}, ${res.price}, ${price}`);
             if (tP) {
                 const profitPercent = (newSide === 'Buy' ? 1 : -1) * 0.19;
                 res.takeProfit = (Number(pos.entry) * (1 + profitPercent)).toFixed(decimal);
