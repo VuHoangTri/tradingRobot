@@ -311,6 +311,8 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
                 }
                 const price = await trader.getMarkPrice(order.symbol);
                 order.price = pos.entry;
+                order.leverage = pos.leverage;
+                sendNoti(`${order.symbol},${trader._acc.index},${pos.entry},${price}`)
                 convertAndSendBot(trader._acc.index, order, "Close", price);
             }
 
