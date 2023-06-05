@@ -252,7 +252,7 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
                 switch (pos.symbol) {
                     case 'BTCUSDT':
                         const size = (((Number(pos.size) < 0 ? -1 : 1) * (Number(pos.leverage) / LEVERAGEBYBIT) / Number(pos.entry)));
-                        pos.size = size > 0.001 ? size.toString() : '0.001';
+                        pos.size = size > 0.003 ? '0.003' : '0.001';
                         break;
                     case 'ETHUSDT':
                         pos.size = '0.01'
