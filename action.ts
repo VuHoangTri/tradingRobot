@@ -66,7 +66,7 @@ export function convertBinanceFormat(position: any[]) {
                 size: (Number(pos.amount)).toFixed(3).toString(),
                 leverage: (pos.leverage * LEVERAGEBYBIT).toString(),
                 pnl: Number(pos.pnl),
-                entry: pos.price
+                entry: pos.entryPrice.toFixed(5).toString(),
             }
         });
         return res;
@@ -310,6 +310,7 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
                     return;
                 }
                 const price = await trader.getMarkPrice(order.symbol);
+                order.price = pos.entry;
                 convertAndSendBot(trader._acc.index, order, "Close", price);
             }
 
@@ -333,7 +334,7 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
                         const filterSize = filter.lotSizeFilter;
                         let percent = Number(curPos.size) / Number(prePos.size);
                         if (trader._acc.limitPercent)
-                            percent = percent > 1.3 ? 1.3 : percent;
+                            percent = percent > 1.2 ? 1.2 : percent;
                         const newPos: Position = {
                             symbol: pos.symbol,
                             size: (Number(pos.size) * percent - Number(pos.size)).toString(),

@@ -18,26 +18,6 @@ const XTURL = "https://www.xt.com/fapi/trade/v1/public/copy-trade/leader-order-p
 const HOUBIURL = "https://www.huobi.com/futures/api/-/x/hbg/v1/copytrading/trader/open-unmatch-orders";
 const WAGONURL = "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/";
 
-// export const bybitTrader: string[] = [
-//     "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=dzzffk%2B%2FqGvNboYCRvY38Q%3D%3D", // remove
-//     // "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=4pjjfgTlpIeWNdTARJUWsQ%3D%3D",
-//     "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=saPU8WuUYBXXebYMgbRDRw%3D%3D",
-//     // "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=O5k95MOucrVPCGiLNW3Xaw%3D%3D",
-//     "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list?leaderMark=ezDycLoNFTp3Exq0IQhD1g%3D%3D" 
-//ClmRW9sKnHtPqe2iIuoy3w%3D%3D 95
-// ]; YSEaUk1iu9%2BrK6f0dMRUzg%3D%3D
-// export const wagonList: string[] = [
-//     // "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/5363",
-//     "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/8303"  // 8303 // 5363 //6429 //9449
-// ];
-
-// 227087068C057B808A83125C8E586BB8 "6408AAEEEBF0C76A3D5F0E39C64AAABA" "8FE17CCE0A3EA996ED7D8B538419C826" "EF6C3AABCBE82294A607E8C94633F082"  "8FE17CCE0A3EA996ED7D8B538419C826",
-// "https:///wg.flentr.com/swap/v1/perpetual/follows/public/trader/currentLead?traderUid=7100137&platform=1&client=1&deviceId=&versionCode=3.0.1&lang=en_US"
-
-// export const mexcTrader: string[] = [
-//     'https://futures.mexc.com/copyFutures/api/v1/trader/orders?limit=10&orderListType=CONTRACT&uid=83129161'
-//      'https://futures.mexc.com/copyTrade/leader/05126494'
-// ]
 
 export const accounts: Account[] = [
     {
@@ -80,17 +60,21 @@ export const accounts: Account[] = [
         url: WAGONURL
     },
     {
-        key: 'VINQISCRJYBDKPXVKP', 
+        key: 'VINQISCRJYBDKPXVKP',
         secret: 'APFTAMFNCNRIEQBNWBYZAERHKKVAFABZLMUW',
-        trader: "?leaderMark=ClmRW9sKnHtPqe2iIuoy3w%3D%3D",
+        trader:
+        {
+            "encryptedUid": "CCF3E0CB0AAD54D9D6B4CEC5E3E741D2", //B6EF34B1C875FF4097AF51FF73868E70 
+            "tradeType": "PERPETUAL"
+        },
         gain: 255,
-        platform: "Bybit",
+        platform: "Binance",
         index: 5,
         fixAmount: true,
         limit: true,
         tP: false,
         limitPercent: true,
-        url: BYBITURL
+        url: BINANCEURL
     },
     {
         key: 'Q85XCeNGI61cKZ0Dwi',//'YWRZNGDBAZIUUPONJQ',
