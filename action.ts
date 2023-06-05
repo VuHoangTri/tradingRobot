@@ -109,7 +109,7 @@ export function convertHotCoinFormat(exchangeInfo, position: any[]) {
             pos.size = pos.lever > filter.leverageFilter.maxLeverage
                 ? (size * (Number(pos.lever) / Number(filter.leverageFilter.maxLeverage))).toString()
                 : size.toString()
-            sendNoti(`Side ${pos.side} and Size ${pos.size} `);
+            // sendNoti(`Side ${pos.side} and Size ${pos.size} `);
             return {
                 symbol: pos.contractCodeDisplayName,
                 size: Number(pos.size).toFixed(3).toString(),
