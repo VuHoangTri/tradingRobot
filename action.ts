@@ -252,7 +252,7 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
                 pos.size = (((Number(pos.size) < 0 ? -1 : 1) * ((Number(pos.leverage) / 2) / LEVERAGEBYBIT) / Number(pos.entry))).toFixed(3).toString();
             }
             if (Number(pos.size) < Number(lotSizeFilter.minOrderQty)) {
-                pos.size = lotSizeFilter.minOrderQty;
+                pos.size = lotSizeFilter.minOrderQty.toString();
             } else {
                 pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
             }
