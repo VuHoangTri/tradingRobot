@@ -16,7 +16,7 @@ const MEXCURL = "https://futures.mexc.com/copyFutures/api/v1/trader/orders";
 const BYBITURL = "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list";
 const XTURL = "https://www.xt.com/fapi/trade/v1/public/copy-trade/leader-order-page";
 const HOUBIURL = "https://www.huobi.com/futures/api/-/x/hbg/v1/copytrading/trader/open-unmatch-orders";
-const WAGONURL = "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/";
+const WAGONURL = "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/";  //8558-312 10465-300
 
 
 export const accounts: Account[] = [

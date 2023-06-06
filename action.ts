@@ -249,20 +249,13 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
             const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
             const lotSizeFilter = filter.lotSizeFilter;
             if (trader._acc.fixAmount) {
-                switch (pos.symbol) {
-                    case 'BTCUSDT':
-                        const size = (((Number(pos.size) < 0 ? -1 : 1) * (Number(pos.leverage) / LEVERAGEBYBIT) / Number(pos.entry)));
-                        pos.size = size > 0.003 ? '0.003' : '0.001';
-                        break;
-                    case 'ETHUSDT':
-                        pos.size = '0.01'
-                        break;
-                    default:
-                        pos.size = (((Number(pos.size) < 0 ? -1 : 1) * (Number(pos.leverage) / LEVERAGEBYBIT) / Number(pos.entry))).toFixed(3).toString();
-                        break;
-                }
+                pos.size = (((Number(pos.size) < 0 ? -1 : 1) * ((Number(pos.leverage) / 2) / LEVERAGEBYBIT) / Number(pos.entry))).toFixed(3).toString();
             }
-            pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
+            if (Number(pos.size) < Number(lotSizeFilter.minOrderQty)) {
+                pos.size = lotSizeFilter.minOrderQty;
+            } else {
+                pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
+            }
             const order = convertToOrder(pos, trader._acc.limit, trader._acc.tP, price);
             // console.log(pos, order)
             if (order !== null) {
