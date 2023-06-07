@@ -364,6 +364,7 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
                                 continue;
                             }
                             order.price = newPos.entry;
+                            sendNoti(`${order.symbol},${trader._acc.index},${pos.entry},${price}`);
                             convertAndSendBot(trader._acc.index, order, action, price);
                         }
                     }
