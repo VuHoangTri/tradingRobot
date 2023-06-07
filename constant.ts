@@ -102,7 +102,7 @@ export const accounts: Account[] = [
         platform: "Hotcoin",
         index: 6,
         fixAmount: true,
-        lOpen: true,
+        lOpen: false,
         lAdjust: false,
         tP: false,
         limitPercent: true,

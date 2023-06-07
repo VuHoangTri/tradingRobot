@@ -1,11 +1,11 @@
 import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 
-const version = 1.4;
+const version = 1.5;
 const app = express();
 const port = 3000;
 import { bot, main } from "./main";
-import { INTERVAL, traderAPIs } from "./constant";
+import { traderAPIs } from "./constant";
 // import { getAccountByBit, getMyPositions, getTradeFee, getWalletBalance } from "./bybit";
 // import { getTotalPnL, getTotalTradeFee } from "./action";
 
