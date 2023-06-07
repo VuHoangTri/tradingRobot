@@ -306,7 +306,7 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
                 const price = await trader.getMarkPrice(order.symbol);
                 order.price = pos.entry;
                 order.leverage = pos.leverage;
-                sendNoti(`${order.symbol},${trader._acc.index},${pos.entry},${price}`)
+                // sendNoti(`${order.symbol},${trader._acc.index},${pos.entry},${price}`)
                 convertAndSendBot(trader._acc.index, order, "Close", price);
             }
 
@@ -379,9 +379,10 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
 export function convertAndSendBot(index, order, action: string, markPrice?: string) {
     try {
         let dataString = '';
-        dataString = "Account" + index + "," + action + "," + order.symbol + "," + order.price + "," + order.side + "," + (Number(order.leverage) / LEVERAGEBYBIT) + "," + order.qty;
+        dataString = "Account" + index + "," + action + "," + order.symbol + "," + order.price + ","
+            + order.side + "," + (Number(order.leverage) / LEVERAGEBYBIT) + "," + order.qty;
         if (markPrice && (action === "Close" || action === "Take PNL")) {
-            const pnl = (order.side === "Sell" ? 1 : -1) * (Number(markPrice) - Number(order.price)) * order.size;
+            const pnl = (order.side === "Sell" ? 1 : -1) * (Number(markPrice) - Number(order.price)) * Number(order.size);
             dataString += "," + pnl;
         }
         sendChatToBot(dataString);
