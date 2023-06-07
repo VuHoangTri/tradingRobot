@@ -71,7 +71,8 @@ export interface Account {
     gain: number;
     platform: string;
     index: number;
-    limit: boolean;
+    lOpen: boolean;
+    lAdjust: boolean;
     tP: boolean;
     fixAmount: boolean;
     limitPercent: boolean;

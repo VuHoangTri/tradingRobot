@@ -256,7 +256,7 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
             } else {
                 pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
             }
-            const order = convertToOrder(pos, trader._acc.limit, trader._acc.tP, price);
+            const order = convertToOrder(pos, trader._acc.lOpen, trader._acc.tP, price);
             // console.log(pos, order)
             if (order !== null) {
                 order.leverage = pos.leverage;
@@ -291,7 +291,7 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
             const price = await trader.getMarkPrice(pos.symbol);
             const order = convertToOrder(pos, false, false)
             if (order !== null) {
-                sendNoti(`Close,${order.symbol},${trader._acc.index},${pos.entry},${price}`)
+                // sendNoti(`Close,${order.symbol},${trader._acc.index},${pos.entry},${price}`)
                 let response = await trader.createOrder(order);
                 let count = 1;
                 while (response?.retCode !== 0 && count < 3) {
@@ -350,10 +350,10 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
                             newPos.entry = price;
                         }
                         newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
-                        const order = convertToOrder(newPos, trader._acc.limit, false, price);
+                        const order = convertToOrder(newPos, trader._acc.lAdjust, false, price);
                         if (order !== null) {
                             order.leverage = newPos.leverage;
-                            sendNoti(`${action},${order.symbol},${trader._acc.index},${pos.entry},${price}`);
+                            // sendNoti(`${action},${order.symbol},${trader._acc.index},${pos.entry},${price}`);
                             let response = await trader.createOrder(order);
                             let count = 1;
                             while (response?.retCode !== 0 && count < 3) {
