@@ -345,7 +345,10 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
                             newPos.entry = diff_entry;
                             action = "DCA";
                         }
-                        else action = "Take PNL";
+                        else {
+                            action = "Take PNL";
+                            newPos.entry = price;
+                        }
                         newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
                         const order = convertToOrder(newPos, trader._acc.limit, false, price);
                         if (order !== null) {
