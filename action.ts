@@ -156,14 +156,14 @@ export function convertToOrder(pos: Position, limit: boolean, tP: boolean, price
     }
 }
 
-function roundQuantity(size, minOrderQty, qtyStep) {
+function roundQuantity(size: string, minOrderQty, qtyStep) {
     try {
         const decimalLen = minOrderQty.toString().split('.')[1]?.length ?? 0;
         const s = Math.abs(Number(size));
         const mOQ = Number(minOrderQty);
         const qS = Number(qtyStep);
         const nearestMultiple = Math.max(mOQ, Math.round(s / qS) * qS);
-        return (size < 0 ? -nearestMultiple : nearestMultiple).toFixed(decimalLen);
+        return (Number(size) < 0 ? -nearestMultiple : nearestMultiple).toFixed(decimalLen);
     } catch (err) {
         sendNoti(`Round Quantity error ${err}`);
         return '';
