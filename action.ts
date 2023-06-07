@@ -156,7 +156,7 @@ export function convertToOrder(pos: Position, limit: boolean, tP: boolean, price
     }
 }
 
-function roundQuantity(size: string, minOrderQty, qtyStep) {
+function roundQuantity(size: string, minOrderQty: string, qtyStep: string) {
     try {
         const decimalLen = minOrderQty.toString().split('.')[1]?.length ?? 0;
         const s = Math.abs(Number(size));
@@ -251,7 +251,7 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
             if (trader._acc.fixAmount) {
                 pos.size = (((Number(pos.size) < 0 ? -1 : 1) * ((Number(pos.leverage) / 2) / LEVERAGEBYBIT) / Number(pos.entry))).toFixed(3).toString();
             }
-            if (Number(pos.size) < Number(lotSizeFilter.minOrderQty)) {
+            if (Math.abs(Number(pos.size)) < Number(lotSizeFilter.minOrderQty)) {
                 pos.size = ((Number(pos.size) < 0 ? -1 : 1) * Number(lotSizeFilter.minOrderQty)).toString();
             } else {
                 pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
