@@ -291,8 +291,8 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
             const price = await trader.getMarkPrice(pos.symbol);
             const order = convertToOrder(pos, false, false)
             if (order !== null) {
-                let response = await trader.createOrder(order);
                 sendNoti(`Close,${order.symbol},${trader._acc.index},${pos.entry},${price}`)
+                let response = await trader.createOrder(order);
                 let count = 1;
                 while (response?.retCode !== 0 && count < 3) {
                     sendNoti(`Close ${order.symbol} acc ${trader._acc.index}: ${count} times`);
@@ -350,8 +350,8 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
                         const order = convertToOrder(newPos, trader._acc.limit, false, price);
                         if (order !== null) {
                             order.leverage = newPos.leverage;
-                            let response = await trader.createOrder(order);
                             sendNoti(`${action},${order.symbol},${trader._acc.index},${pos.entry},${price}`);
+                            let response = await trader.createOrder(order);
                             let count = 1;
                             while (response?.retCode !== 0 && count < 3) {
                                 sendNoti(`Adjust ${order.symbol} acc ${trader._acc.index}: ${count} times`);
