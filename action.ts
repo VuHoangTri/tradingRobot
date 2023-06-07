@@ -386,7 +386,7 @@ export function convertAndSendBot(index, order, action: string, markPrice?: stri
         dataString = "Account" + index + "," + action + "," + order.symbol + "," + order.price + ","
             + order.side + "," + (Number(order.leverage) / LEVERAGEBYBIT) + "," + order.qty;
         if (markPrice && (action === "Close" || action === "Take PNL")) {
-            const pnl = (order.side === "Sell" ? 1 : -1) * (Number(markPrice) - Number(order.price)) * Number(order.size);
+            const pnl = (order.side === "Sell" ? 1 : -1) * (Number(markPrice) - Number(order.price)) * Number(order.qty);
             dataString += "," + pnl;
         }
         sendChatToBot(dataString);
