@@ -288,9 +288,11 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
     try {
         for await (const pos of position) {
             pos.size = (Number(pos.size) * -1).toString();
+            const price = await trader.getMarkPrice(pos.symbol);
             const order = convertToOrder(pos, false, false)
             if (order !== null) {
                 let response = await trader.createOrder(order);
+                sendNoti(`Close,${order.symbol},${trader._acc.index},${pos.entry},${price}`)
                 let count = 1;
                 while (response?.retCode !== 0 && count < 3) {
                     sendNoti(`Close ${order.symbol} acc ${trader._acc.index}: ${count} times`);
@@ -303,10 +305,8 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
                     // trader._isRun = false; // tạm thời không dừng
                     continue;
                 }
-                const price = await trader.getMarkPrice(order.symbol);
                 order.price = pos.entry;
                 order.leverage = pos.leverage;
-                sendNoti(`Close,${order.symbol},${trader._acc.index},${pos.entry},${price}`)
                 convertAndSendBot(trader._acc.index, order, "Close", price);
             }
 
@@ -351,6 +351,7 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
                         if (order !== null) {
                             order.leverage = newPos.leverage;
                             let response = await trader.createOrder(order);
+                            sendNoti(`${action},${order.symbol},${trader._acc.index},${pos.entry},${price}`);
                             let count = 1;
                             while (response?.retCode !== 0 && count < 3) {
                                 sendNoti(`Adjust ${order.symbol} acc ${trader._acc.index}: ${count} times`);
@@ -364,7 +365,6 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
                                 continue;
                             }
                             order.price = newPos.entry;
-                            sendNoti(`${order.symbol},${trader._acc.index},${pos.entry},${price}`);
                             convertAndSendBot(trader._acc.index, order, action, price);
                         }
                     }
