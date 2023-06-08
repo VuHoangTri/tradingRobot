@@ -95,20 +95,6 @@ export const accounts: Account[] = [
         url: WAGONURL
     },
     {
-        key: 'Q85XCeNGI61cKZ0Dwi',//'YWRZNGDBAZIUUPONJQ',
-        secret: '2Ncni8kCkjEaaAdB5m4Bn5zhyXrmvb5hQdrW',//'VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO',
-        trader: "6429",
-        gain: 3980,
-        platform: "Wagon",
-        index: 4,
-        lOpen: true,
-        lAdjust: true,
-        tP: false,
-        fixAmount: false,
-        limitPercent: false,
-        url: WAGONURL
-    },
-    {
         key: 'LRXZVMDFHDVIRMMXZD',  // BHOPRJSBFGKHYPLYEY
         secret: 'RCUJBNJSGELXUKLLVWANIKELKMSUCHGHUGAQ',  //YNNBOXGRGHBPBKLTLJNIARVHJPFGWXAVBRMN 
         trader: "?traderUid=7001020&platform=1&client=1&deviceId=&versionCode=3.0.1&lang=en_US",
@@ -121,6 +107,20 @@ export const accounts: Account[] = [
         tP: false,
         limitPercent: true,
         url: HOTCOINURL
+    },
+    {
+        key: 'Q85XCeNGI61cKZ0Dwi',//'YWRZNGDBAZIUUPONJQ',
+        secret: '2Ncni8kCkjEaaAdB5m4Bn5zhyXrmvb5hQdrW',//'VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO',
+        trader: "6429",
+        gain: 3980,
+        platform: "Wagon",
+        index: 4,
+        lOpen: true,
+        lAdjust: true,
+        tP: false,
+        fixAmount: false,
+        limitPercent: false,
+        url: WAGONURL
     }
 
     //vF1sLJWGHRxUEz5GDE 'CRYDWOZBKFVRRTDOHN' YWRZNGDBAZIUUPONJQ VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO //WKPVGIPENYCOFPKGUY VVPEMIKQUWLDUCHXGFBYVQTFEEVTLJDYSBXZ
