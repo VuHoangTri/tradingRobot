@@ -62,38 +62,38 @@ export const accounts: Account[] = [
         limitPercent: false,
         url: WAGONURL
     },
-    // {
-    //     key: 'VINQISCRJYBDKPXVKP',
-    //     secret: 'APFTAMFNCNRIEQBNWBYZAERHKKVAFABZLMUW',
-    //     trader:
-    //     {
-    //         "encryptedUid": "CCF3E0CB0AAD54D9D6B4CEC5E3E741D2", //B6EF34B1C875FF4097AF51FF73868E70 
-    //         "tradeType": "PERPETUAL"
-    //     },
-    //     gain: 255,
-    //     platform: "Binance",
-    //     index: 5,
-    //     fixAmount: true,
-    //     lOpen: true,
-    //     lAdjust: true,
-    //     tP: false,
-    //     limitPercent: true,
-    //     url: BINANCEURL
-    // },
     {
         key: 'VINQISCRJYBDKPXVKP',
         secret: 'APFTAMFNCNRIEQBNWBYZAERHKKVAFABZLMUW',
-        trader: '9980',
-        gain: 1500,
-        platform: "Wagon",
+        trader:
+        {
+            "encryptedUid": "4325641055745EBAFED26DB3ACDC7AF1", //B6EF34B1C875FF4097AF51FF73868E70 
+            "tradeType": "PERPETUAL"
+        },
+        gain: 255,
+        platform: "Binance",
         index: 5,
-        fixAmount: false,
+        fixAmount: true,
         lOpen: true,
         lAdjust: true,
         tP: false,
-        limitPercent: false,
-        url: WAGONURL
+        limitPercent: true,
+        url: BINANCEURL
     },
+    // {
+    //     key: 'VINQISCRJYBDKPXVKP',
+    //     secret: 'APFTAMFNCNRIEQBNWBYZAERHKKVAFABZLMUW',
+    //     trader: '9980',
+    //     gain: 1640,
+    //     platform: "Wagon",
+    //     index: 5,
+    //     fixAmount: false,
+    //     lOpen: true,
+    //     lAdjust: true,
+    //     tP: false,
+    //     limitPercent: false,
+    //     url: WAGONURL
+    // },
     {
         key: 'LRXZVMDFHDVIRMMXZD',  // BHOPRJSBFGKHYPLYEY
         secret: 'RCUJBNJSGELXUKLLVWANIKELKMSUCHGHUGAQ',  //YNNBOXGRGHBPBKLTLJNIARVHJPFGWXAVBRMN 
