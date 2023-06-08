@@ -16,7 +16,7 @@ const MEXCURL = "https://futures.mexc.com/copyFutures/api/v1/trader/orders";
 const BYBITURL = "https://api2.bybit.com/fapi/beehive/public/v1/common/position/list";
 const XTURL = "https://www.xt.com/fapi/trade/v1/public/copy-trade/leader-order-page";
 const HOUBIURL = "https://www.huobi.com/futures/api/-/x/hbg/v1/copytrading/trader/open-unmatch-orders";
-const WAGONURL = "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/";  //8558-312 10465-300
+const WAGONURL = "https://www.traderwagon.com/v1/friendly/social-trading/lead-portfolio/get-position-info/";  //9980-312 10465-300
 
 
 export const accounts: Account[] = [
@@ -62,23 +62,37 @@ export const accounts: Account[] = [
         limitPercent: false,
         url: WAGONURL
     },
+    // {
+    //     key: 'VINQISCRJYBDKPXVKP',
+    //     secret: 'APFTAMFNCNRIEQBNWBYZAERHKKVAFABZLMUW',
+    //     trader:
+    //     {
+    //         "encryptedUid": "CCF3E0CB0AAD54D9D6B4CEC5E3E741D2", //B6EF34B1C875FF4097AF51FF73868E70 
+    //         "tradeType": "PERPETUAL"
+    //     },
+    //     gain: 255,
+    //     platform: "Binance",
+    //     index: 5,
+    //     fixAmount: true,
+    //     lOpen: true,
+    //     lAdjust: true,
+    //     tP: false,
+    //     limitPercent: true,
+    //     url: BINANCEURL
+    // },
     {
         key: 'VINQISCRJYBDKPXVKP',
         secret: 'APFTAMFNCNRIEQBNWBYZAERHKKVAFABZLMUW',
-        trader:
-        {
-            "encryptedUid": "CCF3E0CB0AAD54D9D6B4CEC5E3E741D2", //B6EF34B1C875FF4097AF51FF73868E70 
-            "tradeType": "PERPETUAL"
-        },
-        gain: 255,
-        platform: "Binance",
+        trader: '9980',
+        gain: 1500,
+        platform: "Wagon",
         index: 5,
-        fixAmount: true,
+        fixAmount: false,
         lOpen: true,
         lAdjust: true,
         tP: false,
-        limitPercent: true,
-        url: BINANCEURL
+        limitPercent: false,
+        url: WAGONURL
     },
     {
         key: 'Q85XCeNGI61cKZ0Dwi',//'YWRZNGDBAZIUUPONJQ',
