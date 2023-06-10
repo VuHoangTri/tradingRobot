@@ -287,6 +287,16 @@ export class BybitAPI {
 
     }
 
+    async cancelOrder(symbol: string) {
+        const result = await this._clientV5.cancelOrder({ category: "linear", symbol })
+            .then(res => { return res.retMsg })
+            .catch(err => {
+                sendNoti(`Cancel error Acc ${this._acc.index}: ${err}`);
+                return undefined;
+            });
+        return result;
+    }
+
     async getExchangeInfo() {
         try {
             const res = await this._client.getInstrumentInfo({ category: 'linear' })

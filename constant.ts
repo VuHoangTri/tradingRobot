@@ -20,20 +20,18 @@ const WAGONURL = "https://www.traderwagon.com/v1/friendly/social-trading/lead-po
 
 
 export const accounts: Account[] = [
-    {
-        key: 'vF1sLJWGHRxUEz5GDE',
-        secret: 'qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP',
-        trader: "8766",
-        gain: 20,
-        platform: "Wagon",
-        index: 1,
-        lOpen: true,
-        lAdjust: true,
-        tP: false,
-        fixAmount: false,
-        limitPercent: false,
-        url: WAGONURL
-    },
+    // {
+    //     key: 'vF1sLJWGHRxUEz5GDE',
+    //     secret: 'qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP',
+    //     trader: "8766",
+    //     gain: 20,
+    //     platform: "Wagon",
+    //     index: 1,
+    //     tP: false,
+    //     fixAmount: false,
+    //     limitPercent: false,
+    //     url: WAGONURL
+    // },
     {
         key: 'WKPVGIPENYCOFPKGUY', //GreyAcc2
         secret: 'VVPEMIKQUWLDUCHXGFBYVQTFEEVTLJDYSBXZ',
@@ -41,8 +39,6 @@ export const accounts: Account[] = [
         gain: 210,
         platform: "Mexc",
         index: 2,
-        lOpen: true,
-        lAdjust: true,
         tP: false,
         fixAmount: true,
         limitPercent: true,
@@ -54,9 +50,7 @@ export const accounts: Account[] = [
         trader: "1195",
         gain: 4078,
         platform: "Wagon",
-        index: 3,
-        lOpen: true,
-        lAdjust: true,
+        index: 1,
         tP: false,
         fixAmount: false,
         limitPercent: false,
@@ -72,12 +66,10 @@ export const accounts: Account[] = [
         },
         gain: 255,
         platform: "Binance",
-        index: 5,
+        index: 3,
         fixAmount: true,
-        lOpen: true,
-        lAdjust: true,
         tP: false,
-        limitPercent: true,
+        limitPercent: false,
         url: BINANCEURL
     },
     // {
@@ -100,10 +92,8 @@ export const accounts: Account[] = [
         trader: "?traderUid=7001020&platform=1&client=1&deviceId=&versionCode=3.0.1&lang=en_US",
         gain: 100,
         platform: "Hotcoin",
-        index: 6,
+        index: 4,
         fixAmount: true,
-        lOpen: false,
-        lAdjust: false,
         tP: false,
         limitPercent: true,
         url: HOTCOINURL
@@ -114,9 +104,7 @@ export const accounts: Account[] = [
         trader: "6429",
         gain: 3980,
         platform: "Wagon",
-        index: 4,
-        lOpen: true,
-        lAdjust: true,
+        index: 0,
         tP: false,
         fixAmount: false,
         limitPercent: false,

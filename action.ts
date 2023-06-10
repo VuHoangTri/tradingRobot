@@ -126,7 +126,7 @@ export function convertHotCoinFormat(exchangeInfo, position: any[]) {
     }
 }
 
-export function convertToOrder(pos: Position, limit: boolean, tP: boolean, price?: string) {
+export function convertToOrder(pos: Position, tP: boolean, price?: string) {
     try {
         const newSide = Number(pos.size) < 0 ? 'Sell' : 'Buy';
         const res: Order = {
@@ -137,19 +137,15 @@ export function convertToOrder(pos: Position, limit: boolean, tP: boolean, price
             side: newSide,
             timeInForce: 'GTC',//GoodTillCancel',
         };
-        if (limit && price) {
+        // sendNoti(`${pos.symbol}, ${res.price}, ${price}, ${decimal}`);
+        if (tP && price) {
             const priceSize = price.replace(/0+$/g, '');
             const decimal = priceSize.toString().split('.')[1]?.length ?? 0;
-            res.orderType = 'Limit';
-            res.price = Number(pos.entry).toFixed(decimal).toString();
-            // sendNoti(`${pos.symbol}, ${res.price}, ${price}, ${decimal}`);
-            if (tP) {
-                const profitPercent = (newSide === 'Buy' ? 1 : -1) * 0.19;
-                res.takeProfit = (Number(pos.entry) * (1 + profitPercent)).toFixed(decimal);
-            }
+            const profitPercent = (newSide === 'Buy' ? 1 : -1) * 0.19;
+            res.takeProfit = (Number(pos.entry) * (1 + profitPercent)).toFixed(decimal);
         }
-        // console.log(res);
         return res;
+        // console.log(res);
     } catch (err: any) {
         sendNoti(`Convert to order error ${err}`);
         return null;
@@ -248,15 +244,16 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
             const price = await trader.getMarkPrice(pos.symbol);
             const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
             const lotSizeFilter = filter.lotSizeFilter;
-            if (trader._acc.fixAmount) {
-                pos.size = (((Number(pos.size) < 0 ? -1 : 1) * ((Number(pos.leverage) / 2) / LEVERAGEBYBIT) / Number(pos.entry))).toFixed(3).toString();
+            const sizeConverter = (Number(pos.size) < 0 ? -1 : 1)
+            if (trader._acc.fixAmount && trader._platform !== 'Binance') {
+                pos.size = (sizeConverter * (((Number(pos.leverage) / 2) / LEVERAGEBYBIT) / Number(pos.entry))).toFixed(3).toString();
             }
-            if (Math.abs(Number(pos.size)) < Number(lotSizeFilter.minOrderQty)) {
-                pos.size = ((Number(pos.size) < 0 ? -1 : 1) * Number(lotSizeFilter.minOrderQty)).toString();
+            if (Math.abs(Number(pos.size)) < Number(lotSizeFilter.minOrderQty) || trader._platform === 'Binance') {
+                pos.size = (sizeConverter * Number(lotSizeFilter.minOrderQty)).toString();
             } else {
                 pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
             }
-            const order = convertToOrder(pos, trader._acc.lOpen, trader._acc.tP, price);
+            const order = convertToOrder(pos, trader._acc.tP, price);
             // console.log(pos, order)
             if (order !== null) {
                 order.leverage = pos.leverage;
@@ -289,9 +286,10 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
         for await (const pos of position) {
             pos.size = (Number(pos.size) * -1).toString();
             const price = await trader.getMarkPrice(pos.symbol);
-            const order = convertToOrder(pos, false, false)
+            const order = convertToOrder(pos, false)
             if (order !== null) {
                 // sendNoti(`Close,${order.symbol},${trader._acc.index},${pos.entry},${price}`)
+                const cancel = await trader.cancelOrder(order.symbol);
                 let response = await trader.createOrder(order);
                 let count = 1;
                 while (response?.retCode !== 0 && count < 3) {
@@ -338,19 +336,19 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
                         }
                         const price = await trader.getMarkPrice(newPos.symbol);
                         if (Number(newPos.size) * Number(pos.size) > 0) {
-                            const diff_qty = Number(curPos.size) - Number(prePos.size);
-                            const curValue = Number(curPos.size) * Number(curPos.entry);
-                            const preValue = Number(prePos.size) * Number(prePos.entry);
-                            const diff_entry = Math.abs((curValue - preValue) / diff_qty).toString();
-                            newPos.entry = diff_entry;
+                            // const diff_qty = Number(curPos.size) - Number(prePos.size);
+                            // const curValue = Number(curPos.size) * Number(curPos.entry);
+                            // const preValue = Number(prePos.size) * Number(prePos.entry);
+                            // const diff_entry = Math.abs((curValue - preValue) / diff_qty).toString();
+                            // newPos.entry = diff_entry;
                             action = "DCA";
                         }
                         else {
                             action = "Take PNL";
-                            newPos.entry = pos.entry;
+                            // newPos.entry = pos.entry;
                         }
                         newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
-                        const order = convertToOrder(newPos, trader._acc.lAdjust, false, price);
+                        const order = convertToOrder(newPos, false);
                         if (order !== null) {
                             order.leverage = newPos.leverage;
                             // sendNoti(`${action},${order.symbol},${trader._acc.index},${pos.entry},${price}`);
