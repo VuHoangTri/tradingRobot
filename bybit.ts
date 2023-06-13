@@ -9,7 +9,7 @@ import { sendNoti } from './slack';
 import _ from 'lodash';
 // import { RequestInit } from "node-fetch";
 // import fetch from "node-fetch";
-import axios, { AxiosProxyConfig } from 'axios';
+import axios, { AxiosProxyConfig, AxiosRequestConfig } from 'axios';
 
 export class BybitAPI {
     _client: UnifiedMarginClient = new UnifiedMarginClient;
@@ -81,20 +81,17 @@ export class BybitAPI {
 
     async fetchCopy(action: string, proxy?: AxiosProxyConfig) {
         try {
-            let copyPos: any;
-            if (action === 'get')
-                copyPos = await axios.get(
-                    `${this._acc.url}${this._acc.trader}`, { proxy })
-                    .then(res => { return res })
-            // .catch(res => { console.log(res) });
-            else
-                copyPos = await axios({
-                    method: 'post',
-                    url: this._acc.url,
-                    proxy: proxy,
-                    headers: { "Content-Type": "application/json" },
-                    data: JSON.stringify(this._acc.trader)
-                }).then(res => { return res })
+            const config: AxiosRequestConfig = {
+                method: action,
+                url: `${this._acc.url}${this._acc.trader}`,
+                proxy
+            };
+            if (action === 'post') {
+                config.url = this._acc.url;
+                config.headers = { "Content-Type": "application/json" };
+                config.data = JSON.stringify(this._acc.trader);
+            }
+            const copyPos = await axios(config)
             const response: any = copyPos.data;
             // console.log(98, this._acc.index, this._acc.platform, response);
             switch (this._acc.platform) {
@@ -159,7 +156,7 @@ export class BybitAPI {
                 // sendNoti(`Get Copy Error Acc ${this._acc.index}: ${err} ${axiosProxyArr[0].host} - Try again: ${this._tryTimes}`);
                 await this.getCopyList(true);
             }
-            else {
+            else if (this._tryTimes <= 4) {
                 sendNoti(`Get Copy Error Acc ${this._acc.index}: ${err} - Try again with non-proxy`);
                 await this.getCopyList(false);
             }
@@ -198,165 +195,133 @@ export class BybitAPI {
     }
 
     async getAccountByBit() {
-        const info = await this._client.getPrivate('/unified/v3/private/account/info')
-            .then(result => {
-                console.log(`Check account ${this._acc.index} Done`);
-                return result;
-            })
-            .catch(err => {
-                sendNoti(`getAccountInfo error Acc ${this._acc.index}: ${err}`);
-                return undefined;
-            });
-        return info;
+        try {
+            const info = await this._client.getPrivate('/unified/v3/private/account/info')
+            console.log(`Check account ${this._acc.index} Done`);
+            return info;
+        } catch (err) {
+            sendNoti(`getAccountInfo error Acc ${this._acc.index}: ${err}`);
+            return undefined;
+        }
     }
 
     async getAPIKeyInfor() {
-        const info = await this._clientV5.getQueryApiKey()
-            .then(result => {
-                return result;
-            })
-            .catch(err => {
-                sendNoti(`getAPIKeyInfor error Acc ${this._acc.index}: ${err}`);
-                return undefined;
-            });
-        return info;
+        try {
+            const info = await this._clientV5.getQueryApiKey();
+            return info;
+        } catch (err) {
+            sendNoti(`getAPIKeyInfor error Acc ${this._acc.index}: ${err}`);
+            return undefined;
+        }
     }
 
-    async getMarkPrice(symbol: string): Promise<string> {
-        const res = await this._client.getSymbolTicker("linear", symbol)
-            .then(res => { return res.result.list[0] })
-            .catch(err => {
-                sendNoti(`Get Mark Price error Acc ${this._acc.index}: ${err}`);
-                return undefined;
-            });
-        const markPrice: any = res;
-        return markPrice.markPrice;
-
+    async getMarkPrice(symbol: string): Promise<string | undefined> {
+        try {
+            const res = await this._client.getSymbolTicker("linear", symbol)
+            const sym: any = res.result.list[0];
+            return sym.markPrice;
+        } catch (err) {
+            sendNoti(`Get Mark Price error Acc ${this._acc.index}: ${err}`);
+            return undefined;
+        }
     }
 
     async getWalletBalance() {
-        const res = await this._client.getBalances()
-            .then(res => { return res.result })
-            .catch(err => {
-                sendNoti(`Get wallet Balance error Acc ${this._acc.index}: ${err}`);
-                return undefined;
-            });
-        if (res)
-            return { init: res.totalWalletBalance, unPnL: res.totalPerpUPL };
-        return undefined
+        try {
+            const res = await this._client.getBalances();
+            const result = res.result;
+            if (result)
+                return { init: result.totalWalletBalance, unPnL: result.totalPerpUPL };
+            return undefined
+        } catch (err) {
+            sendNoti(`Get wallet Balance error Acc ${this._acc.index}: ${err}`);
+            return undefined;
+        };
     }
 
     async getMyPositions() {
-        const res = await this._client
-            // .getPrivate('/unified/v3/private/position/list?category=linear')
-            .getPositions({ category: 'linear' })
-            .then(res => {
-                // console.log(res);
-                return res;
-            })
-            .catch(err => {
-                sendNoti(`Get Position error Acc ${this._acc.index}: ${err}`);
-                return undefined;
-            });
-        return res;
+        try {
+            const res = await this._client.getPositions({ category: 'linear' });
+            return res;
+        } catch (err) {
+            sendNoti(`Get Position error Acc ${this._acc.index}: ${err}`);
+            return undefined;
+        }
     }
 
-
     async createOrder(order: Order) {
-        const result = await this._clientV5.submitOrder(order)
-            // client.postPrivate('/unified/v3/private/order/create', order)
-            .then(res => { return res })
-            .catch(err => {
-                sendNoti(`Create Order Error Acc ${this._acc.index}: ${err}`);
-                return undefined;
-            });
-        return result;
-
+        try {
+            const result = await this._clientV5.submitOrder(order);
+            return result;
+        } catch (err) {
+            sendNoti(`Create Order Error Acc ${this._acc.index}: ${err}`);
+            return undefined;
+        };
     }
 
     async setLeverage(leverage: Leverage) {
-        // const { category, symbol, buyLeverage, sellLeverage } = leverage
-        const result = await this._clientV5
-            .setLeverage(leverage)
-            .then(res => { return res })
-            .catch(err => {
-                sendNoti(`Set Leverage error Acc ${this._acc.index}: ${err}`);
-                return undefined;
-            });
-        return result;
-
+        try {
+            const result = await this._clientV5.setLeverage(leverage);
+            return result;
+        } catch (err) {
+            sendNoti(`Set Leverage error Acc ${this._acc.index}: ${err}`);
+            return undefined;
+        };
     }
 
     async cancelOrder(symbol: string) {
-        const result = await this._clientV5.cancelOrder({ category: "linear", symbol })
-            .then(res => { return res.retMsg })
-            .catch(err => {
-                sendNoti(`Cancel error Acc ${this._acc.index}: ${err}`);
-                return undefined;
-            });
-        return result;
+        try {
+            const result = await this._clientV5.cancelOrder({ category: "linear", symbol });
+            return result.retMsg;
+        } catch (err) {
+            sendNoti(`Cancel error Acc ${this._acc.index}: ${err}`);
+            return undefined;
+        };
     }
 
     async getExchangeInfo() {
         try {
-            const res = await this._client.getInstrumentInfo({ category: 'linear' })
-                .then(res => { return res.result.list })
-                .catch(err => {
-                    sendNoti(`Get Exchange Info error Acc ${this._acc.index}: ${err}`);
-                    return undefined;
-                });
-            return res;
-        }
-        catch (error) {
-            return `exchange ${error}`
-        }
+            const res = await this._client.getInstrumentInfo({ category: 'linear' });
+            return res.result.list;
+        } catch (err) {
+            sendNoti(`Get Exchange Info error Acc ${this._acc.index}: ${err}`);
+            return undefined;
+        };
     }
 
     async getClosedPNL(pnlParam: { symbol?: string, time?: number, limit?: number, cursor?: string }) {
         try {
             let sTime = 0;
-            if (pnlParam.time !== undefined) {
+            if (pnlParam.time !== undefined)
                 sTime = pnlParam.time;
-            } else
+            else
                 sTime = new Date().getTime() - 2592117632;
             const res = await this._clientV5.getClosedPnL({
                 category: "linear", symbol: pnlParam.symbol, limit: pnlParam.limit
                 , startTime: sTime, cursor: pnlParam.cursor
-            })
-                .then(res => { return res.result })
-                .catch(err => {
-                    sendNoti(`Get Closed PNL error Acc ${this._acc.index}: ${err}`);
-                    return undefined;
-                });
-            return res;
-        }
-        catch (error) {
-            return `getClosePnL ${error}`
-        }
+            });
+            return res.result;
+        } catch (err) {
+            sendNoti(`Get Closed PNL error Acc ${this._acc.index}: ${err}`);
+            return undefined;
+        };
     }
 
     async getTradeFee(pnlParam: { limit?: number, cursor?: string, time?: number }) {
         try {
             let sTime = 0;
-            if (pnlParam.time !== undefined) {
-                sTime = pnlParam.time;
-            } else
-                sTime = new Date().getTime() - 2592117632;
+            if (pnlParam.time !== undefined) sTime = pnlParam.time;
+            else sTime = new Date().getTime() - 2592117632;
             const res = await this._clientV5.getTransactionLog({
                 type: 'TRADE', currency: 'USDT', accountType: 'UNIFIED',
                 category: "linear", limit: pnlParam.limit
                 , startTime: sTime, cursor: pnlParam.cursor
-            })
-                .then(res => { return res.result })
-                .catch(err => {
-                    sendNoti(`Get Trade Fee error Acc ${this._acc.index}: ${err}`);
-                    return undefined;
-                });
-            return res;
-        }
-        catch (error) {
+            });
+            return res.result;
+        } catch (err) {
+            sendNoti(`Get Trade Fee error Acc ${this._acc.index}: ${err}`);
             return { nextPageCursor: '', list: [] }
-        }
+        };
     }
 
     async getTotalPnL(args: { nextPageCursor?: string, time?: number }) {
