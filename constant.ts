@@ -32,18 +32,18 @@ export const accounts: Account[] = [
     //     limitPercent: false,
     //     url: WAGONURL
     // },
-    {
-        key: 'WKPVGIPENYCOFPKGUY', //GreyAcc2
-        secret: 'VVPEMIKQUWLDUCHXGFBYVQTFEEVTLJDYSBXZ',
-        trader: "?limit=10&orderListType=CONTRACT&uid=69843970",
-        gain: 210,
-        platform: "Mexc",
-        index: 2,
-        tP: false,
-        fixAmount: true,
-        limitPercent: true,
-        url: MEXCURL
-    },
+    // {
+    //     key: 'WKPVGIPENYCOFPKGUY', //GreyAcc2
+    //     secret: 'VVPEMIKQUWLDUCHXGFBYVQTFEEVTLJDYSBXZ',
+    //     trader: "?limit=10&orderListType=CONTRACT&uid=69843970",
+    //     gain: 210,
+    //     platform: "Mexc",
+    //     index: 2,
+    //     tP: false,
+    //     fixAmount: true,
+    //     limitPercent: true,
+    //     url: MEXCURL
+    // },
     {
         key: 'CWRVJSQQCDGCWRJHHB',  //GreyNguyen1
         secret: 'QGNSGMUPXQBSAWACQFXLVZDIOQPUMVQJMUCY', //
