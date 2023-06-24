@@ -193,13 +193,13 @@ export async function actuator(diffPos: { openPos: Position[], closePos: Positio
     try {
         const { openPos, closePos, adjustPos } = diffPos;
 
-        if (openPos.length > 0) {
-            const openPosFine = _.cloneDeep(openPos.filter((c: any) => trader._exchangeInfo.some((x: any) => c.symbol === x.symbol)) || []);
-            if (openPosFine.length > 0) {
-                await trader.adjustLeverage(openPosFine);
-                await openedPosition(openPosFine, trader);
-            }
-        }
+        // if (openPos.length > 0) {
+        //     const openPosFine = _.cloneDeep(openPos.filter((c: any) => trader._exchangeInfo.some((x: any) => c.symbol === x.symbol)) || []);
+        //     if (openPosFine.length > 0) {
+        //         await trader.adjustLeverage(openPosFine);
+        //         await openedPosition(openPosFine, trader);
+        //     }
+        // }
 
         if (adjustPos.length > 0 || closePos.length > 0) {
             const myPos = await trader.getMyPositions();
