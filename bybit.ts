@@ -118,7 +118,7 @@ export class BybitAPI {
                 case 'Wagon':
                     if (response.success === true && response.code === "000000") {
                         this._tryTimes = 1;
-                        return convertWagonFormat(this._gain, response.data);
+                        return convertWagonFormat(response.data);
                     }
                     break;
                 case 'Bybit':
@@ -164,30 +164,33 @@ export class BybitAPI {
         }
     }
 
-    async adjustLeverage(positions: Position[]) {
+    async adjustLeverage() {
         try {
-            let count = 0;
-            for await (const pos of positions) {
-                const leverageFilter = this._exchangeInfo.find(c => c.symbol === pos.symbol).leverageFilter;
-                const maxLever = Number(leverageFilter.maxLeverage)
-                const lever = (Number(pos.leverage) / LEVERAGEBYBIT);
-                const selectedLever = (lever >= maxLever)
-                    ? maxLever
-                    : lever;
+            // let count = 0;
+            const symbols = this._exchangeInfo.map(c => c.symbol);
+            for await (const symbol of symbols) {
+                // const leverageFilter = this._exchangeInfo.find(c => c.symbol === pos.symbol).leverageFilter;
+                // const maxLever = Number(leverageFilter.maxLeverage)
+                // const lever = (Number(pos.leverage) / LEVERAGEBYBIT);
+                // const selectedLever = (lever >= maxLever)
+                //     ? maxLever
+                //     : lever;
                 const leverage: Leverage = {
                     category: 'linear',
-                    symbol: pos.symbol,
-                    sellLeverage: selectedLever.toString(),
-                    buyLeverage: selectedLever.toString()
+                    symbol: symbol,
+                    sellLeverage: '12',
+                    buyLeverage: '12'
                 };
                 const res = await this.setLeverage(leverage);
+                console.log(res);
+                await new Promise((r) => setTimeout(r, 200))
                 // console.log(res);
-                if (count === 3) {
-                    await new Promise((r) => setTimeout(r, 2000));
-                    count = 0;
-                } else {
-                    count++;
-                }
+                // if (count === 3) {
+                //     await new Promise((r) => setTimeout(r, 200));
+                //     count = 0;
+                // } else {
+                //     count++;
+                // }
             }
         } catch (err: any) {
             sendNoti(`Adjust leverage Err Acc ${this._acc.index}: ${err}`);

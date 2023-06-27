@@ -95,7 +95,7 @@ export async function main() {
         if (position) {
           const myPos = position.result;
           trader._prePos = myPos.list.map((c: Position) => {
-            return { symbol: c.symbol, size: c.size, leverage: (Number(c.leverage) * LEVERAGEBYBIT).toString() }
+            return { symbol: c.symbol, size: c.size }
           });
         }
         // console.log(trader._prePos);

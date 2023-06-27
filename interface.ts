@@ -26,7 +26,6 @@ export interface Position {
     symbol: string;
     side?: 'Buy' | 'Sell';
     size: string;
-    leverage: string;
     pnl?: number;
     entry?: string;
 }
@@ -39,7 +38,6 @@ export interface Order {
     orderType: 'Market' | 'Limit';
     qty: string;
     timeInForce: 'GTC' | 'IOC' | 'FOK' | 'PostOnly';//'GoodTillCancel' | 'ImmediateOrCancel' | 'FillOrKill' | 'PostOnly';
-    leverage?: string;
     takeProfit?: string;
     stopLoss?: string;
 }
@@ -72,7 +70,6 @@ export interface Account {
     platform: string;
     index: number;
     tP: boolean;
-    fixAmount: boolean;
     limitPercent: boolean;
     url: string;
 }

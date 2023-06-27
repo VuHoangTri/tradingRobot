@@ -25,7 +25,7 @@ export function convertByBitFormat(markPrice: number[], position: ApiObject[]) {
                 symbol: pos.symbol,
                 side: pos.side,
                 size: (Number(pos.sizeX) * sideConverter / SIZEBYBIT).toString(),
-                leverage: pos.leverageE2,
+                // leverage: pos.leverageE2,
                 entry: pos.entryPrice,
                 pnl: unPNL
             }
@@ -38,13 +38,13 @@ export function convertByBitFormat(markPrice: number[], position: ApiObject[]) {
     }
 }
 
-export function convertWagonFormat(gain: number, position: any[]) {
+export function convertWagonFormat(position: any[]) {
     try {
         const res: Position[] = position.map(pos => {
             return {
                 symbol: pos.symbol,
-                size: (Number(pos.positionAmount) / gain).toFixed(3).toString(),
-                leverage: (pos.leverage * LEVERAGEBYBIT).toString(),
+                size: Number(pos.positionAmount).toString(),
+                // leverage: (pos.leverage * LEVERAGEBYBIT).toString(),
                 pnl: Number(pos.unrealizedProfit),
                 entry: pos.entryPrice
             }
@@ -64,7 +64,7 @@ export function convertBinanceFormat(position: any[]) {
             return {
                 symbol: pos.symbol,
                 size: (Number(pos.amount)).toFixed(3).toString(),
-                leverage: (pos.leverage * LEVERAGEBYBIT).toString(),
+                // leverage: (pos.leverage * LEVERAGEBYBIT).toString(),
                 pnl: Number(pos.pnl),
                 entry: pos.entryPrice.toFixed(5).toString(),
             }
@@ -87,7 +87,7 @@ export function convertMEXCFormat(markPrice: number[], position: any[]) {
             return {
                 symbol: pos.symbol.split('_').join(''),
                 size: (sideConverter * (Number(pos.amount))).toFixed(3).toString(),
-                leverage: (pos.leverage * LEVERAGEBYBIT).toString(),
+                // leverage: (pos.leverage * LEVERAGEBYBIT).toString(),
                 pnl: unPNL,
                 entry: price.toString(),
             }
@@ -103,17 +103,18 @@ export function convertMEXCFormat(markPrice: number[], position: any[]) {
 export function convertHotCoinFormat(exchangeInfo, position: any[]) {
     try {
         const res: Position[] = position.map(pos => {
-            const filter = exchangeInfo.find(exch => exch.symbol === pos.contractCodeDisplayName);
+            // const filter = exchangeInfo.find(exch => exch.symbol === pos.contractCodeDisplayName);
             const sideConverter = pos.side === "long" ? 1 : -1;
             const size = (((Number(pos.amount) * Number(pos.unitAmount))) * sideConverter);
-            pos.size = pos.lever > filter.leverageFilter.maxLeverage
-                ? (size * (Number(pos.lever) / Number(filter.leverageFilter.maxLeverage))).toString()
-                : size.toString()
+            pos.size = size.toString()
+            // pos.lever > filter.leverageFilter.maxLeverage
+            //     ? (size * (Number(pos.lever) / Number(filter.leverageFilter.maxLeverage))).toString()
+            //     : size.toString()
             // sendNoti(`Side ${pos.side} and Size ${pos.size} `);
             return {
                 symbol: pos.contractCodeDisplayName,
                 size: Number(pos.size).toFixed(3).toString(),
-                leverage: (pos.lever * LEVERAGEBYBIT).toString(),
+                // leverage: (pos.lever * LEVERAGEBYBIT).toString(),
                 entry: pos.price,
                 pnl: Number(pos.unRealizedSurplus),
             }
@@ -193,19 +194,19 @@ export async function actuator(diffPos: { openPos: Position[], closePos: Positio
     try {
         const { openPos, closePos, adjustPos } = diffPos;
 
-        // if (openPos.length > 0) {
-        //     const openPosFine = _.cloneDeep(openPos.filter((c: any) => trader._exchangeInfo.some((x: any) => c.symbol === x.symbol)) || []);
-        //     if (openPosFine.length > 0) {
-        //         await trader.adjustLeverage(openPosFine);
-        //         await openedPosition(openPosFine, trader);
-        //     }
-        // }
+        if (openPos.length > 0) {
+            const openPosFine = _.cloneDeep(openPos.filter((c: any) => trader._exchangeInfo.some((x: any) => c.symbol === x.symbol)) || []);
+            if (openPosFine.length > 0) {
+                // await trader.adjustLeverage(openPosFine);
+                await openedPosition(openPosFine, trader);
+            }
+        }
 
         if (adjustPos.length > 0 || closePos.length > 0) {
             const myPos = await trader.getMyPositions();
             if (myPos) {
                 const myList = myPos?.result.list.map((c: any) => {
-                    return { symbol: c.symbol, size: c.size, leverage: (Number(c.leverage) * LEVERAGEBYBIT).toString(), entry: c.entryPrice }
+                    return { symbol: c.symbol, size: c.size, entry: c.entryPrice }
                 });
                 if (closePos.length > 0 && myList.length > 0) {
                     const closeMyPos = myList.filter(pP =>
@@ -216,15 +217,15 @@ export async function actuator(diffPos: { openPos: Position[], closePos: Positio
                 }
 
                 if (adjustPos.length > 0) {
-                    const adjustedLeverage = adjustPos.filter(pP =>
-                        trader._prePos.some(cP =>
-                            cP.symbol === pP.symbol && Number(cP.leverage) !== (Number(pP.leverage))
-                        )
-                    ) || [];
-                    if (adjustedLeverage.length > 0) {
-                        await trader.adjustLeverage(adjustedLeverage);
-                        sendNoti(`Đã chỉnh đòn bẩy ${adjustedLeverage.map(c => c.symbol)}`);
-                    }
+                    // const adjustedLeverage = adjustPos.filter(pP =>
+                    //     trader._prePos.some(cP =>
+                    //         cP.symbol === pP.symbol && Number(cP.leverage) !== (Number(pP.leverage))
+                    //     )
+                    // ) || [];
+                    // if (adjustedLeverage.length > 0) {
+                    //     // await trader.adjustLeverage(adjustedLeverage);
+                    //     sendNoti(`Đã chỉnh đòn bẩy ${adjustedLeverage.map(c => c.symbol)}`);
+                    // }
                     const adjustMyPost = myList.filter(pP =>
                         adjustPos.some(cP => cP.symbol === pP.symbol)
                     ) || [];
@@ -245,6 +246,7 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
             const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
             const lotSizeFilter = filter.lotSizeFilter;
             const sizeConverter = (Number(pos.size) < 0 ? -1 : 1)
+            // if (pos.symbol === 'BTCUSDT') continue;
             // if (trader._acc.fixAmount && trader._platform !== 'Binance') {
             //     pos.size = (sizeConverter * (((Number(pos.leverage) / 2) / LEVERAGEBYBIT) / Number(pos.entry))).toFixed(3).toString();
             // }
@@ -256,7 +258,6 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
             const order = convertToOrder(pos, trader._acc.tP, price);
             // console.log(pos, order)
             if (order !== null) {
-                order.leverage = pos.leverage;
                 let response = await trader.createOrder(order);
                 let count = 1;
                 while (response?.retCode !== 0 && count < 3) {
@@ -304,7 +305,6 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
                     continue;
                 }
                 order.price = pos.entry;
-                order.leverage = pos.leverage;
                 convertAndSendBot(trader._acc.index, order, "Close", price);
             }
 
@@ -332,7 +332,6 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
                         const newPos: Position = {
                             symbol: pos.symbol,
                             size: (Number(pos.size) * percent - Number(pos.size)).toString(),
-                            leverage: pos.leverage
                         }
                         const price = await trader.getMarkPrice(newPos.symbol);
                         if (Number(newPos.size) * Number(pos.size) > 0) {
@@ -345,12 +344,11 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
                         }
                         else {
                             action = "Take PNL";
-                            // newPos.entry = pos.entry;
+                            newPos.entry = pos.entry;
                         }
                         newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
                         const order = convertToOrder(newPos, false);
                         if (order !== null) {
-                            order.leverage = newPos.leverage;
                             // sendNoti(`${action},${order.symbol},${trader._acc.index},${pos.entry},${price}`);
                             let response = await trader.createOrder(order);
                             let count = 1;
@@ -382,7 +380,7 @@ export function convertAndSendBot(index, order, action: string, markPrice?: stri
     try {
         let dataString = '';
         dataString = "Account" + index + "," + action + "," + order.symbol + "," + order.price + ","
-            + order.side + "," + (Number(order.leverage) / LEVERAGEBYBIT) + "," + order.qty;
+            + order.side + "," + order.qty;
         if (markPrice && (action === "Close" || action === "Take PNL")) {
             const pnl = (order.side === "Sell" ? 1 : -1) * (Number(markPrice) - Number(order.price)) * Number(order.qty);
             dataString += "," + pnl;
