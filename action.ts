@@ -245,14 +245,14 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
             const filter = trader._exchangeInfo.find(exch => exch.symbol === pos.symbol);
             const lotSizeFilter = filter.lotSizeFilter;
             const sizeConverter = (Number(pos.size) < 0 ? -1 : 1)
-            if (trader._acc.fixAmount && trader._platform !== 'Binance') {
-                pos.size = (sizeConverter * (((Number(pos.leverage) / 2) / LEVERAGEBYBIT) / Number(pos.entry))).toFixed(3).toString();
-            }
-            if (Math.abs(Number(pos.size)) < Number(lotSizeFilter.minOrderQty) || trader._platform === 'Binance') {
-                pos.size = (sizeConverter * Number(lotSizeFilter.minOrderQty)).toString();
-            } else {
-                pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
-            }
+            // if (trader._acc.fixAmount && trader._platform !== 'Binance') {
+            //     pos.size = (sizeConverter * (((Number(pos.leverage) / 2) / LEVERAGEBYBIT) / Number(pos.entry))).toFixed(3).toString();
+            // }
+            // if (Math.abs(Number(pos.size)) < Number(lotSizeFilter.minOrderQty) || trader._platform === 'Binance') {
+            pos.size = (sizeConverter * Number(lotSizeFilter.minOrderQty)).toString();
+            // } else {
+            // pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
+            // }
             const order = convertToOrder(pos, trader._acc.tP, price);
             // console.log(pos, order)
             if (order !== null) {
