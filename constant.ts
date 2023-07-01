@@ -35,7 +35,7 @@ export const accounts: Account[] = [
     {
         key: 'WKPVGIPENYCOFPKGUY', //GreyAcc2
         secret: 'VVPEMIKQUWLDUCHXGFBYVQTFEEVTLJDYSBXZ',
-        trader: '?t=1686239333610&uniqueName=22343FB9B4B0064E',
+        trader: '?uniqueName=22343FB9B4B0064E',
         gain: 1,//1217,
         platform: "OKX",
         index: 2,

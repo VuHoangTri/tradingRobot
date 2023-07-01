@@ -106,14 +106,14 @@ export function convertHotCoinFormat(exchangeInfo, position: any[]) {
             // const filter = exchangeInfo.find(exch => exch.symbol === pos.contractCodeDisplayName);
             const sideConverter = pos.side === "long" ? 1 : -1;
             const size = (((Number(pos.amount) * Number(pos.unitAmount))) * sideConverter);
-            pos.size = size.toString()
+            pos.size = size.toString();
             // pos.lever > filter.leverageFilter.maxLeverage
             //     ? (size * (Number(pos.lever) / Number(filter.leverageFilter.maxLeverage))).toString()
             //     : size.toString()
             // sendNoti(`Side ${pos.side} and Size ${pos.size} `);
             return {
                 symbol: pos.contractCodeDisplayName,
-                size: Number(pos.size).toFixed(3).toString(),
+                size: pos.size,
                 // leverage: (pos.lever * LEVERAGEBYBIT).toString(),
                 entry: pos.price,
                 pnl: Number(pos.unRealizedSurplus),
@@ -125,6 +125,51 @@ export function convertHotCoinFormat(exchangeInfo, position: any[]) {
         sendNoti(`Convert HotCoin Fail ${err}`);
         return undefined;
     }
+}
+
+export function convertOKXFormat(exchangeInfo, position: any[]) {
+    const res: Position[] = position.map((pos) => {
+        const symbol = pos.instId.split('-').join('').replace('SWAP', '');
+        const filter = exchangeInfo.find(exch => exch.symbol === symbol);
+        const sideConverter = pos.posSide === 'long' ? 1 : -1;
+        const size = (((Number(pos.margin) * Number(pos.lever) / Number(pos.openAvgPx))) * sideConverter);
+        // pos.lever = Number(pos.lever) > Number(filter.leverageFilter.maxLeverage)
+        //     ? filter.leverageFilter.maxLeverage
+        //     : pos.lever
+        return {
+            symbol: symbol,
+            size: size.toString(),
+            // leverage: (Number(pos.lever) * LEVERAGEBYBIT).toString(),
+            pnl: pos.pnl,
+            entry: pos.markPx
+        }
+    });
+    return res;
+}
+
+export function consolidatePostion(pos: Position[]) {
+    const result: Position[] = Object.values(pos.reduce((acc: Position | {}, obj) => {
+        const { symbol, size, pnl, entry } = obj;
+        if (!acc[symbol]) {
+            acc[symbol] = {
+                symbol,
+                pnl: 0,
+                size: 0,
+                price: 0
+            };
+        }
+        acc[symbol].pnl += Number(pnl);
+        acc[symbol].size += Number(size);
+        acc[symbol].entry += Number(size) * Number(entry);
+        return acc;
+    }, {})).map((obj: Position) => {
+        if (obj.entry) {
+            obj.size = obj.size.toString();
+            obj.entry = (Number(obj.entry) / Number(obj.size)).toString();
+        }
+        return obj;
+    });
+    return result;
 }
 
 export function convertToOrder(pos: Position, tP: boolean, price?: string) {

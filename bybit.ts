@@ -4,7 +4,7 @@ import {
 } from 'bybit-api';
 import { Account, Leverage, Order, Position } from './interface';
 import { INTERVAL, LEVERAGEBYBIT, axiosProxyArr } from './constant';
-import { changeIndexProxy, convertBinanceFormat, convertByBitFormat, convertHotCoinFormat, convertMEXCFormat, convertWagonFormat } from './action';
+import { changeIndexProxy, consolidatePostion, convertBinanceFormat, convertByBitFormat, convertHotCoinFormat, convertMEXCFormat, convertOKXFormat, convertWagonFormat } from './action';
 import { sendNoti } from './slack';
 import _ from 'lodash';
 // import { RequestInit } from "node-fetch";
@@ -130,6 +130,13 @@ export class BybitAPI {
                         }
                         this._tryTimes = 1;
                         return convertByBitFormat(markPrice, response.result.data);
+                    }
+                    break;
+                case 'OKX':
+                    if (response.code === '0') {
+                        this._tryTimes = 1;
+                        const result = convertOKXFormat(this._exchangeInfo, response.data);
+                        return consolidatePostion(result);
                     }
                     break;
                 case 'Binance': {
