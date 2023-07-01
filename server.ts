@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 
-const version = 2;
+const version = 3;
 const app = express();
 const port = 3000;
 import { bot, main } from "./main";

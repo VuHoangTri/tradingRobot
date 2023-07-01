@@ -55,7 +55,7 @@ export async function main() {
     accGenAPI();
     const generator = traderGenerator();
     let exchangeInfo;
-    setInterval(walletReport, 9000)
+    // setInterval(walletReport, 9000)
     // const trader: BybitAPI = generator.next().value;
     // const wallet = await trader.getWalletBalance();
     // console.log(wallet);
@@ -90,10 +90,10 @@ export async function main() {
       // console.log(trader._acc.index, curPos);
       if (curPos !== undefined) {
         const position = await trader.getMyPositions();
-        // console.log(position);
+        console.log(position);
         // const position = { result: { list: [] } };
         if (position) {
-          const myPos = position.result;
+          const myPos = position.result;          
           trader._prePos = myPos.list.map((c: Position) => {
             return { symbol: c.symbol, size: c.size }
           });
@@ -116,9 +116,9 @@ export async function main() {
       }
       // console.log(80, trader._prePos);
     }
-    console.log(new Date());
-    sendNoti("Đã chạy");
-    await mainExecution(generator);
+    // console.log(new Date());
+    // sendNoti("Đã chạy");
+    // await mainExecution(generator);
   } catch (err) {
     sendNoti(`Main error: ${err}`);
     await new Promise((r) => setTimeout(r, INTERVAL));

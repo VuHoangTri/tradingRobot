@@ -72,6 +72,7 @@ export interface Account {
     tP: boolean;
     limitPercent: boolean;
     url: string;
+    uid: number;
 }
 
 export interface BinanceTrader {

@@ -20,7 +20,7 @@ const WAGONURL = "https://www.traderwagon.com/v1/friendly/social-trading/lead-po
 
 
 export const accounts: Account[] = [
-    // {
+     // {
     //     key: 'vF1sLJWGHRxUEz5GDE',
     //     secret: 'qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP',
     //     trader: "8766",
@@ -35,13 +35,14 @@ export const accounts: Account[] = [
     {
         key: 'WKPVGIPENYCOFPKGUY', //GreyAcc2
         secret: 'VVPEMIKQUWLDUCHXGFBYVQTFEEVTLJDYSBXZ',
-        trader: '?uniqueName=22343FB9B4B0064E',
+        trader: '?t=1686239333610&uniqueName=22343FB9B4B0064E',
         gain: 1,//1217,
         platform: "OKX",
         index: 2,
         tP: false,
         limitPercent: true,
         url: OKXURL,
+        uid: 68721852
     },
     {
         key: 'CWRVJSQQCDGCWRJHHB',  //GreyNguyen1
@@ -52,10 +53,11 @@ export const accounts: Account[] = [
         index: 1,
         tP: false,
         limitPercent: false,
-        url: WAGONURL
+        url: WAGONURL,
+        uid: 66848113
     },
     {
-        key: 'VINQISCRJYBDKPXVKP',
+        key: 'VINQISCRJYBDKPXVKP', //Tri Acc3
         secret: 'APFTAMFNCNRIEQBNWBYZAERHKKVAFABZLMUW',
         trader:
         {
@@ -67,7 +69,8 @@ export const accounts: Account[] = [
         index: 3,
         tP: false,
         limitPercent: false,
-        url: BINANCEURL
+        url: BINANCEURL,
+        uid: 68985726
     },
     // {
     //     key: 'VINQISCRJYBDKPXVKP',
@@ -93,19 +96,33 @@ export const accounts: Account[] = [
     //     fixAmount: true,
     //     tP: false,
     //     limitPercent: true,
-    //     url: HOTCOINURL
+    //     url: HOTCOINURL,
+    // uid: 68986574
     // },
-    {
-        key: 'Q85XCeNGI61cKZ0Dwi',//'YWRZNGDBAZIUUPONJQ',
-        secret: '2Ncni8kCkjEaaAdB5m4Bn5zhyXrmvb5hQdrW',//'VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO',
-        trader: "6429",
-        gain: 3980,
-        platform: "Wagon",
-        index: 0,
-        tP: false,
-        limitPercent: false,
-        url: WAGONURL
-    }
+    // {
+    //     key: 'Q85XCeNGI61cKZ0Dwi',//'YWRZNGDBAZIUUPONJQ',
+    //     secret: '2Ncni8kCkjEaaAdB5m4Bn5zhyXrmvb5hQdrW',//'VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO',
+    //     trader: "6429",
+    //     gain: 3980,
+    //     platform: "Wagon",
+    //     index: 0,
+    //     tP: false,
+    //     limitPercent: false,
+    //     url: WAGONURL,
+    //     uid: 66841725
+    // },
+    // {
+    //     key: 'MILMPRKEOJDOXECXLR',//'YWRZNGDBAZIUUPONJQ',
+    //     secret: 'PDNSSNKUPZXHPCFYGWOFZJJBORBLIQBUUCUY',//'VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO',
+    //     trader: "6429",
+    //     gain: 3980,
+    //     platform: "Wagon",
+    //     index: 5,
+    //     tP: false,
+    //     limitPercent: false,
+    //     url: WAGONURL,
+    //     uid: 72036894
+    // }
 
     //vF1sLJWGHRxUEz5GDE 'CRYDWOZBKFVRRTDOHN' YWRZNGDBAZIUUPONJQ VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO //WKPVGIPENYCOFPKGUY VVPEMIKQUWLDUCHXGFBYVQTFEEVTLJDYSBXZ
     //qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP MLVUFLNGJEBAOYOYXDJGMZPCDGNREQZTMMJS true
