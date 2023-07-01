@@ -55,7 +55,7 @@ export async function main() {
     accGenAPI();
     const generator = traderGenerator();
     let exchangeInfo;
-    // setInterval(walletReport, 9000)
+    setInterval(walletReport, 9000)
     // const trader: BybitAPI = generator.next().value;
     // const wallet = await trader.getWalletBalance();
     // console.log(wallet);
@@ -70,14 +70,12 @@ export async function main() {
       trader._exchangeInfo = exchangeInfo || [];
 
       //################### test unified account
-      // if (trader._acc.index === 3) {
-      //   // console.log(account);
+      // await new Promise((r) => setTimeout(r, INTERVAL));
+      // if (trader._acc.index === 5) {
       //   const apiKeyInfor = await trader.getAPIKeyInfor();
-      //   console.log(apiKeyInfor);
-      //   await trader.adjustLeverage(testLev);
       //   const price = await trader.getMarkPrice('BTCUSDT');
-      //   const priceSize = price.replace(/0+$/g, '');
-      //   const decimal = priceSize.toString().split('.')[1]?.length ?? 0;
+      //   const priceSize = price?.replace(/0+$/g, '');
+      //   const decimal = priceSize?.toString().split('.')[1]?.length ?? 0;
       //   testOrder.price = price;
       //   testOrder.takeProfit = (Number(price) * 1.0002).toFixed(decimal).toString();
       //   testOrder.stopLoss = (Number(price) * 0.9998).toFixed(decimal).toString();
@@ -91,10 +89,10 @@ export async function main() {
       // console.log(trader._acc.index, curPos);
       if (curPos !== undefined) {
         const position = await trader.getMyPositions();
-        console.log(position);
+        // console.log(position);
         // const position = { result: { list: [] } };
         if (position) {
-          const myPos = position.result;          
+          const myPos = position.result;
           trader._prePos = myPos.list.map((c: Position) => {
             return { symbol: c.symbol, size: c.size }
           });

@@ -20,7 +20,7 @@ const WAGONURL = "https://www.traderwagon.com/v1/friendly/social-trading/lead-po
 
 
 export const accounts: Account[] = [
-     // {
+    // {
     //     key: 'vF1sLJWGHRxUEz5GDE',
     //     secret: 'qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP',
     //     trader: "8766",
@@ -35,7 +35,7 @@ export const accounts: Account[] = [
     {
         key: 'WKPVGIPENYCOFPKGUY', //GreyAcc2
         secret: 'VVPEMIKQUWLDUCHXGFBYVQTFEEVTLJDYSBXZ',
-        trader: '?t=1686239333610&uniqueName=22343FB9B4B0064E',
+        trader: '?uniqueName=22343FB9B4B0064E',
         gain: 1,//1217,
         platform: "OKX",
         index: 2,
@@ -111,18 +111,18 @@ export const accounts: Account[] = [
     //     url: WAGONURL,
     //     uid: 66841725
     // },
-    // {
-    //     key: 'MILMPRKEOJDOXECXLR',//'YWRZNGDBAZIUUPONJQ',
-    //     secret: 'PDNSSNKUPZXHPCFYGWOFZJJBORBLIQBUUCUY',//'VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO',
-    //     trader: "6429",
-    //     gain: 3980,
-    //     platform: "Wagon",
-    //     index: 5,
-    //     tP: false,
-    //     limitPercent: false,
-    //     url: WAGONURL,
-    //     uid: 72036894
-    // }
+    {
+        key: 'MILMPRKEOJDOXECXLR',//'YWRZNGDBAZIUUPONJQ',
+        secret: 'PDNSSNKUPZXHPCFYGWOFZJJBORBLIQBUUCUY',//'VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO',
+        trader: '?uniqueName=E627A45DF45E830F',
+        gain: 1,//1217,
+        platform: "OKX",
+        index: 5,
+        tP: false,
+        limitPercent: true,
+        url: OKXURL,
+        uid: 72036894
+    }
 
     //vF1sLJWGHRxUEz5GDE 'CRYDWOZBKFVRRTDOHN' YWRZNGDBAZIUUPONJQ VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO //WKPVGIPENYCOFPKGUY VVPEMIKQUWLDUCHXGFBYVQTFEEVTLJDYSBXZ
     //qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP MLVUFLNGJEBAOYOYXDJGMZPCDGNREQZTMMJS true
