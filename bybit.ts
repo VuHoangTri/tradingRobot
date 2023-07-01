@@ -10,7 +10,7 @@ import _ from 'lodash';
 // import { RequestInit } from "node-fetch";
 // import fetch from "node-fetch";
 import axios, { AxiosProxyConfig, AxiosRequestConfig } from 'axios';
-import { v4 as uuidv4 } from 'uuid'; 
+import { v4 as uuidv4 } from 'uuid';
 
 export class BybitAPI {
     _client: UnifiedMarginClient = new UnifiedMarginClient;
@@ -49,16 +49,14 @@ export class BybitAPI {
         this._isRun = true;
     }
 
-    initial() {
-        // console.log(randomNumber);
-        this._client = new UnifiedMarginClient(
-            {
-                key: this._acc.key,
-                secret: this._acc.secret,
-                testnet: false,
-            },
-            // { proxy: this._acc.axiosProxy ? this._acc.axiosProxy[randomNumber] : undefined }
-        );
+    async initial() {
+        const position = await this.getMyPositions();
+        if (position) {
+            const myPos = position.result;
+            this._coinList = myPos.list.map((c: any) => {
+                return { symbol: c.symbol, amount: c.positionValue }
+            });
+        }
     }
     async getCopyList(isProxy: boolean) {
         try {

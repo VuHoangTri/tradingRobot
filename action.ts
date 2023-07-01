@@ -300,7 +300,7 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
             // } else {
             // pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
             // }
-            const amount = (Number(pos.size)) * Number(price) * 1.5;
+            const amount = (Number(pos.size)) * Number(price);
             await trader.transferMoney(true, Math.abs(amount).toString(), pos.symbol);
             const order = convertToOrder(pos, trader._acc.tP, price);
             // console.log(pos, order)
