@@ -56,7 +56,7 @@ export class BybitAPI {
             this._coinList = myPos.list.map((c: any) => {
                 return { symbol: c.symbol, amount: c.positionValue }
             });
-        }
+        }        
     }
     async getCopyList(isProxy: boolean) {
         try {
@@ -321,7 +321,7 @@ export class BybitAPI {
                 if (index < 0) {
                     this._coinList.push({ symbol, amount });
                     index = 0;
-                } else this._coinList[index].amount = (Number(this._coinList[index].amount) + Number(amount)).toString();
+                } else this._coinList[index].amount = (Number(this._coinList[index].amount)).toString();
                 res = await mainAcc.createUniversalTransfer({
                     amount: this._coinList[index].amount, coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
                     fromMemberId: this._acc.uid, toMemberId: 66841725, transferId: uuidv4()
