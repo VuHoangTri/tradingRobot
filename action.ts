@@ -239,13 +239,13 @@ export async function actuator(diffPos: { openPos: Position[], closePos: Positio
     try {
         const { openPos, closePos, adjustPos } = diffPos;
 
-        // if (openPos.length > 0) {
-        //     const openPosFine = _.cloneDeep(openPos.filter((c: any) => trader._exchangeInfo.some((x: any) => c.symbol === x.symbol)) || []);
-        //     if (openPosFine.length > 0) {
-        //         // await trader.adjustLeverage(openPosFine);
-        //         await openedPosition(openPosFine, trader);
-        //     }
-        // }
+        if (openPos.length > 0) {
+            const openPosFine = _.cloneDeep(openPos.filter((c: any) => trader._exchangeInfo.some((x: any) => c.symbol === x.symbol)) || []);
+            if (openPosFine.length > 0) {
+                // await trader.adjustLeverage(openPosFine);
+                await openedPosition(openPosFine, trader);
+            }
+        }
 
         if (adjustPos.length > 0 || closePos.length > 0) {
             const myPos = await trader.getMyPositions();
@@ -300,6 +300,8 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
             // } else {
             // pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
             // }
+            const amount = (Number(pos.size)) * Number(price) * 1.5;
+            await trader.transferMoney(true, Math.abs(amount).toString(), pos.symbol);
             const order = convertToOrder(pos, trader._acc.tP, price);
             // console.log(pos, order)
             if (order !== null) {
@@ -349,6 +351,7 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
                     // trader._isRun = false; // tạm thời không dừng
                     continue;
                 }
+                await trader.transferMoney(false, 'N/A', pos.symbol);
                 order.price = pos.entry;
                 convertAndSendBot(trader._acc.index, order, "Close", price);
             }
@@ -385,6 +388,8 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
                             // const preValue = Number(prePos.size) * Number(prePos.entry);
                             // const diff_entry = Math.abs((curValue - preValue) / diff_qty).toString();
                             // newPos.entry = diff_entry;
+                            const amount = Number(newPos.size) * Number(price);
+                            await trader.transferMoney(true, Math.abs(amount).toString(), newPos.symbol)
                             action = "DCA";
                         }
                         else {
