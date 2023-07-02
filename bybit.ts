@@ -311,7 +311,7 @@ export class BybitAPI {
                 const index = this._coinList.findIndex(c => c.symbol === symbol);
                 if (index < 0) {
                     this._coinList.push({ symbol, amount: (Number(amount) / 6).toFixed(4) });
-                } else this._coinList[index].amount = (Number(this._coinList[index].amount) + (Number(amount) / 6)).toFixed(4);
+                } else this._coinList[index].amount = (Number(this._coinList[index].amount) + (Number(amount) / 6)).toFixed(4).toString();
                 res = await mainAcc.createUniversalTransfer({
                     amount, coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
                     fromMemberId: 66841725, toMemberId: this._acc.uid, transferId: uuidv4()
