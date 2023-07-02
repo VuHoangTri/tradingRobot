@@ -54,7 +54,7 @@ export class BybitAPI {
         if (position) {
             const myPos = position.result;
             this._coinList = myPos.list.map((c: any) => {
-                return { symbol: c.symbol, amount: c.positionValue }
+                return { symbol: c.symbol, amount: (Number(c.positionIM) * 2).toFixed(4).toString() }
             });
         }
     }
