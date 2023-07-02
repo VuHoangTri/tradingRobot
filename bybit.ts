@@ -310,8 +310,8 @@ export class BybitAPI {
             if (isGet) {
                 const index = this._coinList.findIndex(c => c.symbol === symbol);
                 if (index < 0) {
-                    this._coinList.push({ symbol, amount });
-                } else this._coinList[index].amount = (Number(this._coinList[index].amount) + Number(amount)).toString();
+                    this._coinList.push({ symbol, amount: (Number(amount) / 6).toFixed(4) });
+                } else this._coinList[index].amount = (Number(this._coinList[index].amount) + (Number(amount) / 6)).toFixed(4);
                 res = await mainAcc.createUniversalTransfer({
                     amount, coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
                     fromMemberId: 66841725, toMemberId: this._acc.uid, transferId: uuidv4()
@@ -319,10 +319,10 @@ export class BybitAPI {
             } else {
                 const index = this._coinList.findIndex(c => c.symbol === symbol);
                 res = await mainAcc.createUniversalTransfer({
-                    amount: this._coinList[index].amount, coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
+                    amount: Number(this._coinList[index].amount).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
                     fromMemberId: this._acc.uid, toMemberId: 66841725, transferId: uuidv4()
                 });
-                sendNoti(`${index}/${this._coinList[index].amount}, ${res.retMsg}`);
+                sendNoti(`${index}|${symbol}|${this._coinList[index].amount}: ${res.retMsg}`);
             }
             return res;
         } catch (err) {
