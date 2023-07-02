@@ -322,7 +322,7 @@ export class BybitAPI {
                     amount: this._coinList[index].amount, coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
                     fromMemberId: this._acc.uid, toMemberId: 66841725, transferId: uuidv4()
                 });
-                sendNoti(`${index}/${this._coinList[index].amount}, ${res.result} ${res.retMsg}`);
+                sendNoti(`${index}/${this._coinList[index].amount}, ${res.retMsg}`);
             }
             return res;
         } catch (err) {

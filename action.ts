@@ -351,7 +351,7 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
                     // trader._isRun = false; // tạm thời không dừng
                     continue;
                 }
-                await trader.transferMoney(false, 'N/A', pos.symbol);
+                await trader.transferMoney(false, 'N/A', order.symbol);
                 order.price = pos.entry;
                 convertAndSendBot(trader._acc.index, order, "Close", price);
             }
