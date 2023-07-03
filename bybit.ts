@@ -326,10 +326,10 @@ export class BybitAPI {
                     this._coinList.push({ symbol, amount: (Number(amount) / 6).toFixed(4).toString() });
                 } else this._coinList[index].amount = (Number(this._coinList[index].amount) + (Number(amount) / 6)).toFixed(4).toString();
                 res = await mainAcc.createUniversalTransfer({
-                    amount, coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
+                    amount: (Number(amount) / 6).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
                     fromMemberId: 66841725, toMemberId: this._acc.uid, transferId: uuidv4()
                 });
-                sendNoti(`${index}|${symbol}|${amount}|In: ${res.retMsg}`);
+                sendNoti(`${index}|${symbol}|${(Number(amount) / 6).toFixed(4)}|In: ${res.retMsg}`);
             } else {
                 const index = this._coinList.findIndex(c => c.symbol === symbol);
                 if (index >= 0) {
