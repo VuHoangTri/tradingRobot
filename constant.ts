@@ -40,7 +40,7 @@ export const accounts: Account[] = [
         platform: "OKX",
         index: 2,
         tP: false,
-        limitPercent: true,
+        limitPercent: false,
         url: OKXURL,
         uid: 68721852
     },
@@ -119,22 +119,22 @@ export const accounts: Account[] = [
         platform: "OKX",
         index: 5,
         tP: false,
-        limitPercent: true,
+        limitPercent: false,
         url: OKXURL,
         uid: 72036894
     },
-    // {
-    //     key: 'ZIXNYQWIHZCDKDTKIO',
-    //     secret: 'LYZZDAPSHPYANNKWAUWRIKCSYRGRFXSIVPTR',
-    //     trader: '?leaderAccountId=229119&type=2',
-    //     gain: 1,
-    //     platform: "Xt",
-    //     index: 6,
-    //     tP: false,
-    //     limitPercent: true,
-    //     url: XTURL,
-    //     uid: 72688556
-    // }
+    {
+        key: 'ZIXNYQWIHZCDKDTKIO',
+        secret: 'LYZZDAPSHPYANNKWAUWRIKCSYRGRFXSIVPTR',
+        trader: '?leaderAccountId=229119&type=2',
+        gain: 1,
+        platform: "Xt",
+        index: 6,
+        tP: false,
+        limitPercent: false,
+        url: XTURL,
+        uid: 72688556
+    }
 
     //vF1sLJWGHRxUEz5GDE 'CRYDWOZBKFVRRTDOHN' YWRZNGDBAZIUUPONJQ VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO //WKPVGIPENYCOFPKGUY VVPEMIKQUWLDUCHXGFBYVQTFEEVTLJDYSBXZ
     //qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP MLVUFLNGJEBAOYOYXDJGMZPCDGNREQZTMMJS true
