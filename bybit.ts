@@ -244,6 +244,8 @@ export class BybitAPI {
             return sym.markPrice;
         } catch (err) {
             sendNoti(`Get Mark Price error Acc ${this._acc.index}: ${err}`);
+            await new Promise(r => setTimeout(r, 1000));
+            await this.getMarkPrice(symbol);
             return undefined;
         }
     }
