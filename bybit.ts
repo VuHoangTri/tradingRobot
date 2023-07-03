@@ -145,7 +145,7 @@ export class BybitAPI {
                 case 'OKX':
                     if (response.code === '0') {
                         this._tryTimes = 1;
-                        const result = convertOKXFormat(this._exchangeInfo, response.data);
+                        const result = convertOKXFormat(response.data);
                         return consolidatePostion(result);
                     }
                     break;
@@ -320,16 +320,16 @@ export class BybitAPI {
             let res;
             if (isGet) {
                 res = await mainAcc.createUniversalTransfer({
-                    amount:(Number(amount) / 6).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
+                    amount: (Number(amount) / 6).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
                     fromMemberId: 66841725, toMemberId: this._acc.uid, transferId: uuidv4()
                 });
-                sendNoti(`${symbol}|${(Number(amount) / 6).toFixed(4).toString()}|In: ${res.retMsg}`);
+                // sendNoti(`${symbol}|${(Number(amount) / 6).toFixed(4).toString()}|In: ${res.retMsg}`);
             } else {
                 res = await mainAcc.createUniversalTransfer({
                     amount: (Number(amount) / 6).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
                     fromMemberId: this._acc.uid, toMemberId: 66841725, transferId: uuidv4()
                 });
-                sendNoti(`${symbol}|${amount}|Out: ${res.retMsg}`);
+                // sendNoti(`${symbol}|${amount}|Out: ${res.retMsg}`);
             }
             await new Promise((r) => setTimeout(r, 100));
             return res;

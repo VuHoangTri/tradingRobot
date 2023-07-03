@@ -107,14 +107,9 @@ export function convertHotCoinFormat(exchangeInfo, position: any[]) {
             const sideConverter = pos.side === "long" ? 1 : -1;
             const size = (((Number(pos.amount) * Number(pos.unitAmount))) * sideConverter);
             pos.size = size.toString();
-            // pos.lever > filter.leverageFilter.maxLeverage
-            //     ? (size * (Number(pos.lever) / Number(filter.leverageFilter.maxLeverage))).toString()
-            //     : size.toString()
-            // sendNoti(`Side ${pos.side} and Size ${pos.size} `);
             return {
                 symbol: pos.contractCodeDisplayName,
                 size: pos.size,
-                // leverage: (pos.lever * LEVERAGEBYBIT).toString(),
                 entry: pos.price,
                 pnl: Number(pos.unRealizedSurplus),
             }
@@ -127,19 +122,14 @@ export function convertHotCoinFormat(exchangeInfo, position: any[]) {
     }
 }
 
-export function convertOKXFormat(exchangeInfo, position: any[]) {
+export function convertOKXFormat(position: any[]) {
     const res: Position[] = position.map((pos) => {
         const symbol = pos.instId.split('-').join('').replace('SWAP', '');
-        const filter = exchangeInfo.find(exch => exch.symbol === symbol);
         const sideConverter = pos.posSide === 'long' ? 1 : -1;
-        const size = (((Number(pos.margin) * Number(pos.lever) / Number(pos.openAvgPx))) * sideConverter);
-        // pos.lever = Number(pos.lever) > Number(filter.leverageFilter.maxLeverage)
-        //     ? filter.leverageFilter.maxLeverage
-        //     : pos.lever
+        const size = Number(pos.availSubPos) * sideConverter;
         return {
             symbol: symbol,
             size: size.toString(),
-            // leverage: (Number(pos.lever) * LEVERAGEBYBIT).toString(),
             pnl: pos.pnl,
             entry: pos.markPx
         }
@@ -155,7 +145,7 @@ export function consolidatePostion(pos: Position[]) {
                 symbol,
                 pnl: 0,
                 size: 0,
-                price: 0
+                entry: 0
             };
         }
         acc[symbol].pnl += Number(pnl);
