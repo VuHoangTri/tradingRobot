@@ -11,6 +11,7 @@ import _ from 'lodash';
 // import fetch from "node-fetch";
 import axios, { AxiosProxyConfig, AxiosRequestConfig } from 'axios';
 import { v4 as uuidv4 } from 'uuid';
+import { send } from 'process';
 
 export class BybitAPI {
     _client: UnifiedMarginClient = new UnifiedMarginClient;
@@ -50,14 +51,24 @@ export class BybitAPI {
     }
 
     async initial() {
-        const position = await this.getMyPositions();
-        if (position) {
-            const myPos = position.result;
-            this._coinList = myPos.list.map((c: any) => {
-                return { symbol: c.symbol, amount: (Number(c.positionIM) * 2).toFixed(4).toString() }
-            });
+        try {
+            const position = await this.getMyPositions();
+
+            if (position) {
+                const myPos = position.result;
+                this._coinList = myPos.list.map((c: any) => {
+                    return { symbol: c.symbol, amount: (Number(c.positionIM) * 2).toFixed(4).toString() }
+                });
+            }
+            console.log(this._coinList);
+        }
+        catch (err) {
+            sendNoti(`Initial Error Acc ${this._acc.index}`);
+            await new Promise(r => setTimeout(r, 1000));
+            await this.initial();
         }
     }
+
     async getCopyList(isProxy: boolean) {
         try {
             let proxy: undefined | AxiosProxyConfig;
@@ -316,19 +327,22 @@ export class BybitAPI {
                     amount, coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
                     fromMemberId: 66841725, toMemberId: this._acc.uid, transferId: uuidv4()
                 });
-                sendNoti(`${index}|${symbol}|${this._coinList[index].amount}: ${res.retMsg}`);
+                sendNoti(`${index}|${symbol}|${this._coinList[index].amount}|In: ${res.retMsg}`);
             } else {
                 const index = this._coinList.findIndex(c => c.symbol === symbol);
-                res = await mainAcc.createUniversalTransfer({
-                    amount: Number(this._coinList[index].amount).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
-                    fromMemberId: this._acc.uid, toMemberId: 66841725, transferId: uuidv4()
-                });
-                this._coinList.splice(index, 1);
+                if (index >= 0) {
+                    res = await mainAcc.createUniversalTransfer({
+                        amount: Number(this._coinList[index].amount).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
+                        fromMemberId: this._acc.uid, toMemberId: 66841725, transferId: uuidv4()
+                    });
+                    this._coinList.splice(index, 1);
+                    sendNoti(`${index}|${symbol}|${this._coinList[index].amount}|Out: ${res.retMsg}`);
+                }
             }
             await new Promise((r) => setTimeout(r, 100));
             return res;
         } catch (err) {
-            sendNoti(`Transfer error Acc ${this._acc.index}: ${err}`);
+            sendNoti(`Transfer error Acc ${this._acc.index}: ${err}, ${isGet}`);
         };
     }
 
