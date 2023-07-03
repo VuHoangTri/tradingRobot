@@ -329,7 +329,7 @@ export class BybitAPI {
                     amount, coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
                     fromMemberId: 66841725, toMemberId: this._acc.uid, transferId: uuidv4()
                 });
-                sendNoti(`${index}|${symbol}|${this._coinList[index].amount}|In: ${res.retMsg}`);
+                sendNoti(`${index}|${symbol}|${amount}|In: ${res.retMsg}`);
             } else {
                 const index = this._coinList.findIndex(c => c.symbol === symbol);
                 if (index >= 0) {
