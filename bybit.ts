@@ -26,7 +26,6 @@ export class BybitAPI {
     _acc: Account;
     _tryTimes: number;
     _isRun: boolean;
-    _coinList: { symbol: string; amount: string }[];
     constructor(acc: Account) {
         this._acc = acc;
         this._client = new UnifiedMarginClient(
@@ -46,27 +45,26 @@ export class BybitAPI {
         });
         this._platform = acc.platform;
         this._tryTimes = 1;
-        this._coinList = [];
         this._isRun = true;
     }
 
     async initial() {
-        try {
-            const position = await this.getMyPositions();
+        // try {
+        //     const position = await this.getMyPositions();
 
-            if (position) {
-                const myPos = position.result;
-                this._coinList = myPos.list.map((c: any) => {
-                    return { symbol: c.symbol, amount: (Number(c.positionIM) * 2).toFixed(4).toString() }
-                });
-            }
-            console.log(this._coinList);
-        }
-        catch (err) {
-            sendNoti(`Initial Error Acc ${this._acc.index}`);
-            await new Promise(r => setTimeout(r, 1000));
-            await this.initial();
-        }
+        //     if (position) {
+        //         const myPos = position.result;
+        //         this._coinList = myPos.list.map((c: any) => {
+        //             return { symbol: c.symbol, amount: (Number(c.positionIM) * 2).toFixed(4).toString() }
+        //         });
+        //     }
+        //     console.log(this._coinList);
+        // }
+        // catch (err) {
+        //     sendNoti(`Initial Error Acc ${this._acc.index}`);
+        //     await new Promise(r => setTimeout(r, 1000));
+        //     await this.initial();
+        // }
     }
 
     async getCopyList(isProxy: boolean) {
@@ -321,25 +319,17 @@ export class BybitAPI {
             });
             let res;
             if (isGet) {
-                const index = this._coinList.findIndex(c => c.symbol === symbol);
-                if (index < 0) {
-                    this._coinList.push({ symbol, amount: (Number(amount) / 6).toFixed(4).toString() });
-                } else this._coinList[index].amount = (Number(this._coinList[index].amount) + (Number(amount) / 6)).toFixed(4).toString();
                 res = await mainAcc.createUniversalTransfer({
-                    amount: (Number(amount) / 6).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
+                    amount:(Number(amount) / 6).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
                     fromMemberId: 66841725, toMemberId: this._acc.uid, transferId: uuidv4()
                 });
-                sendNoti(`${index}|${symbol}|${(Number(amount) / 6).toFixed(4)}|In: ${res.retMsg}`);
+                sendNoti(`${symbol}|${(Number(amount) / 6).toFixed(4).toString()}|In: ${res.retMsg}`);
             } else {
-                const index = this._coinList.findIndex(c => c.symbol === symbol);
-                if (index >= 0) {
-                    res = await mainAcc.createUniversalTransfer({
-                        amount: Number(this._coinList[index].amount).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
-                        fromMemberId: this._acc.uid, toMemberId: 66841725, transferId: uuidv4()
-                    });
-                    this._coinList.splice(index, 1);
-                    sendNoti(`${index}|${symbol}|${this._coinList[index].amount}|Out: ${res.retMsg}`);
-                }
+                res = await mainAcc.createUniversalTransfer({
+                    amount: (Number(amount) / 6).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
+                    fromMemberId: this._acc.uid, toMemberId: 66841725, transferId: uuidv4()
+                });
+                sendNoti(`${symbol}|${amount}|Out: ${res.retMsg}`);
             }
             await new Promise((r) => setTimeout(r, 100));
             return res;
