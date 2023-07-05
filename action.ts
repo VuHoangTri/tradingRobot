@@ -286,7 +286,7 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
             //     pos.size = (sizeConverter * (((Number(pos.leverage) / 2) / LEVERAGEBYBIT) / Number(pos.entry))).toFixed(3).toString();
             // }
             // if (Math.abs(Number(pos.size)) < Number(lotSizeFilter.minOrderQty) || trader._platform === 'Binance') {
-            pos.size = (sizeConverter * Number(lotSizeFilter.minOrderQty)).toString();
+            pos.size = (sizeConverter * Number(lotSizeFilter.minOrderQty) * trader._acc.gain).toString();
             // } else {
             // pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
             // }
@@ -383,7 +383,9 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
                             action = "DCA";
                         }
                         else {
+                            const amount = Number(newPos.size) * Number(price);
                             action = "Take PNL";
+                            await trader.transferMoney(false, Math.abs(amount).toString(), newPos.symbol)
                             newPos.entry = pos.entry;
                         }
                         newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
