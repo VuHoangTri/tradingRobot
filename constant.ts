@@ -36,7 +36,7 @@ export const accounts: Account[] = [
         key: 'WKPVGIPENYCOFPKGUY', //GreyAcc2
         secret: 'VVPEMIKQUWLDUCHXGFBYVQTFEEVTLJDYSBXZ',
         trader: '?uniqueName=22343FB9B4B0064E',
-        gain: 1,//1217,
+        gain: 0.5,//1217,
         platform: "OKX",
         index: 2,
         tP: false,
@@ -126,13 +126,13 @@ export const accounts: Account[] = [
     {
         key: 'ZIXNYQWIHZCDKDTKIO',
         secret: 'LYZZDAPSHPYANNKWAUWRIKCSYRGRFXSIVPTR',
-        trader: '?leaderAccountId=229119&type=2',
+        trader: '9980',//'?leaderAccountId=229119&type=2',
         gain: 1,
-        platform: "Xt",
+        platform: "Wagon", //Xt
         index: 6,
         tP: false,
         limitPercent: false,
-        url: XTURL,
+        url: WAGONURL,
         uid: 72688556
     }
 

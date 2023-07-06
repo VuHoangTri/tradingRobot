@@ -310,7 +310,7 @@ export class BybitAPI {
             return undefined;
         };
     }
-    async transferMoney(isGet: boolean, amount: string, symbol: string) {
+    async transferMoney(isGet: boolean, amount: string) {
         try {
             const mainAcc = new RestClientV5({
                 key: 'Q85XCeNGI61cKZ0Dwi',
@@ -331,7 +331,7 @@ export class BybitAPI {
                 });
                 // sendNoti(`${symbol}|${amount}|Out: ${res.retMsg}`);
             }
-            await new Promise((r) => setTimeout(r, 100));
+            await new Promise((r) => setTimeout(r, 200));
             return res;
         } catch (err) {
             sendNoti(`Transfer error Acc ${this._acc.index}: ${err}, ${isGet}`);

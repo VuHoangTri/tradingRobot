@@ -291,7 +291,7 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
             // pos.size = roundQuantity(pos.size, lotSizeFilter.minOrderQty, lotSizeFilter.qtyStep);
             // }
             const amount = Number(pos.size) * Number(price);
-            await trader.transferMoney(true, Math.abs(amount).toString(), pos.symbol);
+            await trader.transferMoney(true, Math.abs(amount).toString());
             const order = convertToOrder(pos, trader._acc.tP, price);
             // console.log(pos, order)
             if (order !== null) {
@@ -341,7 +341,7 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
                     // trader._isRun = false; // tạm thời không dừng
                     continue;
                 }
-                await trader.transferMoney(false, (Number(order.qty) * Number(price)).toString(), order.symbol);
+                await trader.transferMoney(false, (Number(order.qty) * Number(price)).toString());
                 order.price = pos.entry;
                 // convertAndSendBot(trader._acc.index, order, "Close", price);
             }
@@ -379,13 +379,13 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
                             // const diff_entry = Math.abs((curValue - preValue) / diff_qty).toString();
                             // newPos.entry = diff_entry;
                             const amount = Number(newPos.size) * Number(price);
-                            await trader.transferMoney(true, Math.abs(amount).toString(), newPos.symbol)
+                            await trader.transferMoney(true, Math.abs(amount).toString())
                             action = "DCA";
                         }
                         else {
                             const amount = Number(newPos.size) * Number(price);
                             action = "Take PNL";
-                            await trader.transferMoney(false, Math.abs(amount).toString(), newPos.symbol)
+                            await trader.transferMoney(false, Math.abs(amount).toString())
                             newPos.entry = pos.entry;
                         }
                         newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
