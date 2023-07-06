@@ -310,7 +310,7 @@ export async function openedPosition(position: Position[], trader: BybitAPI) {
                     // return;
                 }
                 order.price = pos.entry;
-                convertAndSendBot(trader._acc.index, order, "Open");
+                // convertAndSendBot(trader._acc.index, order, "Open");
             }
         }
     }
@@ -343,7 +343,7 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
                 }
                 await trader.transferMoney(false, (Number(order.qty) * Number(price)).toString(), order.symbol);
                 order.price = pos.entry;
-                convertAndSendBot(trader._acc.index, order, "Close", price);
+                // convertAndSendBot(trader._acc.index, order, "Close", price);
             }
 
         }
@@ -406,7 +406,7 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
                                 continue;
                             }
                             order.price = newPos.entry;
-                            convertAndSendBot(trader._acc.index, order, action, price);
+                            // convertAndSendBot(trader._acc.index, order, action, price);
                         }
                     }
                 }
