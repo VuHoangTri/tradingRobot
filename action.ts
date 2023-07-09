@@ -341,12 +341,12 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
                     // trader._isRun = false; // tạm thời không dừng
                     continue;
                 }
-                await trader.transferMoney(false, (Number(order.qty) * Number(price)).toString());
                 order.price = pos.entry;
-                // convertAndSendBot(trader._acc.index, order, "Close", price);
+                await trader.transferMoney(false, ((Number(price) - Number(order.price)) * Number(order.qty)).toString());
+                convertAndSendBot(trader._acc.index, order, "Close", price);
             }
-
         }
+
     }
     catch (err) {
         sendNoti(`Create close pos error ${trader._acc.index}: ${err}`);

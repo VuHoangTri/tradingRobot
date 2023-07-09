@@ -114,7 +114,7 @@ export const accounts: Account[] = [
     {
         key: 'MILMPRKEOJDOXECXLR',//'YWRZNGDBAZIUUPONJQ',
         secret: 'PDNSSNKUPZXHPCFYGWOFZJJBORBLIQBUUCUY',//'VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO',
-        trader: '?uniqueName=E627A45DF45E830F',
+        trader: '?uniqueName=E627A45DF45E830F', //B073B56EDBA67D40
         gain: 1,//1217,
         platform: "OKX",
         index: 5,
