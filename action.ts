@@ -342,7 +342,7 @@ export async function closedPosition(position: Position[], trader: BybitAPI) {
                     continue;
                 }
                 order.price = pos.entry;
-                await trader.transferMoney(false, ((Number(price) - Number(order.price)) * Number(order.qty)).toString());
+                await trader.transferMoney(false, (Number(price) * Number(order.qty)).toString());
                 convertAndSendBot(trader._acc.index, order, "Close", price);
             }
         }
@@ -383,10 +383,10 @@ export async function adjustedPosition(position: Position[], trader: BybitAPI) {
                             action = "DCA";
                         }
                         else {
-                            const amount = Number(newPos.size) * Number(price);
                             action = "Take PNL";
-                            await trader.transferMoney(false, Math.abs(amount).toString())
                             newPos.entry = pos.entry;
+                            const amount = Number(newPos.size) * Number(price);
+                            await trader.transferMoney(false, Math.abs(amount).toString())
                         }
                         newPos.size = roundQuantity(newPos.size, filterSize.minOrderQty, filterSize.qtyStep);
                         const order = convertToOrder(newPos, false);
