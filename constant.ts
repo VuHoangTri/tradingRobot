@@ -61,10 +61,10 @@ export const accounts: Account[] = [
         secret: 'APFTAMFNCNRIEQBNWBYZAERHKKVAFABZLMUW',
         trader:
         {
-            "encryptedUid": "4325641055745EBAFED26DB3ACDC7AF1", //B6EF34B1C875FF4097AF51FF73868E70 
+            "encryptedUid": "4325641055745EBAFED26DB3ACDC7AF1", //B6EF34B1C875FF4097AF51FF73868E70 A086AC7B587E11941378E95DD6C872C6
             "tradeType": "PERPETUAL"
         },
-        gain: 5,//255,
+        gain: 10,//255,
         platform: "Binance",
         index: 3,
         tP: false,
@@ -135,7 +135,30 @@ export const accounts: Account[] = [
         url: WAGONURL,
         uid: 72688556
     }
-
+    , {
+        key: 'NLXWAKLVLGLVQSABMI',
+        secret: 'ARWBTSOQNIGFVCXYBBUDLHJXTQXKOFMBUUNN',
+        trader: '?limit=10&orderListType=CONTRACT&uid=05126494',
+        gain: 1,
+        platform: "Mexc",
+        index: 7,
+        tP: false,
+        limitPercent: false,
+        url: MEXCURL,
+        uid: 73680579
+    },
+    // {
+    //     key: '',
+    //     secret: '',
+    //     trader: '?uniqueName=B073B56EDBA67D40',
+    //     gain: 1,
+    //     platform: "OKX",
+    //     index: 8,
+    //     tP: false,
+    //     limitPercent: false,
+    //     url: OKXURL,
+    //     uid: 72036894
+    // },
     //vF1sLJWGHRxUEz5GDE 'CRYDWOZBKFVRRTDOHN' YWRZNGDBAZIUUPONJQ VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO //WKPVGIPENYCOFPKGUY VVPEMIKQUWLDUCHXGFBYVQTFEEVTLJDYSBXZ
     //qEyTXCcWcXJurmikL6j1GZFzCOUi9R4kIbeP MLVUFLNGJEBAOYOYXDJGMZPCDGNREQZTMMJS true
 ];
