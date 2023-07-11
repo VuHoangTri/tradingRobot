@@ -64,7 +64,7 @@ export const accounts: Account[] = [
             "encryptedUid": "4325641055745EBAFED26DB3ACDC7AF1", //B6EF34B1C875FF4097AF51FF73868E70 A086AC7B587E11941378E95DD6C872C6
             "tradeType": "PERPETUAL"
         },
-        gain: 10,//255,
+        gain: 15,//255,
         platform: "Binance",
         index: 3,
         tP: false,
