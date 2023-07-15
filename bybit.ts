@@ -151,7 +151,7 @@ export class BybitAPI {
                     break;
                 case 'Binance': {
                     if (response.success === true && response.code === "000000") {
-                        const position = response.data.otherPositionRetList;
+                        const position = response.data.otherPositionRetList === null ? [] : response.data.otherPositionRetList;
                         for (const pos of position) {
                             pos.price = await this.getMarkPrice(pos.symbol);
                         }
@@ -320,13 +320,13 @@ export class BybitAPI {
             let res;
             if (isGet) {
                 res = await mainAcc.createUniversalTransfer({
-                    amount: (Number(amount) / 6).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
+                    amount: (Number(amount) / 12).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
                     fromMemberId: 66841725, toMemberId: this._acc.uid, transferId: uuidv4()
                 });
                 // sendNoti(`${symbol}|${(Number(amount) / 6).toFixed(4).toString()}|In: ${res.retMsg}`);
             } else {
                 res = await mainAcc.createUniversalTransfer({
-                    amount: (Number(amount) / 6).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
+                    amount: (Number(amount) / 12).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
                     fromMemberId: this._acc.uid, toMemberId: 66841725, transferId: uuidv4()
                 });
                 // sendNoti(`${symbol}|${amount}|Out: ${res.retMsg}`);
