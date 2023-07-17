@@ -9,7 +9,7 @@ import { sendNoti } from './slack';
 import _ from 'lodash';
 import axios, { AxiosProxyConfig, AxiosRequestConfig } from 'axios';
 import { v4 as uuidv4 } from 'uuid';
-import { ATR } from '@debut/indicators';
+// import { ATR } from '@debut/indicators';
 
 export class BybitAPI {
     _client: UnifiedMarginClient = new UnifiedMarginClient;
@@ -334,30 +334,30 @@ export class BybitAPI {
         };
     }
 
-    async getLastATR(symbol: string) {
-        try {
-            const res = await this._clientV5.getKline({
-                category: "linear",
-                interval: "240",
-                symbol,
-                limit: 500,
-                start: new Date().getTime() - 240 * 70 * 60 * 1000
-            });
-            const list = res.result.list.sort((a, b) => Number(a[0]) - Number(b[0]));
-            const decimal = Math.max(...[list[0][2].split('.')[1]?.length ?? 0, list[0][3].split('.')[1]?.length ?? 0, list[0][4].split('.')[1]?.length ?? 0]);
-            const atr = new ATR(14, "EMA");
-            let lastATR: number = 0;
-            for (const item of list) {
-                const val = atr.nextValue(Number(item[2]), Number(item[3]), Number(item[4]));
-                lastATR = val;
-            }
-            const threshold = lastATR.toFixed(decimal);            
-            return threshold;
-        } catch (err) {
-            sendNoti(`get last ATR err acc ${this._acc.index}: ${err}, ${symbol}`);
-            this.getLastATR(symbol);
-        }
-    }
+    // async getLastATR(symbol: string) {
+    //     try {
+    //         const res = await this._clientV5.getKline({
+    //             category: "linear",
+    //             interval: "240",
+    //             symbol,
+    //             limit: 500,
+    //             start: new Date().getTime() - 240 * 70 * 60 * 1000
+    //         });
+    //         const list = res.result.list.sort((a, b) => Number(a[0]) - Number(b[0]));
+    //         const decimal = Math.max(...[list[0][2].split('.')[1]?.length ?? 0, list[0][3].split('.')[1]?.length ?? 0, list[0][4].split('.')[1]?.length ?? 0]);
+    //         const atr = new ATR(14, "EMA");
+    //         let lastATR: number = 0;
+    //         for (const item of list) {
+    //             const val = atr.nextValue(Number(item[2]), Number(item[3]), Number(item[4]));
+    //             lastATR = val;
+    //         }
+    //         const threshold = lastATR.toFixed(decimal);            
+    //         return threshold;
+    //     } catch (err) {
+    //         sendNoti(`get last ATR err acc ${this._acc.index}: ${err}, ${symbol}`);
+    //         this.getLastATR(symbol);
+    //     }
+    // }
 
     async getClosedPNL(pnlParam: { symbol?: string, time?: number, limit?: number, cursor?: string }) {
         try {
