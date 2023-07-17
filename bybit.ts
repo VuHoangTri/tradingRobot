@@ -323,13 +323,11 @@ export class BybitAPI {
                     amount: (Number(amount) / 10).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
                     fromMemberId: 66841725, toMemberId: this._acc.uid, transferId: uuidv4()
                 });
-                // sendNoti(`${symbol}|${(Number(amount) / 6).toFixed(4).toString()}|In: ${res.retMsg}`);
             } else {
                 res = await mainAcc.createUniversalTransfer({
                     amount: (Number(amount) / 10).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
                     fromMemberId: this._acc.uid, toMemberId: 66841725, transferId: uuidv4()
                 });
-                // sendNoti(`${symbol}|${amount}|Out: ${res.retMsg}`);
             }
             await new Promise((r) => setTimeout(r, 200));
             return res;
@@ -338,7 +336,7 @@ export class BybitAPI {
         };
     }
 
-    async getListPrice(symbol: string) {
+    async getLastATR(symbol: string) {
         try {
             const res = await this._clientV5.getKline({
                 category: "linear",
@@ -359,7 +357,7 @@ export class BybitAPI {
             return threshold;
         } catch (err) {
             sendNoti(`get List error acc ${this._acc.index}: ${err}, ${symbol}`);
-            this.getListPrice(symbol);
+            this.getLastATR(symbol);
         }
     }
 
