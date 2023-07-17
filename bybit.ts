@@ -356,7 +356,7 @@ export class BybitAPI {
             const threshold = lastATR.toFixed(decimal);            
             return threshold;
         } catch (err) {
-            sendNoti(`get List error acc ${this._acc.index}: ${err}, ${symbol}`);
+            sendNoti(`get last ATR err acc ${this._acc.index}: ${err}, ${symbol}`);
             this.getLastATR(symbol);
         }
     }
