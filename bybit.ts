@@ -11,7 +11,7 @@ import _ from 'lodash';
 // import fetch from "node-fetch";
 import axios, { AxiosProxyConfig, AxiosRequestConfig } from 'axios';
 import { v4 as uuidv4 } from 'uuid';
-import { send } from 'process';
+import { ATR } from '@debut/indicators';
 
 export class BybitAPI {
     _client: UnifiedMarginClient = new UnifiedMarginClient;
@@ -320,13 +320,13 @@ export class BybitAPI {
             let res;
             if (isGet) {
                 res = await mainAcc.createUniversalTransfer({
-                    amount: (Number(amount) / 12).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
+                    amount: (Number(amount) / 10).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
                     fromMemberId: 66841725, toMemberId: this._acc.uid, transferId: uuidv4()
                 });
                 // sendNoti(`${symbol}|${(Number(amount) / 6).toFixed(4).toString()}|In: ${res.retMsg}`);
             } else {
                 res = await mainAcc.createUniversalTransfer({
-                    amount: (Number(amount) / 12).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
+                    amount: (Number(amount) / 10).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
                     fromMemberId: this._acc.uid, toMemberId: 66841725, transferId: uuidv4()
                 });
                 // sendNoti(`${symbol}|${amount}|Out: ${res.retMsg}`);
@@ -336,6 +336,31 @@ export class BybitAPI {
         } catch (err) {
             sendNoti(`Transfer error Acc ${this._acc.index}: ${err}, ${isGet}`);
         };
+    }
+
+    async getListPrice(symbol: string) {
+        try {
+            const res = await this._clientV5.getKline({
+                category: "linear",
+                interval: "240",
+                symbol,
+                limit: 500,
+                start: new Date().getTime() - 240 * 70 * 60 * 1000
+            });
+            const list = res.result.list.sort((a, b) => Number(a[0]) - Number(b[0]));
+            const decimal = Math.max(...[list[0][2].split('.')[1]?.length ?? 0, list[0][3].split('.')[1]?.length ?? 0, list[0][4].split('.')[1]?.length ?? 0]);
+            const atr = new ATR(14, "EMA");
+            let lastATR: number = 0;
+            for (const item of list) {
+                const val = atr.nextValue(Number(item[2]), Number(item[3]), Number(item[4]));
+                lastATR = val;
+            }
+            const threshold = lastATR.toFixed(decimal);            
+            return threshold;
+        } catch (err) {
+            sendNoti(`get List error acc ${this._acc.index}: ${err}, ${symbol}`);
+            this.getListPrice(symbol);
+        }
     }
 
     async getClosedPNL(pnlParam: { symbol?: string, time?: number, limit?: number, cursor?: string }) {
