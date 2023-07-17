@@ -11,7 +11,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@debut/indicators": "^1.3.19",
     "@logtail/node": "^0.4.0",
     "axios": "^1.4.0",
     "body-parser": "^1.20.1",
