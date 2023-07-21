@@ -318,12 +318,12 @@ export class BybitAPI {
             let res;
             if (isGet) {
                 res = await mainAcc.createUniversalTransfer({
-                    amount: (Number(amount) / 10).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
+                    amount: (Number(amount) / 8).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
                     fromMemberId: 66841725, toMemberId: this._acc.uid, transferId: uuidv4()
                 });
             } else {
                 res = await mainAcc.createUniversalTransfer({
-                    amount: (Number(amount) / 10).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
+                    amount: (Number(amount) / 8).toFixed(4).toString(), coin: 'USDT', fromAccountType: 'UNIFIED', toAccountType: 'UNIFIED',
                     fromMemberId: this._acc.uid, toMemberId: 66841725, transferId: uuidv4()
                 });
             }
