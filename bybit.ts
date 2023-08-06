@@ -328,7 +328,7 @@ export class BybitAPI {
                 });
             }
             await new Promise((r) => setTimeout(r, 200));
-            sendNoti(`Transfer Acc ${isGet}: ${amount}`);
+            sendNoti(`Transfer Acc ${this._acc.index} ${isGet ? "get" : "return"}: ${amount}`);
             return res;
         } catch (err) {
             sendNoti(`Transfer error Acc ${this._acc.index}: ${err}, ${isGet}`);

@@ -72,45 +72,22 @@ export const accounts: Account[] = [
         url: BINANCEURL,
         uid: 68985726
     },
-    // {
-    //     key: 'VINQISCRJYBDKPXVKP',
-    //     secret: 'APFTAMFNCNRIEQBNWBYZAERHKKVAFABZLMUW',
-    //     trader: '9980',
-    //     gain: 1640,
-    //     platform: "Wagon",
-    //     index: 5,
-    //     fixAmount: false,
-    //     lOpen: true,
-    //     lAdjust: true,
-    //     tP: false,
-    //     limitPercent: false,
-    //     url: WAGONURL
-    // },
-    // {
-    //     key: 'LRXZVMDFHDVIRMMXZD',  // BHOPRJSBFGKHYPLYEY
-    //     secret: 'RCUJBNJSGELXUKLLVWANIKELKMSUCHGHUGAQ',  //YNNBOXGRGHBPBKLTLJNIARVHJPFGWXAVBRMN 
-    //     trader: "?traderUid=7001020&platform=1&client=1&deviceId=&versionCode=3.0.1&lang=en_US",
-    //     gain: 100,
-    //     platform: "Hotcoin",
-    //     index: 4,
-    //     fixAmount: true,
-    //     tP: false,
-    //     limitPercent: true,
-    //     url: HOTCOINURL,
-    // uid: 68986574
-    // },
-    // {
-    //     key: 'Q85XCeNGI61cKZ0Dwi',//'YWRZNGDBAZIUUPONJQ',
-    //     secret: '2Ncni8kCkjEaaAdB5m4Bn5zhyXrmvb5hQdrW',//'VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO',
-    //     trader: "6429",
-    //     gain: 3980,
-    //     platform: "Wagon",
-    //     index: 0,
-    //     tP: false,
-    //     limitPercent: false,
-    //     url: WAGONURL,
-    //     uid: 66841725
-    // },
+    {
+        key: 'LRXZVMDFHDVIRMMXZD',  // BHOPRJSBFGKHYPLYEY
+        secret: 'RCUJBNJSGELXUKLLVWANIKELKMSUCHGHUGAQ',  //YNNBOXGRGHBPBKLTLJNIARVHJPFGWXAVBRMN 
+        trader:
+        {
+            "encryptedUid": "E4C2BCB6FDF2A2A7A20D516B8389B952",
+            "tradeType": "PERPETUAL"
+        },
+        gain: 1,
+        platform: "Binance",
+        index: 4,
+        tP: false,
+        limitPercent: false,
+        url: BINANCEURL,
+        uid: 68986574
+    },
     {
         key: 'MILMPRKEOJDOXECXLR',//'YWRZNGDBAZIUUPONJQ',
         secret: 'PDNSSNKUPZXHPCFYGWOFZJJBORBLIQBUUCUY',//'VAYCVXENTCJSUDTUGXSKRXQGNGZSDRUKEGUO',
