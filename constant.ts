@@ -56,22 +56,22 @@ export const accounts: Account[] = [
         url: WAGONURL,
         uid: 66848113
     },
-    {
-        key: 'VINQISCRJYBDKPXVKP', //Tri Acc3
-        secret: 'APFTAMFNCNRIEQBNWBYZAERHKKVAFABZLMUW',
-        trader:
-        {
-            "encryptedUid": "1FB04E31362DEED9CAA1C7EF8A771B8A",//"BFE5C3E7EF7B3629438D907CD3B21D57",//"4325641055745EBAFED26DB3ACDC7AF1", //B6EF34B1C875FF4097AF51FF73868E70 A086AC7B587E11941378E95DD6C872C6
-            "tradeType": "PERPETUAL"
-        },
-        gain: 1,//255,
-        platform: "Binance",
-        index: 3,
-        tP: false,
-        limitPercent: false,
-        url: BINANCEURL,
-        uid: 68985726
-    },
+    // {
+    //     key: 'VINQISCRJYBDKPXVKP', //Tri Acc3
+    //     secret: 'APFTAMFNCNRIEQBNWBYZAERHKKVAFABZLMUW',
+    //     trader:
+    //     {
+    //         "encryptedUid": "1FB04E31362DEED9CAA1C7EF8A771B8A", //smartestmoneydoteth //"BFE5C3E7EF7B3629438D907CD3B21D57",//"4325641055745EBAFED26DB3ACDC7AF1", //B6EF34B1C875FF4097AF51FF73868E70 A086AC7B587E11941378E95DD6C872C6
+    //         "tradeType": "PERPETUAL"
+    //     },
+    //     gain: 1,//255,
+    //     platform: "Binance",
+    //     index: 3,
+    //     tP: false,
+    //     limitPercent: false,
+    //     url: BINANCEURL,
+    //     uid: 68985726
+    // },
     {
         key: 'LRXZVMDFHDVIRMMXZD',  // BHOPRJSBFGKHYPLYEY
         secret: 'RCUJBNJSGELXUKLLVWANIKELKMSUCHGHUGAQ',  //YNNBOXGRGHBPBKLTLJNIARVHJPFGWXAVBRMN 
